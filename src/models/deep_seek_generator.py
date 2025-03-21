@@ -47,7 +47,7 @@ def send_message_to_deepseek(blog_content: str) -> Optional[str]:
 
     # 🔧 Config Sections
     user_config = config.get("user_profile", {})
-    openai_config = config.get("openai", {})
+    openai_config = config.get("ai", {})
     social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
 
     # 🔧 Instructions

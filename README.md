@@ -96,7 +96,7 @@ creative:
       - "career growth"
       - "AI revolution"
 
-openai:
+ai:
   custom_system_instructions: "Act as a LinkedIn content expert..."
   viral_posting:
     attention_grabbing_intro: true

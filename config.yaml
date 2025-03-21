@@ -8,11 +8,10 @@ user_profile:
  
     OpenAI:
       name: "gpt-4"
-      enabled: true  # Set to true to use this provider
+      text_model: "gpt-4o-mini"
       custom_system_instructions: Null
-      model: "gpt-4o-mini"
       temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
-      top_p: 0.95  # Adjusts the likelihood of the model generating the top response (0 = no bias, 1 = strict bias)
+      top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
       response_format: "json" # json | text | auto
       available_models: # List of available models for this provider Check https://platform.openai.com/docs/api-reference/models
         - "gpt-4o"
@@ -40,16 +39,15 @@ user_profile:
 
     #https://api-docs.deepseek.com/api/create-chat-completion
     DeepSeek:
-      enabled: false
-      model: "deepseek-chat"
+      text_model: "deepseek-chat"
       presence_penalty: 0.0 # Possible values: >= -2 and <= 2
       frequency_penalty: 0.0 # Possible values: >= -2 and <= 2
       response_format: "json_object" # json_object | text | auto
       temperature: 0.7 # Possible values: <= 2
       max_tokens: 500  # Integer between 1 and 8192
-      tools: "function" # A list of tools the model may call. Currently, only functions are supported as a tool. 
-      tool_choice: "auto" # Controls which (if any) tool is called by the model.
-      top_p: 0.95  # Adjusts the likelihood of the model generating the top response (0 = no bias, 1 = strict bias)
+      tools: "function" # A list of tools the text_model may call. Currently, only functions are supported as a tool. 
+      tool_choice: "auto" # Controls which (if any) tool is called by the text_model.
+      top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
       logprobs: false # Whether to return log probabilities of the output tokens or not. 
       top_logprobs: 5 # An integer between 0 and 20 specifying the number of most likely tokens to return at each token position
       available_models:
@@ -57,8 +55,7 @@ user_profile:
         - "deepseek-reasoner"
 
   Anthropic:
-    enabled: false
-    model: "claude-3-sonnet-20240229"  # Default model
+    text_model: "claude-3-sonnet-20240229"  # Default text_model
     temperature: 0.7  # Adjusts randomness (0 = strict, 1 = creative)
     max_tokens: 500  # Max tokens allowed per response
     top_p: 0.9  # Nucleus sampling (alternative to temperature)
@@ -79,17 +76,39 @@ user_profile:
         content: "Hello, world"
 
     HuggingFace:
-      enabled: false
-      model: "meta-llama/Meta-Llama-3-8B"
+    
+      text_model: "meta-llama/Meta-Llama-3-8B"
+      image_model: "runwayml/stable-diffusion-v1-5"
+      video_model: "runwayml/stable-diffusion-v1-5"
       temperature: 0.7
       max_tokens: 500
       available_models:
         - "meta-llama/Meta-Llama-3-8B"
         - "mistralai/Mistral-7B-Instruct-v0.1"
         - "tiiuae/falcon-7b-instruct"
+      available_tools:
+        - "Audio Classification"
+        - "Automatic Speech Recognition"
+        - "Chat Completion"
+        - "Feature Extraction"
+        - "Fill Mask"
+        - "Image Classification"
+        - "Image Segmentation"
+        - "Image to Image"
+        - "Image-Text to Text"
+        - "Object Detection"
+        - "Question Answering"
+        - "Summarization"
+        - "Table Question Answering"
+        - "Text Classification"
+        - "Text Generation"
+        - "Text to Image"
+        - "Token Classification"
+        - "Translation"
+        - "Zero Shot Classification"
     # Cohere:
     #   enabled: false
-    #   model: "command-r"
+    #   text_model: "command-r"
     #   temperature: 0.7
     #   max_tokens: 500
     #   available_models:
@@ -98,7 +117,7 @@ user_profile:
 
     # Ollama:
     #   enabled: false
-    #   model: "llama3:8b"
+    #   text_model: "llama3:8b"
     #   temperature: 0.7
     #   max_tokens: 500
     #   available_models:
@@ -110,7 +129,7 @@ user_profile:
 
     Custom:
       enabled: false
-      model: "your-custom-model"
+      text_model: "your-custom-text_model"
       temperature: 0.7
       max_tokens: 500
       url: "https://your-custom-api.com/v1/completions"
@@ -128,7 +147,7 @@ social_media_to_post_to:
     maximum_characters: 260  # Maximum number of characters allowed
 
 # ✅ OpenAI Configuration & Content Generation
-openai:
+ai:
   custom_system_instructions: None  # Optional system-level AI instructions
   custom_user_instructions: None  # Optional user-level AI guidance
 
@@ -136,6 +155,7 @@ openai:
     generate_image:
       enabled: true
       description: "If true, generates an AI image tailored to the post."
+      size: "1024x1024"
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
       
     fetch_gif:
@@ -144,7 +164,7 @@ openai:
       prompt: "EX: Focus on gifs that will be most impactful relevant to the blog"
 
 # (Coming SOON)
-    post_video:
+    generate_video:
       enabled: false
       description: "If true, includes a video in the LinkedIn post to boost engagement."
       prompt: "Generate a video that highlights the key points of the blog post."
