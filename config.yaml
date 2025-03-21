@@ -4,8 +4,81 @@ user_profile:
   target_audience: "Non Technical People Looking For Tech Thought Leadership"  # Replace with your target audience
   professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
   resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
+  llm:
+    OpenAIAssistant:
+        enabled: true  # Set to true to use this provider
+        temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
+        max_tokens: 500  # Token limit for responses
+       
+    OpenAI:
+      enabled: true  # Set to true to use this provider
+      model: "gpt-4o-mini"
+      temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
+      max_tokens: 500  # Token limit for responses
+      available_models:
+        - "gpt-4o"
+        - "gpt-4o-mini"
+        - "gpt-3.5-turbo"
+        
+    DeepSeek:
+      enabled: false
+      model: "deepseek-chat"
+      temperature: 0.7
+      max_tokens: 500
+      available_models:
+        - "deepseek-chat"
+        - "deepseek-coder"
+        - "deepseek-text"
 
-# ✅ Creative Preferences (Visuals & Storytelling)
+    Anthropic:
+      enabled: false
+      model: "claude-3-sonnet"
+      temperature: 0.7
+      max_tokens: 500
+      available_models:
+        - "claude-3-opus"
+        - "claude-3-sonnet"
+        - "claude-3-haiku"
+
+    Cohere:
+      enabled: false
+      model: "command-r"
+      temperature: 0.7
+      max_tokens: 500
+      available_models:
+        - "command-r-plus"
+        - "command-r"
+
+    Ollama:
+      enabled: false
+      model: "llama3:8b"
+      temperature: 0.7
+      max_tokens: 500
+      available_models:
+        - "llama3:8b"
+        - "llama3:70b"
+        - "mistral:7b"
+
+    HuggingFace:
+      enabled: false
+      model: "meta-llama/Meta-Llama-3-8B"
+      temperature: 0.7
+      max_tokens: 500
+      available_models:
+        - "meta-llama/Meta-Llama-3-8B"
+        - "mistralai/Mistral-7B-Instruct-v0.1"
+        - "tiiuae/falcon-7b-instruct"
+
+    Custom:
+      enabled: false
+      model: "your-custom-model"
+      temperature: 0.7
+      max_tokens: 500
+      url: "https://your-custom-api.com/v1/completions"
+      headers:
+        Authorization: "Bearer your_api_key"
+        Content-Type: "application/json"
+  # ✅ Creative Preferences (Visuals & Storytelling)
 
 
 # ✅ Social Media Platforms

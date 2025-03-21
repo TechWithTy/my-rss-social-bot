@@ -3,11 +3,15 @@ import requests
 import os
 from dotenv import load_dotenv
 
+from src.utils.index import get_env_variable
+
 # ✅ Load environment variables
 load_dotenv()
 
-ACCESS_TOKEN: Optional[str] = os.getenv("LINKEDIN_ACCESS_TOKEN")
+ACCESS_TOKEN: Optional[str] = get_env_variable("LINKEDIN_ACCESS_TOKEN")
 
+if not ACCESS_TOKEN:
+    raise ValueError("❌ LINKEDIN_ACCESS_TOKEN is missing! Set it in your .env file or GitHub Secrets.")
 
 def get_linkedin_profile_id() -> Optional[str]:
     """

@@ -3,7 +3,12 @@ from bs4.element import Tag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+import os
+from typing import Optional
+from dotenv import load_dotenv
 
+# ✅ Load environment variables from .env file (if running locally)
+load_dotenv()
 def parse_html_blog_content(html_content: str) -> str:
     """
     Strips HTML and returns plain text, links, images, and embedded media from blog content.
@@ -48,3 +53,16 @@ def parse_html_blog_content(html_content: str) -> str:
     print(f"{links_section}{image_section}{media_section}")
     return f"{text}"
 
+def get_env_variable(key: str) -> Optional[str]:
+    """
+    Fetches an environment variable, prioritizing:
+    1. Local environment (`.env` file)
+    2. GitHub Actions secret (if running in GitHub workflow)
+
+    Args:
+        key (str): The name of the environment variable.
+
+    Returns:
+        Optional[str]: The environment variable value or None if not found.
+    """
+    return os.getenv(key, os.environ.get(key))
