@@ -1,16 +1,19 @@
 # ✅ User Profile Settings
 user_profile:
   medium_username: "codingoni"  # Replace with your Medium username
+  target_audience: "Non Technical People Looking For Tech Thought Leadership"  # Replace with your target audience
+  professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
+  resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
 
 # ✅ Creative Preferences (Visuals & Storytelling)
 
 
 # ✅ Social Media Platforms
-social_media:
+social_media_to_post_to:
   linkedin:
     enabled: true
-    description: "If true, posts the content to LinkedIn."
-    post_format: "Markdown"  # Options: Markdown, HTML, or None
+    post_format: "Text"  # Options: Markdown, HTML, or None
+    maximum_characters: 260  # Maximum number of characters allowed
 
 # ✅ OpenAI Configuration & Content Generation
 openai:
@@ -23,7 +26,7 @@ openai:
       description: "If true, generates an AI image tailored to the post."
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
       
-    post_gif:
+    fetch_gif:
       enabled: false
       description: "If true, ai suggests tags from giphy then pick the giph with the most relevant title"
       prompt: "EX: Focus on gifs that will be most impactful relevant to the blog"
@@ -67,18 +70,22 @@ openai:
     - text: "I was rejected by 30 companies before landing my dream job. Now, I mentor others to never give up. 💪 #Resilience #CareerGrowth"
       engagement: 50K+ likes, 10K+ shares
       creative: "[GIF] of a person overcoming obstacles"
+      creative_asset: "https://example.com/obstacle-overcome.gif"
       reason: "Personal story of failure & success, highly relatable"
     
     - text: "AI won’t replace you. But a person using AI will. Are you adapting? 🚀 #ArtificialIntelligence #FutureOfWork"
       engagement: 100K+ likes, 20K+ shares
       creative: "[IMG] Person Using AI"
+      creative_asset: "https://example.com/obstacle-overcome.gif"
+
       reason: "Bold statement, sparks debate & FOMO"
 
     - text: "Quit my 6-figure job to chase my passion. Scariest but best decision ever. If you're stuck, this is your sign. 🔥 #CareerChange"
       engagement: 75K+ likes, 15K+ shares
       creative: "UGC Candid Video"
       reason: "Emotional + inspirational, triggers engagement"
-  
+      creative_asset: "https://example.com/obstacle-overcome.gif"
+
 # ✅ Hashtags for Engagement
 hashtags:
   default_tags:
