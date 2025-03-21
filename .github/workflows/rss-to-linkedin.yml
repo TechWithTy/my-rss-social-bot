@@ -1,0 +1,66 @@
+name: RSS to LinkedIn
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  check_rss:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Fetch RSS Feed
+        id: fetch_rss
+        run: |
+          FEED_URL="https://medium.com/feed/@codingoni"
+          LATEST_ENTRY=$(curl -s $FEED_URL | xmllint --xpath '//item[1]/link/text()' -)
+          echo "latest_post=$LATEST_ENTRY" >> $GITHUB_ENV
+
+      - name: Check for new post
+        id: check_new_post
+        run: |
+          if [ ! -f latest_post.txt ] || ! grep -q "$LATEST_ENTRY" latest_post.txt; then
+            echo "new_post=true" >> $GITHUB_ENV
+            echo "$LATEST_ENTRY" > latest_post.txt
+          else
+            echo "new_post=false" >> $GITHUB_ENV
+          fi
+
+      - name: Process blog post
+        if: env.new_post == 'true'
+        id: process_blog
+        run: |
+          RESPONSE=$(curl -X POST "https://your-api.com/process" -H "Content-Type: application/json" \
+            -d '{"url": "'"$LATEST_ENTRY"'"}')
+          echo "processed_content=$RESPONSE" >> $GITHUB_ENV
+
+      - name: Post to LinkedIn
+        if: env.new_post == 'true'
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+        run: |
+          curl -X POST "https://api.linkedin.com/v2/ugcPosts" \
+            -H "Authorization: Bearer $LINKEDIN_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "author": "urn:li:person:yourLinkedInID",
+              "lifecycleState": "PUBLISHED",
+              "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                  "shareCommentary": {
+                    "text": "'"$processed_content"'"
+                  },
+                  "shareMediaCategory": "ARTICLE",
+                  "media": [{
+                    "status": "READY",
+                    "originalUrl": "'"$LATEST_ENTRY"'"
+                  }]
+                }
+              },
+              "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+              }
+            }'
