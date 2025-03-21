@@ -1,10 +1,13 @@
 name: RSS to LinkedIn
 
 on:
+  push:
+    branches:
+      - master
   schedule:
     - cron: '0 * * * *' # Runs every hour
   workflow_dispatch: # Allows manual trigger
-
+  
 jobs:
   check_rss:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       - name: Fetch RSS Feed
         id: fetch_rss
         run: |
-          FEED_URL="https://medium.com/feed/@codingoni"
+          FEED_URL="https://medium.com/feed/ ${{ secrets.MEDIUM_USERNAME }}"
           LATEST_ENTRY=$(curl -s $FEED_URL | xmllint --xpath '//item[1]/link/text()' -)
           echo "latest_post=$LATEST_ENTRY" >> $GITHUB_ENV
 
