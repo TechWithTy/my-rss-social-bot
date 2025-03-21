@@ -5,30 +5,56 @@ user_profile:
   professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
   resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
   llm:
-    OpenAIAssistant:
-        enabled: true  # Set to true to use this provider
-        temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
-        max_tokens: 500  # Token limit for responses
-       
+ 
     OpenAI:
+      name: "gpt-4"
       enabled: true  # Set to true to use this provider
+      custom_system_instructions: Null
       model: "gpt-4o-mini"
       temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
-      max_tokens: 500  # Token limit for responses
-      available_models:
+      top_p: 0.95  # Adjusts the likelihood of the model generating the top response (0 = no bias, 1 = strict bias)
+      response_format: "json" # json | text | auto
+      available_models: # List of available models for this provider Check https://platform.openai.com/docs/api-reference/models
         - "gpt-4o"
         - "gpt-4o-mini"
+        - "o1"
+        - "o3-mini"
+        - "gpt-4.5-preview"
+        - "o3-mini-2025-01-31"
+        - "o1-2024-12-17"
+        - "gpt-4o-mini-2024-07-18"
+        - "gpt-4o-2024-11-20"
+        - "gpt-4o-2024-08-06"
+        - "gpt-4.5-preview-2025-02-27"
+        - "gpt-4-turbo-preview"
+        - "gpt-4-turbo-2024-04-09"
+        - "gpt-4-turbo"
+        - "gpt-4-1106-preview"
+        - "gpt-4-0613"
+        - "gpt-4-0125-preview"
+        - "gpt-4"
+        - "gpt-3.5-turbo-16k"
+        - "gpt-3.5-turbo-1106"
+        - "gpt-3.5-turbo-0125"
         - "gpt-3.5-turbo"
-        
+
+    #https://api-docs.deepseek.com/api/create-chat-completion
     DeepSeek:
       enabled: false
       model: "deepseek-chat"
-      temperature: 0.7
-      max_tokens: 500
+      presence_penalty: 0.0 # Possible values: >= -2 and <= 2
+      frequency_penalty: 0.0 # Possible values: >= -2 and <= 2
+      response_format: "json_object" # json_object | text | auto
+      temperature: 0.7 # Possible values: <= 2
+      max_tokens: 500  # Integer between 1 and 8192
+      tools: "function" # A list of tools the model may call. Currently, only functions are supported as a tool. 
+      tool_choice: "auto" # Controls which (if any) tool is called by the model.
+      top_p: 0.95  # Adjusts the likelihood of the model generating the top response (0 = no bias, 1 = strict bias)
+      logprobs: false # Whether to return log probabilities of the output tokens or not. 
+      top_logprobs: 5 # An integer between 0 and 20 specifying the number of most likely tokens to return at each token position
       available_models:
         - "deepseek-chat"
-        - "deepseek-coder"
-        - "deepseek-text"
+        - "deepseek-reasoner"
 
     Anthropic:
       enabled: false

@@ -14,11 +14,47 @@ OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
 
 if not OPENAI_API_KEY:
     raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
+
+def create_openai_assistant() -> str:
+    """Creates a new OpenAI Assistant using YAML configuration if none exists."""
+    url = "https://api.openai.com/v1/assistants"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v2"
+    }
+
+    openai_config = config.get("user_profile", {}).get("llm", {}).get("OpenAI", {})
+        
+    assistant_name = openai_config.get("name", "LinkedIn Content Assistant")
+    model = openai_config.get("model", "gpt-4o")
+    instructions = openai_config.get("custom_system_instructions", "You are a professional copywriter...")
+    temperature = openai_config.get("temperature", 1.0)
+    top_p = openai_config.get("top_p", 1.0)
+
+    data = {
+        "name": assistant_name,
+        "model": model,
+        "instructions": instructions,
+        "temperature": temperature,
+        "top_p": top_p,
+        "response_format": "auto"
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    
+    if response.status_code == 200:
+        assistant_id = response.json().get("id")
+        print(f"✅ OpenAI Assistant created: {assistant_id}")
+        return assistant_id
+    else:
+        print("❌ Error creating OpenAI Assistant:", response.json())
+        raise RuntimeError("Failed to create OpenAI Assistant.")
+
+# ✅ Ensure an Assistant ID exists
 if not OPENAI_ASSISTANT_ID:
-    raise ValueError("❌ OPENAI_ASSISTANT_ID is missing! Set it in your .env file or GitHub Secrets.")
-
-image_prompt = config['openai']['creative']['generate_image']['prompt']
-
+    print("🔹 No Assistant ID found. Creating one now...")
+    OPENAI_ASSISTANT_ID = create_openai_assistant()
 
 def create_openai_thread() -> Optional[str]:
     """Creates an OpenAI Assistant thread and returns the thread ID."""
