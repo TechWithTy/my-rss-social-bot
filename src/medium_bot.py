@@ -1,12 +1,12 @@
 from typing import Dict, List, Any, Optional
 import feedparser
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag  # ✅ Import `Tag` explicitlyfrom tabulate import tabulate
+import os
 from tabulate import tabulate
 
-from typing import Optional
-import requests
-from bs4 import BeautifulSoup, Tag
+TEMP_FOLDER = "_temp"
+LAST_BLOG_FILE = os.path.join(TEMP_FOLDER, "last_post.txt")
 
 def get_medium_avatar(username: str) -> Optional[str]:
     """
@@ -25,13 +25,12 @@ def get_medium_avatar(username: str) -> Optional[str]:
         soup = BeautifulSoup(response.text, "html.parser")
         avatar_tag = soup.find("img", {"class": "avatar-image"})
 
-        # ✅ Ensure avatar_tag is a Tag before calling .get()
+        # ✅ Ensure `avatar_tag` is a valid `Tag` before calling `.get()`
         if isinstance(avatar_tag, Tag):
             avatar_url = avatar_tag.get("src")
-            return avatar_url if isinstance(avatar_url, str) else None
+            return str(avatar_url) if avatar_url else None  # ✅ Ensure return type is `Optional[str]`
 
-    return None
-
+    return None  # ✅ Return `None` if no avatar is found
 
 def get_medium_blogs(username: str) -> Dict[str, Any]:
     """
@@ -94,3 +93,65 @@ def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:
 
     headers = ["#", "Title", "Categories", "Published", "Link"]
     print(tabulate(table_data, headers, tablefmt="grid"))
+
+
+
+
+def ensure_temp_folder_exists() -> None:
+    """Ensures the _temp folder exists."""
+    if not os.path.exists(TEMP_FOLDER):
+        os.makedirs(TEMP_FOLDER)
+
+
+def read_last_medium_blog() -> Optional[str]:
+    """Reads the last processed blog post from a file in _temp."""
+    ensure_temp_folder_exists()  # ✅ Ensure the folder exists before reading
+    
+    if os.path.exists(LAST_BLOG_FILE):
+        with open(LAST_BLOG_FILE, "r", encoding="utf-8") as file:
+            return file.read().strip()
+    
+    return None
+
+
+def write_last_medium_blog(blog_id: str) -> None:
+    """Writes the last processed blog post to a file in _temp."""
+    ensure_temp_folder_exists()  # ✅ Ensure the folder exists before writing
+    
+    with open(LAST_BLOG_FILE, "w", encoding="utf-8") as file:
+        file.write(blog_id)
+    
+    print(f"✅ Saved last blog post ID: {blog_id}")
+
+def fetch_latest_medium_blog(username: str) -> Optional[str]:
+    """
+    Fetches the latest blog post from a Medium RSS feed.
+
+    Args:
+        username (str): Medium username.
+
+    Returns:
+        Optional[str]: Latest blog content if new, otherwise None.
+    """
+    try:
+        print("🔹 Fetching latest blog post from Medium...")
+        blogs = get_medium_blogs(username)["blogs"]
+
+        if not blogs:
+            print("❌ No blogs found. Exiting.")
+            return None
+
+        latest_blog = blogs[0]  # Most recent post
+        last_processed_blog = read_last_medium_blog()
+
+        if latest_blog["id"] == last_processed_blog:
+            print("ℹ️ No new blog posts found.")
+            return None
+
+        # ✅ Save the new blog ID
+        write_last_medium_blog(latest_blog["id"])
+
+        return latest_blog["content"]
+    except Exception as e:
+        print(f"❌ Error fetching Medium blogs: {e}")
+        return None

@@ -1,0 +1,90 @@
+# ✅ User Profile Settings
+user_profile:
+  medium_username: "codingoni"  # Replace with your Medium username
+
+# ✅ Creative Preferences (Visuals & Storytelling)
+
+
+# ✅ Social Media Platforms
+social_media:
+  linkedin:
+    enabled: true
+    description: "If true, posts the content to LinkedIn."
+    post_format: "Markdown"  # Options: Markdown, HTML, or None
+
+# ✅ OpenAI Configuration & Content Generation
+openai:
+  custom_system_instructions: None  # Optional system-level AI instructions
+  custom_user_instructions: None  # Optional user-level AI guidance
+
+  creative:
+    generate_image:
+      enabled: true
+      description: "If true, generates an AI image tailored to the post."
+      prompt: "Create a high-quality AI-generated image relevant to the blog content."
+      
+    post_gif:
+      enabled: false
+      description: "If true, ai suggests tags from giphy then pick the giph with the most relevant title"
+      prompt: "EX: Focus on gifs that will be most impactful relevant to the blog"
+
+# (Coming SOON)
+    post_video:
+      enabled: false
+      description: "If true, includes a video in the LinkedIn post to boost engagement."
+      prompt: "Generate a video that highlights the key points of the blog post."
+
+  viral_posting:
+    include_viral_formatting:
+      enabled: true
+      description: "Ensures AI-generated posts follow viral structures."
+      
+    attention_grabbing_intro:
+      enabled: true
+      description: "First sentence must hook the reader to capture attention."
+      
+    emotional_storytelling:
+      enabled: true
+      description: "Includes personal/emotional elements to increase relatability."
+      
+    extreme_statements:
+      enabled: false
+      description: "Uses bold statements to spark engagement/debate (if enabled)."
+      
+    relatable_experiences:
+      enabled: true
+      description: "Ensures the post connects with the audience's daily struggles."
+      
+    actionable_takeaways:
+      enabled: true
+      description: "Posts must offer practical insights or solutions for readers."
+      
+    data-backed_claims:
+      enabled: true
+      description: "Uses real data & examples to establish credibility and trust."
+
+  viral_posts_i_liked:
+    - text: "I was rejected by 30 companies before landing my dream job. Now, I mentor others to never give up. 💪 #Resilience #CareerGrowth"
+      engagement: 50K+ likes, 10K+ shares
+      creative: "[GIF] of a person overcoming obstacles"
+      reason: "Personal story of failure & success, highly relatable"
+    
+    - text: "AI won’t replace you. But a person using AI will. Are you adapting? 🚀 #ArtificialIntelligence #FutureOfWork"
+      engagement: 100K+ likes, 20K+ shares
+      creative: "[IMG] Person Using AI"
+      reason: "Bold statement, sparks debate & FOMO"
+
+    - text: "Quit my 6-figure job to chase my passion. Scariest but best decision ever. If you're stuck, this is your sign. 🔥 #CareerChange"
+      engagement: 75K+ likes, 15K+ shares
+      creative: "UGC Candid Video"
+      reason: "Emotional + inspirational, triggers engagement"
+  
+# ✅ Hashtags for Engagement
+hashtags:
+  default_tags:
+    - "#AI"
+    - "#MachineLearning"
+    - "#DataScience"
+    - "#Automation"
+    - "#Technology"
+  custom_tags: []  # Users can add their own custom hashtags here
