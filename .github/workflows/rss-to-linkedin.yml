@@ -14,17 +14,39 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        
+
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
-      - name: Fetch RSS Feed
+      - name: Restore Latest Post Cache
+        id: cache_latest
+        uses: actions/cache@v3
+        with:
+          path: latest_post.txt
+          key: latest-post
+
+     - name: Fetch RSS Feed
         id: fetch_rss
         run: |
-          FEED_URL="https://medium.com/feed/codingoni"
-          LATEST_ENTRY=$(curl -s $FEED_URL | xmllint --xpath '//item[1]/link/text()' -)
-          echo "latest_post=$LATEST_ENTRY" >> $GITHUB_ENV
+          FEED_URL="https://medium.com/feed/${{ secrets.MEDIUM_USERNAME }}"
+          LATEST_ENTRY=$(curl -s "$FEED_URL" | xmllint --xpath '//item[1]/link/text()' - 2>/dev/null || echo "")
 
+          # If latest_post.txt does not exist, create it
+          if [ ! -f latest_post.txt ]; then
+            echo "No previous post found. Storing current post."
+            echo "$LATEST_ENTRY" > latest_post.txt
+            echo "new_post=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          PREVIOUS_ENTRY=$(cat latest_post.txt)
+
+          if [ "$LATEST_ENTRY" != "$PREVIOUS_ENTRY" ] && [ -n "$LATEST_ENTRY" ]; then
+            echo "new_post=true" >> $GITHUB_ENV
+            echo "$LATEST_ENTRY" > latest_post.txt
+          else
+            echo "new_post=false" >> $GITHUB_ENV
+          fi
       - name: Check for new post
         id: check_new_post
         run: |
