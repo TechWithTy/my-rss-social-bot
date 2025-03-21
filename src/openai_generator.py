@@ -1,5 +1,12 @@
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
+import requests
+import time
+import os
+from dotenv import load_dotenv
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
+OPENAI_ASSISTANT_ID = os.getenv("OPENAI_ASSISTANT_ID", os.environ.get("OPENAI_ASSISTANT_ID"))
 
+# ✅ Declar
 
 def create_openai_thread():
     """Creates an OpenAI Assistant thread"""
