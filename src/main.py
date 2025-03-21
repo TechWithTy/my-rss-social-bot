@@ -40,8 +40,8 @@ def main(blog_content):
     post_to_linkedin(
         linkedin_post,
         profile_id,
-        media_url="https://place-hold.it/300x500/666",
-        media_type="IMAGE"
+       media_url="https://media.giphy.com/media/CWmQC59IC4HGYOdWJL/giphy.gif?cid=790b7611342yvb7ylvrt42rl1ahn808whlbwtdt2cvm8w0f4&ep=v1_gifs_search&rid=giphy.gif&ct=g",  # Must be a direct image/GIF URL
+    media_type="GIF"
     )
     print("✅ Successfully posted to LinkedIn!")
 

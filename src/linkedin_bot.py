@@ -1,97 +1,113 @@
+from typing import Optional, Dict, Any
 import requests
-import time
 import os
 from dotenv import load_dotenv
 
-# Read API keys from environment variables (GitHub Secrets)
+# ✅ Load environment variables
 load_dotenv()
 
-ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", os.environ.get("LINKEDIN_ACCESS_TOKEN"))
+ACCESS_TOKEN: Optional[str] = os.getenv("LINKEDIN_ACCESS_TOKEN")
 
 
-# ✅ Declare `profile_id` globally at the start
-profile_id = None  
+def get_linkedin_profile_id() -> Optional[str]:
+    """
+    Fetch and return LinkedIn Profile ID.
 
-def get_linkedin_profile_id():
-    """Fetch and return LinkedIn Profile ID"""
+    Returns:
+        Optional[str]: The LinkedIn Profile ID, or None if an error occurs.
+    """
+    if not ACCESS_TOKEN:
+        print("❌ Error: Missing LinkedIn access token.")
+        return None
+
     url = "https://api.linkedin.com/v2/userinfo"
     headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         profile_id = response.json().get("sub")
-        print(f"✅ LinkedIn Profile ID Retrieved: {profile_id}")
-        return profile_id
-    else:
-        print("❌ Error fetching LinkedIn profile ID:", response.json())
+        if isinstance(profile_id, str):
+            print(f"✅ LinkedIn Profile ID Retrieved: {profile_id}")
+            return profile_id
+    print("❌ Error fetching LinkedIn profile ID:", response.json())
+    return None
+
+
+def upload_linkedin_media(profile_id: str, media_url: str, media_type: str) -> Optional[str]:
+    """
+    Uploads media (image, GIF, or video) to LinkedIn and returns a media URN.
+
+    Args:
+        profile_id (str): LinkedIn Profile ID
+        media_url (str): The direct URL of the media file
+        media_type (str): "IMAGE", "GIF", or "VIDEO"
+
+    Returns:
+        Optional[str]: The LinkedIn media URN if successful, else None.
+    """
+    if not ACCESS_TOKEN:
+        print("❌ Error: Missing LinkedIn access token.")
         return None
 
-import requests
-import os
-import json
-
-ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN")
-
-def upload_linkedin_media(profile_id, media_url, media_type):
-    """
-    Uploads media (image/video) to LinkedIn and returns a media URN.
-    LinkedIn requires a media upload before attaching it to a post.
-    
-    Returns:
-        media_urn (str): The LinkedIn URN of the uploaded media.
-    """
     upload_url = "https://api.linkedin.com/v2/assets?action=registerUpload"
-    
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json",
         "X-Restli-Protocol-Version": "2.0.0"
     }
 
-    # Define the media upload request
+    # ✅ Validate media type
+    recipe_map: Dict[str, str] = {
+        "IMAGE": "urn:li:digitalmediaRecipe:feedshare-image",
+        "GIF": "urn:li:digitalmediaRecipe:feedshare-image",  # GIFs are treated as images
+        "VIDEO": "urn:li:digitalmediaRecipe:feedshare-video"
+    }
+    
+    if media_type not in recipe_map:
+        print("❌ Invalid media type. Choose IMAGE, GIF, or VIDEO.")
+        return None
+
     media_request = {
         "registerUploadRequest": {
-            "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],  
+            "recipes": [recipe_map[media_type]],
             "owner": f"urn:li:person:{profile_id}",
-            "serviceRelationships": [
-                {
-                    "relationshipType": "OWNER",
-                    "identifier": "urn:li:userGeneratedContent"
-                }
-            ]
+            "serviceRelationships": [{"relationshipType": "OWNER", "identifier": "urn:li:userGeneratedContent"}]
         }
     }
 
     response = requests.post(upload_url, headers=headers, json=media_request)
-
     if response.status_code == 200:
         response_data = response.json()
         upload_urn = response_data["value"]["asset"]
         upload_endpoint = response_data["value"]["uploadMechanism"]["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"]["uploadUrl"]
 
-        # Upload the actual media file
-        image_response = requests.post(upload_endpoint, headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}, data=requests.get(media_url).content)
+        # ✅ Upload the actual media file
+        media_response = requests.post(upload_endpoint, headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}, data=requests.get(media_url).content)
 
-        if image_response.status_code == 201:
-            print(f"✅ Media uploaded successfully! URN: {upload_urn}")
+        if media_response.status_code == 201:
+            print(f"✅ {media_type} uploaded successfully! URN: {upload_urn}")
             return upload_urn
-        else:
-            print("❌ Error uploading media to LinkedIn:", image_response.json())
-            return None
-    else:
-        print("❌ Error requesting LinkedIn upload URL:", response.json())
+
+        print(f"❌ Error uploading {media_type} to LinkedIn:", media_response.json())
         return None
 
-def post_to_linkedin(post_text, profile_id, media_url=None, media_type="NONE"):
-    """
-    Post to LinkedIn with optional media (image/video/article).
+    print("❌ Error requesting LinkedIn upload URL:", response.json())
+    return None
 
-    Parameters:
+
+def post_to_linkedin(post_text: str, profile_id: str, media_url: Optional[str] = None, media_type: str = "NONE") -> None:
+    """
+    Post to LinkedIn with optional media (image, GIF, or video).
+
+    Args:
         post_text (str): The text content of the LinkedIn post.
         profile_id (str): The LinkedIn profile ID.
-        media_url (str, optional): The URL of the media (must be uploaded first).
-        media_type (str, optional): The type of media ("IMAGE", "VIDEO", "ARTICLE", "NONE"). Default is "NONE".
+        media_url (Optional[str], optional): The URL of the media. Defaults to None.
+        media_type (str, optional): The type of media ("IMAGE", "GIF", "VIDEO", "ARTICLE", "NONE"). Defaults to "NONE".
     """
+    if not ACCESS_TOKEN:
+        print("❌ Error: Missing LinkedIn access token.")
+        return
 
     if not profile_id:
         print("❌ Cannot post to LinkedIn: Profile ID is missing.")
@@ -104,29 +120,25 @@ def post_to_linkedin(post_text, profile_id, media_url=None, media_type="NONE"):
         "X-Restli-Protocol-Version": "2.0.0"
     }
 
-    # Default payload without media
-    data = {
+    # ✅ Default payload without media
+    data: Dict[str, Any] = {
         "author": f"urn:li:person:{profile_id}",
         "lifecycleState": "PUBLISHED",
         "specificContent": {
             "com.linkedin.ugc.ShareContent": {
                 "shareCommentary": {"text": post_text},
-                "shareMediaCategory": media_type
+                "shareMediaCategory": "NONE"
             }
         },
         "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"}
     }
 
-    # Upload media and get URN if needed
-    if media_url and media_type in ["IMAGE", "VIDEO"]:
+    # ✅ Upload media and get URN if needed
+    if media_url and media_type in ["IMAGE", "GIF", "VIDEO"]:
         media_urn = upload_linkedin_media(profile_id, media_url, media_type)
         if media_urn:
-            data["specificContent"]["com.linkedin.ugc.ShareContent"]["media"] = [
-                {
-                    "status": "READY",
-                    "media": media_urn
-                }
-            ]
+            data["specificContent"]["com.linkedin.ugc.ShareContent"]["media"] = [{"status": "READY", "media": media_urn}]
+            data["specificContent"]["com.linkedin.ugc.ShareContent"]["shareMediaCategory"] = "IMAGE" if media_type in ["IMAGE", "GIF"] else "VIDEO"
         else:
             print("❌ Failed to upload media. Posting without media.")
 
