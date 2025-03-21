@@ -25,28 +25,23 @@ jobs:
           path: latest_post.txt
           key: latest-post
 
-     - name: Fetch RSS Feed
+      - name: Fetch RSS Feed
         id: fetch_rss
         run: |
-          FEED_URL="https://medium.com/feed/${{ secrets.MEDIUM_USERNAME }}"
-          LATEST_ENTRY=$(curl -s "$FEED_URL" | xmllint --xpath '//item[1]/link/text()' - 2>/dev/null || echo "")
-
-          # If latest_post.txt does not exist, create it
-          if [ ! -f latest_post.txt ]; then
-            echo "No previous post found. Storing current post."
-            echo "$LATEST_ENTRY" > latest_post.txt
-            echo "new_post=false" >> $GITHUB_ENV
-            exit 0
-          fi
-
-          PREVIOUS_ENTRY=$(cat latest_post.txt)
-
-          if [ "$LATEST_ENTRY" != "$PREVIOUS_ENTRY" ] && [ -n "$LATEST_ENTRY" ]; then
-            echo "new_post=true" >> $GITHUB_ENV
-            echo "$LATEST_ENTRY" > latest_post.txt
+          FEED_URL="https://medium.com/feed/@${{ secrets.MEDIUM_USERNAME }}"
+          echo "Using RSS Feed: $FEED_URL"
+          
+          RESPONSE=$(curl -s -L "$FEED_URL")
+          
+          # Ensure the response is valid XML
+          if echo "$RESPONSE" | grep -iq "<rss"; then
+            LATEST_ENTRY=$(echo "$RESPONSE" | xmllint --xpath '//item[1]/link/text()' - 2>/dev/null || echo "")
+            echo "latest_post=$LATEST_ENTRY" >> $GITHUB_ENV
           else
-            echo "new_post=false" >> $GITHUB_ENV
+            echo "Error: Invalid RSS feed response"
+            exit 1
           fi
+
       - name: Check for new post
         id: check_new_post
         run: |
