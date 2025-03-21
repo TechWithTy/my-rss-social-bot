@@ -1,5 +1,6 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import requests
+import os
 from dotenv import load_dotenv
 from src.config_loader import config
 from src.utils.index import get_env_variable
@@ -13,13 +14,32 @@ if not DEEPSEEK_API_KEY:
     raise ValueError("❌ DEEPSEEK_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
 
 # ✅ LLM Configuration
-deepseek_model = config["user_profile"]["llm"]["DeepSeek"]["model"]
-temperature = config["user_profile"]["llm"]["DeepSeek"]["temperature"]
-max_tokens = config["user_profile"]["llm"]["DeepSeek"]["max_tokens"]
+deepseek_config = config["user_profile"]["llm"]["DeepSeek"]
+deepseek_model = deepseek_config["model"]
+temperature = deepseek_config["temperature"]
+max_tokens = deepseek_config["max_tokens"]
+top_p = deepseek_config["top_p"]
+frequency_penalty = deepseek_config["frequency_penalty"]
+presence_penalty = deepseek_config["presence_penalty"]
+response_format = deepseek_config["response_format"]
+tool_choice = deepseek_config["tool_choice"]
+logprobs = deepseek_config["logprobs"]
+top_logprobs = deepseek_config["top_logprobs"]
+tools = deepseek_config.get("tools", "function")
+
 
 def send_message_to_deepseek(blog_content: str) -> Optional[str]:
-    """Sends a blog post to DeepSeek AI and returns the AI-generated LinkedIn post."""
-    url = "https://api.deepseek.com/v1/completions"
+    """
+    Sends a blog post to DeepSeek AI and returns the AI-generated LinkedIn post.
+
+    Parameters:
+        blog_content (str): The blog post content to be summarized.
+
+    Returns:
+        Optional[str]: AI-generated post or None if the request fails.
+    """
+
+    url = "https://api.deepseek.com/chat/completions"
     headers = {
         "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
         "Content-Type": "application/json"
@@ -121,16 +141,30 @@ def send_message_to_deepseek(blog_content: str) -> Optional[str]:
 
     print('Message Content:\n\n', content)
     
-    data = {
+    # ✅ Request Payload
+    payload = {
         "model": deepseek_model,
-        "prompt": content,
+        "messages": [
+            {"role": "system", "content": system_instructions},
+            {"role": "user", "content": content}
+        ],
         "temperature": temperature,
-        "max_tokens": max_tokens
+        "max_tokens": max_tokens,
+        "top_p": top_p,
+        "frequency_penalty": frequency_penalty,
+        "presence_penalty": presence_penalty,
+        "response_format": {"type": response_format},
+        "tool_choice": tool_choice,
+        "logprobs": logprobs,
+        "top_logprobs": top_logprobs,
+        "tools": [{"type": tools}]
     }
 
-    response = requests.post(url, headers=headers, json=data)
+    # ✅ Send Request
+    response = requests.post(url, headers=headers, json=payload)
+
     if response.status_code == 200:
-        completion = response.json().get("choices", [{}])[0].get("text", "").strip()
+        completion = response.json().get("choices", [{}])[0].get("message", {}).get("content", "").strip()
         print("✅ DeepSeek AI Response Generated!")
         return completion
     else:

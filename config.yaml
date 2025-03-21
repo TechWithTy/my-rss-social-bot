@@ -56,34 +56,27 @@ user_profile:
         - "deepseek-chat"
         - "deepseek-reasoner"
 
-    Anthropic:
-      enabled: false
-      model: "claude-3-sonnet"
-      temperature: 0.7
-      max_tokens: 500
-      available_models:
-        - "claude-3-opus"
-        - "claude-3-sonnet"
-        - "claude-3-haiku"
-
-    Cohere:
-      enabled: false
-      model: "command-r"
-      temperature: 0.7
-      max_tokens: 500
-      available_models:
-        - "command-r-plus"
-        - "command-r"
-
-    Ollama:
-      enabled: false
-      model: "llama3:8b"
-      temperature: 0.7
-      max_tokens: 500
-      available_models:
-        - "llama3:8b"
-        - "llama3:70b"
-        - "mistral:7b"
+  Anthropic:
+    enabled: false
+    model: "claude-3-sonnet-20240229"  # Default model
+    temperature: 0.7  # Adjusts randomness (0 = strict, 1 = creative)
+    max_tokens: 500  # Max tokens allowed per response
+    top_p: 0.9  # Nucleus sampling (alternative to temperature)
+    frequency_penalty: 0.0  # Controls repetition
+    presence_penalty: 0.0  # Encourages new topics
+    stop_sequences: []  # List of custom stop sequences
+    system: "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
+    available_models:
+      - "claude-3-7-sonnet-20250219"
+      - "claude-3-5-haiku-20241022"
+      - "claude-3-5-sonnet-20241022"
+      - "claude-3-5-sonnet-20240620"
+      - "claude-3-opus-20240229"
+      - "claude-3-sonnet-20240229"
+      - "claude-3-haiku-20240307"
+    message_format:
+      - role: "user"
+        content: "Hello, world"
 
     HuggingFace:
       enabled: false
@@ -94,6 +87,26 @@ user_profile:
         - "meta-llama/Meta-Llama-3-8B"
         - "mistralai/Mistral-7B-Instruct-v0.1"
         - "tiiuae/falcon-7b-instruct"
+    # Cohere:
+    #   enabled: false
+    #   model: "command-r"
+    #   temperature: 0.7
+    #   max_tokens: 500
+    #   available_models:
+    #     - "command-r-plus"
+    #     - "command-r"
+
+    # Ollama:
+    #   enabled: false
+    #   model: "llama3:8b"
+    #   temperature: 0.7
+    #   max_tokens: 500
+    #   available_models:
+    #     - "llama3:8b"
+    #     - "llama3:70b"
+    #     - "mistral:7b"
+
+
 
     Custom:
       enabled: false
