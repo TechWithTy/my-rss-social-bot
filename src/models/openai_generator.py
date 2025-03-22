@@ -9,6 +9,8 @@ from src.utils.index import get_env_variable
 # ✅ Load environment variables
 load_dotenv()
 
+env_path = ".env"
+
 OPENAI_API_KEY: Optional[str] = get_env_variable("OPENAI_API_KEY")
 OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
 
@@ -45,7 +47,7 @@ def create_openai_assistant() -> str:
     
     if response.status_code == 200:
         assistant_id = response.json().get("id")
-        print(f"✅ OpenAI Assistant created: {assistant_id}")
+        print(f"✅ OpenAI Assistant created: {assistant_id} ⚠️Save this to .env or github secrets to reuse")
         return assistant_id
     else:
         print("❌ Error creating OpenAI Assistant:", response.json())
@@ -97,16 +99,17 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
     linkedin_enabled = social_config.get("enabled", False)
     linkedin_max_chars = social_config.get("maximum_characters", "")
 
-    # 🧠 Viral Preferences
+    openai_config = config.get("ai", {})
     viral = openai_config.get("viral_posting", {})
+
     viral_style_instructions = "\n".join([
-        viral.get("attention_grabbing_intro", {}).get("description", ""),
-        viral.get("emotional_storytelling", {}).get("description", ""),
-        viral.get("relatable_experiences", {}).get("description", ""),
-        viral.get("actionable_takeaways", {}).get("description", ""),
-        viral.get("data-backed_claims", {}).get("description", ""),
-        viral.get("extreme_statements", {}).get("description", "")
-    ]).strip()
+            viral.get("attention_grabbing_intro", {}).get("description", ""),
+            viral.get("emotional_storytelling", {}).get("description", ""),
+            viral.get("relatable_experiences", {}).get("description", ""),
+            viral.get("actionable_takeaways", {}).get("description", ""),
+            viral.get("data-backed_claims", {}).get("description", ""),
+            viral.get("extreme_statements", {}).get("description", "")
+        ]).strip()
 
     # 🎯 User Profile
     target_audience = user_config.get("target_audience", "")
@@ -142,7 +145,7 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
     # 🎨 Creative Options
     creative = openai_config.get("creative", {})
     generate_image_cfg = creative.get("generate_image", {})
-    post_gif_cfg = creative.get("post_gif", {})
+    post_gif_cfg = creative.get("fetch_gif", {})
 
     generate_image = generate_image_cfg.get("enabled", False)
     fetch_gif = post_gif_cfg.get("enabled", False)
@@ -151,8 +154,8 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
 
     if generate_image and fetch_gif:
         creative_instruction = (
-            f"\n\nYou may choose to either generate an AI image ({image_prompt}) or fetch a GIF ({gif_prompt}) "
-            "that enhances the blog content."
+           f"\n\n{'Generate an AI image using prompt: (' + image_prompt + ')' if __import__('random').choice([True, False]) else 'Fetch a GIF using prompt: (' + gif_prompt + ')'} that enhances the blog content."
+
         )
     elif generate_image:
         creative_instruction = f"\n\n[Visual Prompt]: {image_prompt}"
@@ -168,11 +171,12 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
         f"{blog_content}\n\n"
         f"For target audience: {target_audience}\n"
         f"About the writer: {professional_summary}\n\n"
-        f"{user_instructions}\n\n"
         f"{viral_examples_instruction}\n\n"
         f"Viral Methodologies To use:\n{viral_style_instructions}\n\n"
         f"{hashtag_instructions}\n\n"
-        f"{creative_instruction}"
+        f"{creative_instruction}\n\n"
+        f"{user_instructions}\n\n"
+       
     )
     print('Message Content:\n\n', content)
     data = {

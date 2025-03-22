@@ -9,7 +9,6 @@ user_profile:
     OpenAI:
       name: "gpt-4"
       text_model: "gpt-4o-mini"
-      custom_system_instructions: Null
       temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
       top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
       response_format: "json" # json | text | auto
@@ -148,7 +147,7 @@ social_media_to_post_to:
 
 # ✅ OpenAI Configuration & Content Generation
 ai:
-  custom_system_instructions: None  # Optional system-level AI instructions
+  custom_system_instructions: "Respond with the social media post (text) and if a creative prompt is provided, respond with the generated link or giphy tags in JSON format. Only return the 'Creative' and 'Asset' fields if a creative is explicitly asked for. If not, only return an array of suggested Giphy search terms. Example response: { \"Text\": \"We built a tool that simplifies culturing workflows—from organizing data to printing Niimbot labels. Designed for ease of use, even if you're not technical. Explore how it can save time and reduce errors in your projects.\", \"Creative\": \"[IMG] Clean workspace with clearly labeled culture tubes, a Niimbot printer, and an open laptop showing a user-friendly interface\", \"Asset\": \"https://image.pollinations.ai/prompt/Clean%20workspace%20with%20clearly%20labeled%20culture%20tubes%2C%20a%20Niimbot%20printer%2C%20and%20an%20open%20laptop%20showing%20a%20simple%20software%20interface%20--minimal,%20modern,%20bright%20lab%20environment\", \"Hashtags\": [\"#AI\", \"#MachineLearning\", \"#DataScience\", \"#Automation\", \"#Technology\"], \"GifSearchTags\": [\"label printing\", \"workflow automation\", \"science lab\"] }"
   custom_user_instructions: None  # Optional user-level AI guidance
 
   creative:
@@ -159,9 +158,9 @@ ai:
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
       
     fetch_gif:
-      enabled: false
+      enabled: true
       description: "If true, ai suggests tags from giphy then pick the giph with the most relevant title"
-      prompt: "EX: Focus on gifs that will be most impactful relevant to the blog"
+      prompt: "return atleast 3 giphy search terms in the returned object in an array"
 
 # (Coming SOON)
     generate_video:

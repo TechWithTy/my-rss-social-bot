@@ -125,7 +125,81 @@ Are you adapting? The tech landscape is evolving, and those who master AI tools 
 ✅ Adapt or risk being left behind
 
 What’s your take on AI’s future? Drop a comment! 👇 #ArtificialIntelligence #FutureOfWork
+
+
+
+---
+
+## 🧠 AI Assistant Integration Guide
+
+This project auto-generates social content from blog posts using multiple AI providers. It supports text generation, image generation, and video prompts — all controlled through a single YAML configuration file.
+
+---
+
+### 🔹 **OpenAI Assistants (v2) – Auto-Creation + Manual Setup**
+
+OpenAI Assistants provide a memory-aware, instruction-driven experience. We use them to generate viral posts from long-form content (like Medium blogs).
+
+#### ✅ How It Works:
+- The system first looks for `OPENAI_ASSISTANT_ID` in your `.env` or GitHub Secrets.
+- **If not found**, it **automatically creates a new assistant** using your creative and viral settings from the YAML file.
+- Once created, the Assistant ID is printed to the console.
+
+> 🔐 **Important:** You must **copy this Assistant ID** and add it to your `.env` or GitHub secrets:
+```bash
+OPENAI_ASSISTANT_ID=asst_abc123def456
 ```
+
+All assistant behavior (style, tone, visuals, hashtags, etc.) is pulled from your YAML configuration — no coding required.
+
+---
+
+### 🤗 **Hugging Face AI (Text + Image + Video)**
+
+You can use **any Hugging Face model** with the project. Configure your models in the YAML like this:
+
+```yaml
+HuggingFace:
+  text_model: "meta-llama/Meta-Llama-3-8B"
+  image_model: "runwayml/stable-diffusion-v1-5"
+  video_model: "runwayml/stable-diffusion-v1-5"
+  temperature: 0.7
+  max_tokens: 500
+```
+
+- If `image_model` is set in any with any of the supported LLMS i.e `OPENAI > image_model: gpt-40`, your system will generate images based on creative prompts.
+- `text_model` is used to generate post text.
+- `video_model` will be used if you enable GIFs or videos in the config.
+
+> No extra changes are needed — everything runs based on your YAML settings.
+
+---
+
+### 🦾 **DeepSeek Integration**
+
+We support both:
+- `deepseek-lite` (for basic summarization)
+- `deepseek-chat` (for longer, conversation-aware generation)
+
+DeepSeek models are useful for fast, lightweight text generation and can be swapped in via config.
+
+---
+
+### 💡 Claude 3.7 Sonnet (Anthropic)
+
+Claude is used for direct, one-shot content transformation. No threads or assistants — just fast summarization and transformation using structured prompts.
+
+Add your `ANTHROPIC_API_KEY` in your `.env` to get started.
+
+---
+
+### 🎨 Creative Settings (Unified YAML)
+
+All user preferences — tone, image prompts, emotional storytelling, hashtags, media — are declared in your `config.yaml`.
+
+No need to modify code. Just update your YAML, and the system adapts.
+
+
 
 ---
 
