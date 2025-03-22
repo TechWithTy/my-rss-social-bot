@@ -147,18 +147,21 @@ social_media_to_post_to:
 
 # ✅ OpenAI Configuration & Content Generation
 ai:
-  custom_system_instructions: "Respond with the social media post (text) and return EITHER a generated image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. The post should be clear and engaging. Format the output as JSON. Use the 'Hashtags' field to include general, relevant topical tags related to the content. Avoid including specific examples unless context is provided. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Your message here.\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"], \"GifSearchTags\": [\"search term one\", \"search term two\", \"search term three\"] }"
+  custom_system_instructions: "Respond with the social media post (text) and return EITHER a generated image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. The post should be clear and engaging. Format the output as JSON. Use the 'Hashtags' field to include general, relevant topical tags related to the content. Avoid including specific examples unless context is provided. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux&nologo=true\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Your message here.\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"], \"GifSearchTags\": [\"search term one\", \"search term two\", \"search term three\"] }"
   custom_user_instructions: None  # Optional user-level AI guidance
 
   creative:
     generate_image:
       enabled: true
       description: "If true, generates an AI image tailored to the post."
-      size: "1024x1024"
+      width: 1024,
+      height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
+      model: "flux"
+      # Available models: 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
       
     fetch_gif:
-      enabled: true
+      enabled: false
       description: "If true, ai suggests tags from giphy then pick the giph with the most relevant title"
       prompt: "return atleast 3 giphy search terms in the returned object in an array"
 
@@ -199,13 +202,13 @@ ai:
 
   viral_posts_i_liked:
     - text: "I was rejected by 30 companies before landing my dream job. Now, I mentor others to never give up. 💪 #Resilience #CareerGrowth"
-      engagement: 50K+ likes, 10K+ shares
+      engagement: "50K+ likes, 10K+ shares"
       creative: "[GIF] of a person overcoming obstacles"
       creative_asset: "https://example.com/obstacle-overcome.gif"
       reason: "Personal story of failure & success, highly relatable"
     
     - text: "AI won’t replace you. But a person using AI will. Are you adapting? 🚀 #ArtificialIntelligence #FutureOfWork"
-      engagement: 100K+ likes, 20K+ shares
+      engagement: "50K+ likes, 10K+ shares"
       creative: "[IMG] Person Using AI"
       creative_asset: "https://example.com/obstacle-overcome.gif"
 

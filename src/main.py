@@ -11,6 +11,7 @@ from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 
+from src.data.example_ai_response import ai_img_example, ai_gif_example
 
 def fetch_and_parse_blog(username: str) -> str | None:
     blog_content = fetch_latest_medium_blog(username)
@@ -51,11 +52,8 @@ def main(medium_username: str) -> None:
             return
 
         # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
-        linkedin_post = {
-            "Text": "Tired of messy culturing workflows? We built a tool at Cyberoni that simplifies everything—from data management to label printing. Perfect for beginners & pros. No more chaos, just clarity. ✨ #CyberOniCommunity",
-            "Hashtags": ["#AI", "#MachineLearning", "#DataScience", "#Automation", "#Technology"],
-            "GifSearchTags": ["lab organization", "printing labels", "tech innovation"]
-        }
+        # linkedin_post = run_openai_pipeline(parsed_blog)
+        linkedin_post = ai_img_example
 
         if linkedin_enabled:
             print("🚀 Preparing LinkedIn post...")
@@ -93,7 +91,7 @@ def main(medium_username: str) -> None:
             media_url = None
             media_type = None
             if gif_asset:
-                media_url = gif_asset.get("mp4_url")
+                media_url = gif_asset.get("gif_url")
                 media_type = "GIF"
                 print(f"📦 Using GIF for post: {media_url}")
             elif image_url:
@@ -111,7 +109,6 @@ def main(medium_username: str) -> None:
                     media_url=media_url,
                     media_type=media_type
                 )
-                print("✅ Successfully posted to LinkedIn!")
             else:
                 print("🚫 Skipping post — no valid media asset was available.")
 

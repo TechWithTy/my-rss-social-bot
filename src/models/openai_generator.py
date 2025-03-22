@@ -150,15 +150,35 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
     generate_image = generate_image_cfg.get("enabled", False)
     fetch_gif = post_gif_cfg.get("enabled", False)
     image_prompt = generate_image_cfg.get("prompt", "")
+    dimensions_width = generate_image_cfg.get("width", "")
+    dimensions_height = generate_image_cfg.get("width", "")
+    generate_image_model = generate_image_cfg.get("model", False)
+
+
     gif_prompt = post_gif_cfg.get("prompt", "")
 
     if generate_image and fetch_gif:
         creative_instruction = (
-           f"\n\n{'Generate an AI image using prompt: (' + image_prompt + ')' if __import__('random').choice([True, False]) else 'Fetch a GIF using prompt: (' + gif_prompt + ')'} that enhances the blog content."
+            f"\n\n"
+            + (
+                f"Generate an AI image using prompt: ({image_prompt})\n\n"
+                f"width: {dimensions_width}\n\n"
+                f"height: {dimensions_height}"
+                f"image model: {generate_image_model}"
 
+                if random.choice([True, False])
+                else f"Fetch a GIF using prompt: ({gif_prompt})"
+            )
+            + " that enhances the blog content."
         )
     elif generate_image:
-        creative_instruction = f"\n\n[Visual Prompt]: {image_prompt}"
+        creative_instruction = (
+            f"Generate an AI image using prompt: ({image_prompt})\n\n"
+            f"width: {dimensions_width}\n\n"
+            f"height: {dimensions_height}"
+            f"image model: {generate_image_model}"
+
+        )
     elif fetch_gif:
         creative_instruction = f"\n\n[GIF Prompt]: {gif_prompt}"
     else:

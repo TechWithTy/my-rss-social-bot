@@ -149,6 +149,6 @@ def post_to_linkedin(post_text: str, profile_id: str, media_url: Optional[str] =
     response = requests.post(url, headers=headers, json=data)
 
     if response.status_code == 201:
-        print("✅ Successfully posted to LinkedIn!")
+        print("✅ Successfully posted to LinkedIn Scoped!")
     else:
         print("❌ Error posting to LinkedIn:", response.json())
