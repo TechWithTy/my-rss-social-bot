@@ -9,6 +9,7 @@ from src.models.openai_generator import (
 )
 from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
+from src.utils.giphy import giphy_find_with_metadata ,extract_social_upload_metadata
 
 
 def fetch_and_parse_blog(username: str) -> str | None:
@@ -49,18 +50,53 @@ def main(medium_username: str) -> None:
         if not parsed_blog:
             return
 
-        linkedin_post = run_openai_pipeline(parsed_blog)
-        if not linkedin_post:
-            raise ValueError("OpenAI did not return a valid LinkedIn post.")
+       
 
-        if linkedin_enabled:
-            # 🔄 Uncomment to enable real posting
-            # post_to_linkedin(
-            #     post_text=linkedin_post,
-            #     profile_id=profile_id,
-            #     media_url="https://media.giphy.com/media/CWmQC59IC4HGYOdWJL/giphy.gif",
-            #     media_type="GIF"
-            # )
+        if linkedin_enabled: 
+            linkedin_post = run_openai_pipeline(parsed_blog)
+            if not linkedin_post:
+                raise ValueError("OpenAI did not return a valid LinkedIn post.")
+
+        gif_tags = linkedin_post.get("GifSearchTags")
+
+        # 🔍 Handle GIF search
+        if gif_tags:
+            gif_result = giphy_find_with_metadata(gif_tags)
+            gif_obj = gif_result.get("gif")
+            if gif_obj:
+                linkedin_post["GifAsset"] = extract_social_upload_metadata(gif_obj)
+
+        # 🖼️ Handle Image asset
+        image_url = linkedin_post.get("ImageAsset")
+
+        # ✅ Choose valid asset for posting
+        media_url = None
+        media_type = None
+        linkedin_post_text = linkedin_post.get("Text", "")
+        hashtags = linkedin_post.get("Hashtags", [])
+
+        # Turn hashtag list into string: "#AI #ML #Tech"
+        hashtags_text = " ".join(hashtags)
+
+        # Final post text with hashtags appended
+        linkedin_post_text = f"{linkedin_post_text}\n{hashtags_text}" if hashtags_text else linkedin_post_text
+        
+        if linkedin_post.get("GifAsset"):
+            media_url = linkedin_post["GifAsset"].get("mp4_url")
+            media_type = "GIF"
+        elif image_url:
+            media_url = image_url
+            media_type = "IMAGE"
+
+        # 🔄 Post only if there's valid media
+        if media_url and media_type:
+            post_to_linkedin(
+                post_text=linkedin_post,
+                profile_id=profile_id,
+                media_url=media_url,
+                media_type=media_type
+            )
+
             print("✅ Successfully posted to LinkedIn!")
         else:
             print("🔕 LinkedIn post generation complete (posting disabled).")
