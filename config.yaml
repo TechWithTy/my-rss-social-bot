@@ -53,76 +53,76 @@ user_profile:
         - "deepseek-chat"
         - "deepseek-reasoner"
 
-  Anthropic:
-    text_model: "claude-3-sonnet-20240229"  # Default text_model
-    temperature: 0.7  # Adjusts randomness (0 = strict, 1 = creative)
-    max_tokens: 500  # Max tokens allowed per response
-    top_p: 0.9  # Nucleus sampling (alternative to temperature)
-    frequency_penalty: 0.0  # Controls repetition
-    presence_penalty: 0.0  # Encourages new topics
-    stop_sequences: []  # List of custom stop sequences
-    system: "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
-    available_models:
-      - "claude-3-7-sonnet-20250219"
-      - "claude-3-5-haiku-20241022"
-      - "claude-3-5-sonnet-20241022"
-      - "claude-3-5-sonnet-20240620"
-      - "claude-3-opus-20240229"
-      - "claude-3-sonnet-20240229"
-      - "claude-3-haiku-20240307"
-    message_format:
-      - role: "user"
-        content: "Hello, world"
-
-    HuggingFace:
-    
-      text_model: "meta-llama/Meta-Llama-3-8B"
-      image_model: "runwayml/stable-diffusion-v1-5"
-      video_model: "runwayml/stable-diffusion-v1-5"
-      temperature: 0.7
-      max_tokens: 500
+    Anthropic:
+      text_model: "claude-3-sonnet-20240229"  # Default text_model
+      temperature: 0.7  # Adjusts randomness (0 = strict, 1 = creative)
+      max_tokens: 500  # Max tokens allowed per response
+      top_p: 0.9  # Nucleus sampling (alternative to temperature)
+      frequency_penalty: 0.0  # Controls repetition
+      presence_penalty: 0.0  # Encourages new topics
+      stop_sequences: []  # List of custom stop sequences
+      system: "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
       available_models:
-        - "meta-llama/Meta-Llama-3-8B"
-        - "mistralai/Mistral-7B-Instruct-v0.1"
-        - "tiiuae/falcon-7b-instruct"
-      available_tools:
-        - "Audio Classification"
-        - "Automatic Speech Recognition"
-        - "Chat Completion"
-        - "Feature Extraction"
-        - "Fill Mask"
-        - "Image Classification"
-        - "Image Segmentation"
-        - "Image to Image"
-        - "Image-Text to Text"
-        - "Object Detection"
-        - "Question Answering"
-        - "Summarization"
-        - "Table Question Answering"
-        - "Text Classification"
-        - "Text Generation"
-        - "Text to Image"
-        - "Token Classification"
-        - "Translation"
-        - "Zero Shot Classification"
-    # Cohere:
-    #   enabled: false
-    #   text_model: "command-r"
-    #   temperature: 0.7
-    #   max_tokens: 500
-    #   available_models:
-    #     - "command-r-plus"
-    #     - "command-r"
+        - "claude-3-7-sonnet-20250219"
+        - "claude-3-5-haiku-20241022"
+        - "claude-3-5-sonnet-20241022"
+        - "claude-3-5-sonnet-20240620"
+        - "claude-3-opus-20240229"
+        - "claude-3-sonnet-20240229"
+        - "claude-3-haiku-20240307"
+      message_format:
+        - role: "user"
+          content: "Hello, world"
 
-    # Ollama:
-    #   enabled: false
-    #   text_model: "llama3:8b"
-    #   temperature: 0.7
-    #   max_tokens: 500
-    #   available_models:
-    #     - "llama3:8b"
-    #     - "llama3:70b"
-    #     - "mistral:7b"
+      HuggingFace:
+      
+        text_model: "mistralai/Mistral-7B-Instruct-v0.1"
+        image_model: "runwayml/stable-diffusion-v1-5"
+        video_model: "runwayml/stable-diffusion-v1-5"
+        temperature: 0.7
+        max_tokens: 500
+        available_models:
+          - "meta-llama/Meta-Llama-3-8B"
+          - "mistralai/Mistral-7B-Instruct-v0.1"
+          - "tiiuae/falcon-7b-instruct"
+        available_tools:
+          - "Audio Classification"
+          - "Automatic Speech Recognition"
+          - "Chat Completion"
+          - "Feature Extraction"
+          - "Fill Mask"
+          - "Image Classification"
+          - "Image Segmentation"
+          - "Image to Image"
+          - "Image-Text to Text"
+          - "Object Detection"
+          - "Question Answering"
+          - "Summarization"
+          - "Table Question Answering"
+          - "Text Classification"
+          - "Text Generation"
+          - "Text to Image"
+          - "Token Classification"
+          - "Translation"
+          - "Zero Shot Classification"
+      # Cohere:
+      #   enabled: false
+      #   text_model: "command-r"
+      #   temperature: 0.7
+      #   max_tokens: 500
+      #   available_models:
+      #     - "command-r-plus"
+      #     - "command-r"
+
+      # Ollama:
+      #   enabled: false
+      #   text_model: "llama3:8b"
+      #   temperature: 0.7
+      #   max_tokens: 500
+      #   available_models:
+      #     - "llama3:8b"
+      #     - "llama3:70b"
+      #     - "mistral:7b"
 
 
 
