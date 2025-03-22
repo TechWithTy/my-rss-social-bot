@@ -123,6 +123,15 @@ def write_last_medium_blog(blog_id: str) -> None:
     
     print(f"✅ Saved last blog post ID: {blog_id}")
 
+
+def delete_last_medium_blog() -> None:
+    """Deletes the last processed blog post file from _temp."""
+    if os.path.exists(LAST_BLOG_FILE):
+        os.remove(LAST_BLOG_FILE)
+        print("🗑️ Deleted last blog post record.")
+    else:
+        print("⚠️ No last blog post file found to delete.")
+        
 def fetch_latest_medium_blog(username: str) -> Optional[str]:
     """
     Fetches the latest blog post from a Medium RSS feed.

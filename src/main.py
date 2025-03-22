@@ -9,7 +9,7 @@ from src.models.openai_generator import (
 )
 from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
-from src.utils.giphy import giphy_find_with_metadata ,extract_social_upload_metadata
+from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 
 
 def fetch_and_parse_blog(username: str) -> str | None:
@@ -50,54 +50,71 @@ def main(medium_username: str) -> None:
         if not parsed_blog:
             return
 
-       
+        # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
+        linkedin_post = {
+            "Text": "Tired of messy culturing workflows? We built a tool at Cyberoni that simplifies everything—from data management to label printing. Perfect for beginners & pros. No more chaos, just clarity. ✨ #CyberOniCommunity",
+            "Hashtags": ["#AI", "#MachineLearning", "#DataScience", "#Automation", "#Technology"],
+            "GifSearchTags": ["lab organization", "printing labels", "tech innovation"]
+        }
 
-        if linkedin_enabled: 
-            linkedin_post = run_openai_pipeline(parsed_blog)
-            if not linkedin_post:
-                raise ValueError("OpenAI did not return a valid LinkedIn post.")
+        if linkedin_enabled:
+            print("🚀 Preparing LinkedIn post...")
 
-        gif_tags = linkedin_post.get("GifSearchTags")
+            gif_tags = linkedin_post.get("GifSearchTags", [])
+            print(f"🔍 GIF search tags: {gif_tags}")
 
-        # 🔍 Handle GIF search
-        if gif_tags:
-            gif_result = giphy_find_with_metadata(gif_tags)
-            gif_obj = gif_result.get("gif")
-            if gif_obj:
-                linkedin_post["GifAsset"] = extract_social_upload_metadata(gif_obj)
+            if gif_tags:
+                gif_result = giphy_find_with_metadata(gif_tags)
+                print(gif_result,"gif_results")
+                gif_obj = gif_result.get("result", {}).get("gif")
+                print(gif_obj,"gif_obj")
 
-        # 🖼️ Handle Image asset
-        image_url = linkedin_post.get("ImageAsset")
+                if gif_obj:
+                    print("🎞️ Found GIF result, extracting metadata...")
+                    linkedin_post["GifAsset"] = extract_social_upload_metadata(gif_obj)
+                else:
+                    print("❌ No GIF found from Giphy.")
 
-        # ✅ Choose valid asset for posting
-        media_url = None
-        media_type = None
-        linkedin_post_text = linkedin_post.get("Text", "")
-        hashtags = linkedin_post.get("Hashtags", [])
+            image_url = linkedin_post.get("ImageAsset")
+            gif_asset = linkedin_post.get("GifAsset")
 
-        # Turn hashtag list into string: "#AI #ML #Tech"
-        hashtags_text = " ".join(hashtags)
+            print(f"🖼️ Image URL: {image_url}")
+            print(f"🎬 GIF Asset: {gif_asset}")
 
-        # Final post text with hashtags appended
-        linkedin_post_text = f"{linkedin_post_text}\n{hashtags_text}" if hashtags_text else linkedin_post_text
-        
-        if linkedin_post.get("GifAsset"):
-            media_url = linkedin_post["GifAsset"].get("mp4_url")
-            media_type = "GIF"
-        elif image_url:
-            media_url = image_url
-            media_type = "IMAGE"
+            # Prepare final post content
+            post_text = linkedin_post.get("Text", "")
+            hashtags = linkedin_post.get("Hashtags", [])
+            full_text = f"{post_text}\n{' '.join(hashtags)}" if hashtags else post_text
 
-        # 🔄 Post only if there's valid media
-        if media_url and media_type:
-            post_to_linkedin(
-                post_text=linkedin_post,
-                profile_id=profile_id,
-                media_url=media_url,
-                media_type=media_type
-            )
+            print("📝 Final post text:")
+            print(full_text)
 
-            print("✅ Successfully posted to LinkedIn!")
+            # Decide media type
+            media_url = None
+            media_type = None
+            if gif_asset:
+                media_url = gif_asset.get("mp4_url")
+                media_type = "GIF"
+                print(f"📦 Using GIF for post: {media_url}")
+            elif image_url:
+                media_url = image_url
+                media_type = "IMAGE"
+                print(f"🖼️ Using image for post: {media_url}")
+            else:
+                print("⚠️ No media asset found for the post.")
+
+            # Post to LinkedIn
+            if media_url and media_type:
+                post_to_linkedin(
+                    post_text=full_text,
+                    profile_id=profile_id,
+                    media_url=media_url,
+                    media_type=media_type
+                )
+                print("✅ Successfully posted to LinkedIn!")
+            else:
+                print("🚫 Skipping post — no valid media asset was available.")
+
         else:
             print("🔕 LinkedIn post generation complete (posting disabled).")
             print(f"\n📋 Suggested Post:\n{linkedin_post}")

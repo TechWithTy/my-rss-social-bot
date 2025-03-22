@@ -2,6 +2,7 @@
 import os
 import requests
 from typing import List, Optional,Any,Dict,Union
+from src.utils.index import get_env_variable
 
 def giphy_find_with_metadata(search_terms: List[str]) -> Dict[str, Union[Dict, List[str]]]:
     api_key: Optional[str] = get_env_variable("GIPHY_ASSET_TOKEN")
