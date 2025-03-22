@@ -1,11 +1,7 @@
 from src.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import (
-    create_openai_thread,
-    send_message_to_openai,
-    run_openai_assistant,
-    wait_for_openai_response,
-    get_openai_response
+run_openai_pipeline
 )
 from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
@@ -13,28 +9,15 @@ from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_meta
 
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 
+
 def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username)
+    blog_content = fetch_latest_medium_blog(username, True)
     if not blog_content:
         print("ℹ️ No blog content found.")
         return None
     return parse_html_blog_content(blog_content)
 
 
-def run_openai_pipeline(blog_content: str) -> str | None:
-    thread_id = create_openai_thread()
-    if not thread_id:
-        print("❌ Failed to create OpenAI thread.")
-        return None
-
-    send_message_to_openai(thread_id, blog_content)
-    run_id = run_openai_assistant(thread_id)
-    if not run_id:
-        print("❌ Failed to run OpenAI assistant.")
-        return None
-
-    wait_for_openai_response(thread_id, run_id)
-    return get_openai_response(thread_id)
 
 
 def main(medium_username: str) -> None:
@@ -52,8 +35,8 @@ def main(medium_username: str) -> None:
             return
 
         # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
-        # linkedin_post = run_openai_pipeline(parsed_blog)
-        linkedin_post = ai_img_example
+        linkedin_post = run_openai_pipeline(parsed_blog)
+        # linkedin_post = ai_img_example
 
         if linkedin_enabled:
             print("🚀 Preparing LinkedIn post...")

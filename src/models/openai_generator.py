@@ -1,10 +1,13 @@
+
 from typing import Optional, Dict, Any
 import requests
 import time
 import os
 from dotenv import load_dotenv
-from src.config_loader import config
-from src.utils.index import get_env_variable
+from utils.index import get_env_variable
+from utils import prompt_builder
+from utils.prompt_builder import build_prompt_payload
+from config_loader import config
 
 # ✅ Load environment variables
 load_dotenv()
@@ -13,6 +16,11 @@ env_path = ".env"
 
 OPENAI_API_KEY: Optional[str] = get_env_variable("OPENAI_API_KEY")
 OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
+
+
+prompt_payload = build_prompt_payload()
+prompt = prompt_payload.get("content")
+system_instructions = prompt_payload.get("system_instructions")
 
 if not OPENAI_API_KEY:
     raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
@@ -84,120 +92,9 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
     }
 
     # 🔧 Config sections
-    openai_config = config.get("openai", {})
-    user_config = config.get("user_profile", {})
-    social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
-
-    # 🔧 Instructions
-    system_instructions = openai_config.get("custom_system_instructions") or (
-        "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
-    )
-    user_instructions = openai_config.get("custom_user_instructions") or (
-        "Make the post concise, actionable, and emotionally resonant."
-    )
-
-    linkedin_enabled = social_config.get("enabled", False)
-    linkedin_max_chars = social_config.get("maximum_characters", "")
-
-    openai_config = config.get("ai", {})
-    viral = openai_config.get("viral_posting", {})
-
-    viral_style_instructions = "\n".join([
-            viral.get("attention_grabbing_intro", {}).get("description", ""),
-            viral.get("emotional_storytelling", {}).get("description", ""),
-            viral.get("relatable_experiences", {}).get("description", ""),
-            viral.get("actionable_takeaways", {}).get("description", ""),
-            viral.get("data-backed_claims", {}).get("description", ""),
-            viral.get("extreme_statements", {}).get("description", "")
-        ]).strip()
-
-    # 🎯 User Profile
-    target_audience = user_config.get("target_audience", "")
-    professional_summary = user_config.get("professional_summary", "")
-
-    # 🧨 Viral Examples
-    viral_examples = openai_config.get("viral_posts_i_liked", [])
-    formatted_viral_examples = ""
-    for post in viral_examples:
-        formatted_viral_examples += (
-            f"\n---\n"
-            f"📢 Text: {post.get('text')}\n"
-            f"📊 Engagement: {post.get('engagement')}\n"
-            f"🎨 Creative: {post.get('creative')}\n"
-            f"🔗 Asset: {post.get('creative_asset')}\n"
-            f"💡 Why it worked: {post.get('reason')}\n"
-        )
-    viral_examples_instruction = (
-        f"\n\nHere are some viral post examples for inspiration:\n{formatted_viral_examples}"
-        if formatted_viral_examples else ""
-    )
-
-    # #️⃣ Hashtags
-    hashtags_config = config.get("hashtags", {})
-    default_hashtags = hashtags_config.get("default_tags", [])
-    custom_hashtags = hashtags_config.get("custom_tags", [])
-    hashtag_instructions = (
-        f"\n\nInclude these default hashtags:\n{default_hashtags}\n"
-        f"Custom tags (optional):\n{custom_hashtags}"
-        if default_hashtags or custom_hashtags else ""
-    )
-
-    # 🎨 Creative Options
-    creative = openai_config.get("creative", {})
-    generate_image_cfg = creative.get("generate_image", {})
-    post_gif_cfg = creative.get("fetch_gif", {})
-
-    generate_image = generate_image_cfg.get("enabled", False)
-    fetch_gif = post_gif_cfg.get("enabled", False)
-    image_prompt = generate_image_cfg.get("prompt", "")
-    dimensions_width = generate_image_cfg.get("width", "")
-    dimensions_height = generate_image_cfg.get("width", "")
-    generate_image_model = generate_image_cfg.get("model", False)
-
-
-    gif_prompt = post_gif_cfg.get("prompt", "")
-
-    if generate_image and fetch_gif:
-        creative_instruction = (
-            f"\n\n"
-            + (
-                f"Generate an AI image using prompt: ({image_prompt})\n\n"
-                f"width: {dimensions_width}\n\n"
-                f"height: {dimensions_height}"
-                f"image model: {generate_image_model}"
-
-                if random.choice([True, False])
-                else f"Fetch a GIF using prompt: ({gif_prompt})"
-            )
-            + " that enhances the blog content."
-        )
-    elif generate_image:
-        creative_instruction = (
-            f"Generate an AI image using prompt: ({image_prompt})\n\n"
-            f"width: {dimensions_width}\n\n"
-            f"height: {dimensions_height}"
-            f"image model: {generate_image_model}"
-
-        )
-    elif fetch_gif:
-        creative_instruction = f"\n\n[GIF Prompt]: {gif_prompt}"
-    else:
-        creative_instruction = ""
-
+  
     # 📨 Final Message Content
-    content = (
-        f"Summarize this blog post into an engaging "
-        f"{'LinkedIn (' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
-        f"{blog_content}\n\n"
-        f"For target audience: {target_audience}\n"
-        f"About the writer: {professional_summary}\n\n"
-        f"{viral_examples_instruction}\n\n"
-        f"Viral Methodologies To use:\n{viral_style_instructions}\n\n"
-        f"{hashtag_instructions}\n\n"
-        f"{creative_instruction}\n\n"
-        f"{user_instructions}\n\n"
-       
-    )
+    content = (prompt)
     print('Message Content:\n\n', content)
     data = {
         "role": "user",
@@ -234,8 +131,8 @@ def run_openai_assistant(thread_id: str) -> Optional[str]:
         return None
 
 
-def wait_for_openai_response(thread_id: str, run_id: str) -> None:
-    """Waits for OpenAI Assistant to process the request."""
+def wait_for_openai_response(thread_id: str, run_id: str) -> Optional[dict]:
+    """Waits for OpenAI Assistant to process the request and returns failure details if any."""
     url = f"https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}"
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
@@ -245,13 +142,17 @@ def wait_for_openai_response(thread_id: str, run_id: str) -> None:
 
     while True:
         response = requests.get(url, headers=headers)
-        status = response.json().get("status", "")
+        data = response.json()
+        status = data.get("status", "")
+
         if status == "completed":
-            break
+            return None  # No issues
         elif status in ["failed", "cancelled"]:
-            print("❌ Assistant failed:", response.json())
-            return
+            print("❌ Assistant failed:", data)
+            return data  # 👈 Return full error response
+
         time.sleep(5)
+
 
 
 def get_openai_response(thread_id: str) -> Optional[str]:
@@ -262,7 +163,10 @@ def get_openai_response(thread_id: str) -> Optional[str]:
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v2"
     }
-
+    system_instructions = config.get("ai", {}).get("custom_system_instructions") or (
+        "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
+        )
+    print('system_instructions', system_instructions)
     response = requests.get(url, headers=headers)
     
     if response.status_code == 200:
@@ -278,3 +182,48 @@ def get_openai_response(thread_id: str) -> Optional[str]:
 
     print("❌ Error fetching response:", response.json())
     return None
+
+def run_openai_pipeline(blog_content: str) -> dict:
+    try:
+        thread_id = create_openai_thread()
+        if not thread_id:
+            return {
+                "status": "error",
+                "response": "❌ Failed to create OpenAI thread."
+            }
+
+        send_message_to_openai(thread_id, blog_content)
+        run_id = run_openai_assistant(thread_id)
+        if not run_id:
+            return {
+                "status": "error",
+                "response": "❌ Failed to run OpenAI assistant."
+            }
+
+        error_details = wait_for_openai_response(thread_id, run_id)
+
+        if error_details:
+            return {
+                "status": "failed",
+                "response": error_details.get("last_error", {}).get("message", "Unknown failure."),
+                "details": error_details  # Optional: include full payload
+            }
+
+        response_text = get_openai_response(thread_id)
+
+        if response_text:
+            return {
+                "status": "success",
+                "response": response_text
+            }
+        else:
+            return {
+                "status": "failed",
+                "response": "❌ Assistant did not return a valid response."
+            }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "response": f"❌ Exception during pipeline: {str(e)}"
+        }

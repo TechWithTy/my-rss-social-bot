@@ -132,7 +132,7 @@ def delete_last_medium_blog() -> None:
     else:
         print("⚠️ No last blog post file found to delete.")
         
-def fetch_latest_medium_blog(username: str) -> Optional[str]:
+def fetch_latest_medium_blog(username: str,saveState: bool) -> Optional[str]:
     """
     Fetches the latest blog post from a Medium RSS feed.
 
@@ -158,7 +158,8 @@ def fetch_latest_medium_blog(username: str) -> Optional[str]:
             return None
 
         # ✅ Save the new blog ID
-        write_last_medium_blog(latest_blog["id"])
+        if saveState:
+         write_last_medium_blog(latest_blog["id"])
 
         return latest_blog["content"]
     except Exception as e:

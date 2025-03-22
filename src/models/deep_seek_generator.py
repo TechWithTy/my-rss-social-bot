@@ -39,6 +39,24 @@ def send_message_to_deepseek(blog_content: str) -> Optional[str]:
         Optional[str]: AI-generated post or None if the request fails.
     """
 
+    deep_seek_config = config.get("user_profile",{}).get("llm", {}).get("DeepSeek", {})
+    deep_seek_text_model =deep_seek_config.get("text_model", "meta-llama/Meta-Llama-3-8B")
+    temperature = deep_seek_config.get("temperature", 0.7)
+    max_tokens = deep_seek_config.get("max_tokens", 500)
+    top_p = deep_seek_config.get("top_p", 0.95)
+    frequency_penalty = deep_seek_config.get("frequency_penalty", 0)
+    presence_penalty = deep_seek_config.get(" presence_penalty", 0)
+    response_format = deep_seek_config.get("response_format","json_object" )
+    tool_choice = deep_seek_config.get("tool_choice","auto" )
+    logrobs = deep_seek_config.get('logrobs',False)
+    top_logrobs = deep_seek_config.get('top_logrobs',5)
+    top_logrobs = deep_seek_config.get('tools',"function")
+
+    prompt_payload = build_prompt_payload()
+    prompt = prompt_payload.get("content")
+    prompt_creative = prompt_payload.get("creative_prompt")
+    system_instructions = prompt_payload.get("system_instructions")
+
     url = "https://api.deepseek.com/chat/completions"
     headers = {
         "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
@@ -46,107 +64,16 @@ def send_message_to_deepseek(blog_content: str) -> Optional[str]:
     }
 
     # 🔧 Config Sections
-    user_config = config.get("user_profile", {})
-    openai_config = config.get("ai", {})
-    social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
-
-    # 🔧 Instructions
-    system_instructions = openai_config.get("custom_system_instructions") or (
-        "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
-    )
-    user_instructions = openai_config.get("custom_user_instructions") or (
-        "Make the post concise, actionable, and emotionally resonant."
-    )
-
-    linkedin_enabled = social_config.get("enabled", False)
-    linkedin_max_chars = social_config.get("maximum_characters", "")
-
-    # 🧠 Viral Preferences
-    viral = openai_config.get("viral_posting", {})
-    viral_style_instructions = "\n".join([
-        viral.get("attention_grabbing_intro", {}).get("description", ""),
-        viral.get("emotional_storytelling", {}).get("description", ""),
-        viral.get("relatable_experiences", {}).get("description", ""),
-        viral.get("actionable_takeaways", {}).get("description", ""),
-        viral.get("data-backed_claims", {}).get("description", ""),
-        viral.get("extreme_statements", {}).get("description", "")
-    ]).strip()
-
-    # 🎯 User Profile
-    target_audience = user_config.get("target_audience", "")
-    professional_summary = user_config.get("professional_summary", "")
-
-    # 🧨 Viral Examples
-    viral_examples = openai_config.get("viral_posts_i_liked", [])
-    formatted_viral_examples = ""
-    for post in viral_examples:
-        formatted_viral_examples += (
-            f"\n---\n"
-            f"📢 Text: {post.get('text')}\n"
-            f"📊 Engagement: {post.get('engagement')}\n"
-            f"🎨 Creative: {post.get('creative')}\n"
-            f"🔗 Asset: {post.get('creative_asset')}\n"
-            f"💡 Why it worked: {post.get('reason')}\n"
-        )
-    viral_examples_instruction = (
-        f"\n\nHere are some viral post examples for inspiration:\n{formatted_viral_examples}"
-        if formatted_viral_examples else ""
-    )
-
-    # #️⃣ Hashtags
-    hashtags_config = config.get("hashtags", {})
-    default_hashtags = hashtags_config.get("default_tags", [])
-    custom_hashtags = hashtags_config.get("custom_tags", [])
-    hashtag_instructions = (
-        f"\n\nInclude these default hashtags:\n{default_hashtags}\n"
-        f"Custom tags (optional):\n{custom_hashtags}"
-        if default_hashtags or custom_hashtags else ""
-    )
-
-    # 🎨 Creative Options
-    creative = openai_config.get("creative", {})
-    generate_image_cfg = creative.get("generate_image", {})
-    post_gif_cfg = creative.get("post_gif", {})
-
-    generate_image = generate_image_cfg.get("enabled", False)
-    fetch_gif = post_gif_cfg.get("enabled", False)
-    image_prompt = generate_image_cfg.get("prompt", "")
-    gif_prompt = post_gif_cfg.get("prompt", "")
-
-    if generate_image and fetch_gif:
-        creative_instruction = (
-            f"\n\nYou may choose to either generate an AI image ({image_prompt}) or fetch a GIF ({gif_prompt}) "
-            "that enhances the blog content."
-        )
-    elif generate_image:
-        creative_instruction = f"\n\n[Visual Prompt]: {image_prompt}"
-    elif fetch_gif:
-        creative_instruction = f"\n\n[GIF Prompt]: {gif_prompt}"
-    else:
-        creative_instruction = ""
-
-    # 📨 Final Message Content
-    content = (
-        f"Summarize this blog post into an engaging "
-        f"{'LinkedIn (' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
-        f"{blog_content}\n\n"
-        f"For target audience: {target_audience}\n"
-        f"About the writer: {professional_summary}\n\n"
-        f"{user_instructions}\n\n"
-        f"{viral_examples_instruction}\n\n"
-        f"Viral Methodologies To use:\n{viral_style_instructions}\n\n"
-        f"{hashtag_instructions}\n\n"
-        f"{creative_instruction}"
-    )
+   
 
     print('Message Content:\n\n', content)
     
     # ✅ Request Payload
     payload = {
-        "model": deepseek_model,
+        "model": deep_seek_text_model,
         "messages": [
             {"role": "system", "content": system_instructions},
-            {"role": "user", "content": content}
+            {"role": "user", "content": prompt}
         ],
         "temperature": temperature,
         "max_tokens": max_tokens,

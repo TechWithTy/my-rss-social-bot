@@ -1,9 +1,10 @@
-import pytest
-import asyncio
 
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import pytest
+import asyncio
 
 from models.pollinations_async import (
     generate_image,
@@ -15,13 +16,12 @@ from models.pollinations_async import (
     fetch_image_feed,
     fetch_text_feed,
 )
-from data.example_blog import example_blog
 from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
 
 
 def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username)
+    blog_content = fetch_latest_medium_blog(username,False)
     if not blog_content:
         print("ℹ️ No blog content found.")
         return None

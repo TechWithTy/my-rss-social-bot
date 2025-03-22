@@ -1,11 +1,15 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import random
 from typing import Dict, Any, List, Tuple
 from config_loader import config
 from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
-    
+
 def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username)
+    blog_content = fetch_latest_medium_blog(username,False)
     if not blog_content:
         print("ℹ️ No blog content found.")
         return None
@@ -110,6 +114,7 @@ def build_prompt_payload() -> Dict[str, Any]:
 
     # 📨 Final Prompt
     content = (
+        f"{user_instructions}"
         f"Summarize this blog post into an engaging "
         f"{'LinkedIn (' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
         f"{blog_content}\n\n"
@@ -120,6 +125,7 @@ def build_prompt_payload() -> Dict[str, Any]:
         f"{hashtag_instructions}\n"
         f"{creative_instruction}\n"
         f"{user_instructions}"
+      
     )
 
     return {
