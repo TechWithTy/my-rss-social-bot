@@ -23,7 +23,8 @@ async def test_send_message_to_deepseek():
         print("⚠️ DeepSeek returned a failure")
         print("📥 Response:", result.get("response"))
         print("🧾 Details:", result.get("details"))
-        pytest.fail("❌ DeepSeek request did not succeed")
+        error_message = result.get("details", {}).get("raw", {}).get("error", {}).get("message")
+        pytest.fail("❌ DeepSeek request did not succeed " + error_message)
 
     response_text = result.get("response")
 

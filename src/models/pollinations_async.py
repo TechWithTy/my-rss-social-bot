@@ -55,14 +55,28 @@ async def generate_text(prompt: str) -> Optional[str]:
         return response.text if response else None
 
 
-async def generate_text_advanced(payload: dict) -> Optional[dict]:
+async def generate_text_advanced(payload: dict) -> Optional[str]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(BASE_TEXT_URL, json=payload)
-            return response.json()
+            
+            print("📥 Status Code:", response.status_code)
+            print("📦 Raw Response Text:", response.text)
+
+            if response.status_code == 200:
+                print("🧠 Parsed JSON:", response.text)
+
+                generated_text = response.text
+
+                return generated_text
+            else:
+                print("❌ Non-200 Response:", response.text)
+                return None
+
         except Exception as e:
-            print(f"Advanced text generation failed: {e}")
+            print(f"❌ Exception during advanced text generation: {e}")
             return None
+
 
 
 async def generate_audio(prompt: str, voice: str = DEFAULT_VOICE) -> Optional[str]:
