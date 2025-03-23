@@ -10,7 +10,12 @@ app = "python -m src.main"
 test = "pytest -s -v src/tests/"
 test-html = "pytest -s -v src/tests/ --html=src/tests/reports/html/_report.html"
 
-test-pollinations = "pytest -s -v src/tests/test_pollinations_async.py --html=src/tests/reports/html/pollinations_report.html"
+test-pollinations = "pytest -s -v src/tests/test_pollinations_async.py --html=src/tests/reports/html/pollinations_report.html --log-cli-level=INFO"
+test-deepseek = "pytest -s -v src/tests/test_deepseek_async.py --html=src/tests/reports/html/deepseek_report.html --log-cli-level=INFO"
+test-claude = "pytest -s -v src/tests/test_claude_async.py --html=src/tests/reports/html/claude.html --log-cli-level=INFO"
+test-huggingface = "pytest -s -v src/tests/test_huggingface_async.py --html=src/tests/reports/html/huggingface.html --log-cli-level=INFO"
+test-openai = "pytest -s -v src/tests/test_openai_async.py --html=src/tests/reports/html/openai.html --log-cli-level=INFO"
+
 [packages]
 anyio = "==4.9.0"
 beautifulsoup4 = "==4.13.3"
