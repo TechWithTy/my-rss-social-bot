@@ -11,25 +11,16 @@ from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals
 # ✅ Load environment variables
 load_dotenv()
 HUGGINGFACE_API_KEY: Optional[str] = get_env_variable("HUGGINGFACE_API_KEY")
 
 if not HUGGINGFACE_API_KEY:
     raise ValueError("❌ HUGGINGFACE_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
-# Initialize the state
-init_globals_for_test()
 
 # Get the shared global state
-state = get_prompt_globals()
 
-prompt = state["prompt"]
-creative_prompt = state["creative_prompt"]
-gif_prompt = state["gif_prompt"]
-hashtags = state["hashtags"]
-system_instructions = state["system_instructions"]
-blog_content = state["blog_content"]
 # ✅ LLM Configuration for Hugging Face
 hf_config = config.get("user_profile",{}).get("llm", {}).get("HuggingFace", {})
 # print("hfconfig",hf_config)
@@ -54,7 +45,14 @@ def send_message_to_huggingface(prompt_text: str) -> dict:
             "max_length": max_tokens,
         }
     }
+    state = get_prompt_globals()
 
+    prompt = state["prompt"]
+    creative_prompt = state["creative_prompt"]
+    gif_prompt = state["gif_prompt"]
+    hashtags = state["hashtags"]
+    system_instructions = state["system_instructions"]
+    blog_content = state["blog_content"]
     print(f"📤 Sending prompt to Hugging Face model: {hf_text_model}")
     print(f"📝 Prompt:\n{prompt_text}\n")
 

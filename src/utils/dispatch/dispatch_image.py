@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+import os
 import httpx
 import asyncio
 import json
@@ -11,11 +12,17 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 from utils.giphy import giphy_find_with_metadata  # ensure this is available
 
+FLUX_BASE_TEXT_URL = "https://text.pollinations.ai"
+
 FLUX_BASE_IMAGE_URL = "https://image.pollinations.ai"
 
 # Initialize the state
-init_globals_for_test()
 
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+
+if TEST_MODE:
+    init_globals_for_test()
+    
 # Get the shared global state
 state = get_prompt_globals()
 
@@ -27,15 +34,33 @@ system_instructions = state["system_instructions"]
 blog_content = state["blog_content"]
 
 async def generate_image_description() -> Optional[str]:
-    if blog_content:
-        prompt = f"{creative_prompt}\n\nBLOG:\n{blog_content.strip()}"
-        encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")
-        url = f"{FLUX_BASE_IMAGE_URL}/{encoded_prompt}"
-        async with httpx.AsyncClient() as client:
-            response = await fetch_with_retries(url, client)
-            return response.text.strip() if response else None
-    else:
+    global prompt, creative_prompt, gif_prompt, hashtags, system_instructions, blog_content
+
+    if not prompt or not isinstance(prompt, str):
+        print("🧪 Image Values Description:", prompt, creative_prompt, gif_prompt, hashtags, system_instructions, blog_content)
+        raise ValueError(f"❌ Invalid prompt passed to generate_image_description: {repr(prompt)}")
+
+    if not blog_content:
+        print("⚠️ blog_content is missing — cannot build full prompt.")
         return None
+
+    # Construct enriched prompt and sanitize
+    final_prompt = f"{creative_prompt}\n\n{hashtags}"
+    encoded_prompt = httpx.QueryParams({"prompt": final_prompt}).get("prompt")
+
+    url = f"{FLUX_BASE_TEXT_URL}/{encoded_prompt}"
+    url = url.strip().replace('\n', '').replace('\r', '')
+    print(f"📡 Pollinations GET URL: {repr(url)}")
+
+    async with httpx.AsyncClient() as client:
+        response = await fetch_with_retries(url, client)
+        if response:
+            print("✅ Fallback image prompt response received.")
+            return response.text.strip()
+        else:
+            print("❌ No response from Pollinations fallback.")
+            return None
+
 async def generate_gif_tags() -> Optional[Dict[str, list]]:
     if blog_content:
         prompt = f"{system_instructions}\n\nBLOG:\n{blog_content.strip()}"
@@ -53,7 +78,7 @@ async def generate_gif_tags() -> Optional[Dict[str, list]]:
 
 async def dispatch_image_pipeline(provider: str) -> Optional[Dict[str, str]]:
     creative_prompt_output = await generate_image_description()
-
+    print("Creative Prompt Output",creative_prompt_output)
     match provider:
         case "Pollinations_Image":
             print("🖼️ Pollinations_Image", creative_prompt_output)

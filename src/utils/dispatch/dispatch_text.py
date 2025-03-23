@@ -1,8 +1,7 @@
 
 from utils.config_loader import config
+import os
 from models.pollinations_generator import (
-
-
     generate_text,
     generate_text_advanced,
     generate_audio,
@@ -16,8 +15,23 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
+from utils.prompt_builder import  init_globals_for_test,get_prompt_globals
 
 
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+
+if TEST_MODE:
+    init_globals_for_test()
+    
+state = get_prompt_globals()
+
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
+openai_config = config.get("user_profile", {}).get("llm", {}).get("OpenAI", {})
 
 
 def handle_pollinations_text_completion():

@@ -4,16 +4,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import pytest
 from models.openai_generator import run_openai_pipeline
+from utils.prompt_builder import init_globals_for_test
+# Initialize the state
+init_globals_for_test()
 
 @pytest.mark.asyncio
-async def test_run_openai_pipeline():
-    sample_blog = (
-        "In today’s fast-paced world of AI, staying ahead means learning fast. "
-        "Here are 5 tools every beginner should master in 2024. Let’s dive in!"
-    )
 
-    result = run_openai_pipeline()
 
+async def test_run_openai_pipeline(initialized_prompt_state):
+    prompt = initialized_prompt_state["prompt"]
+    assert prompt is not None, "❌ Prompt is still None"
+    print("👁️Open Ai Test print",prompt)
+    result = run_openai_pipeline(prompt=prompt)
     assert isinstance(result, dict), "Expected result to be a dictionary"
     assert result.get("status") != "failed", f"❌ Assistant failed: {result.get('response')}"
     assert result.get("status") == "success", f"❌ Pipeline did not complete successfully: {result}"

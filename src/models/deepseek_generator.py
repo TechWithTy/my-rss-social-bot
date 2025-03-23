@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals# ✅ Load environment variables
+from utils.prompt_builder import  get_prompt_globals# ✅ Load environment variables
 load_dotenv()
 
 DEEPSEEK_API_KEY: Optional[str] = get_env_variable("DEEPSEEK_API_KEY")
@@ -21,23 +21,24 @@ if not DEEPSEEK_API_KEY:
 
 
 # Initialize the state
-init_globals_for_test()
 
-# Get the shared global state
-state = get_prompt_globals()
 
-# Access individual variables
-prompt = state["prompt"]
-creative_prompt = state["creative_prompt"]
-gif_prompt = state["gif_prompt"]
-hashtags = state["hashtags"]
-system_instructions = state["system_instructions"]
-blog_content = state["blog_content"]
+
 
 def send_message_to_deepseek() -> dict:
     """
     Sends a blog post to DeepSeek AI and returns a result dict with status, response, and metadata.
     """
+    # Get the shared global state
+    state = get_prompt_globals()
+
+    # Access individual variables
+    prompt = state["prompt"]
+    creative_prompt = state["creative_prompt"]
+    gif_prompt = state["gif_prompt"]
+    hashtags = state["hashtags"]
+    system_instructions = state["system_instructions"]
+    blog_content = state["blog_content"]
     if not prompt:
         print("No Prompt Given DeepSeek")
         return {

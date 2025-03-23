@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals
 
 # ✅ Load environment variables
 load_dotenv()
@@ -19,14 +19,7 @@ ANTHROPIC_API_KEY: Optional[str] = get_env_variable("ANTHROPIC_API_KEY")
 if not ANTHROPIC_API_KEY:
     raise ValueError("❌ ANTHROPIC_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
 
-init_globals_for_test()
-state = get_prompt_globals()
-prompt = state["prompt"]
-creative_prompt = state["creative_prompt"]
-gif_prompt = state["gif_prompt"]
-hashtags = state["hashtags"]
-system_instructions = state["system_instructions"]
-blog_content = state["blog_content"]
+
 # ✅ LLM Configuration for Claude
 claude_config = config.get("user_profile", {}).get("llm", {}).get("Anthropic", {})
 claude_model = claude_config.get("text_model", "claude-3-sonnet")
@@ -41,6 +34,14 @@ def send_message_to_claude() -> dict:
         "anthropic-version": "2023-06-01",
         "Content-Type": "application/json"
     }
+   
+    state = get_prompt_globals()
+    prompt = state["prompt"]
+    creative_prompt = state["creative_prompt"]
+    gif_prompt = state["gif_prompt"]
+    hashtags = state["hashtags"]
+    system_instructions = state["system_instructions"]
+    blog_content = state["blog_content"]
 
     if not prompt:
         print("No Prompt Given Claude")

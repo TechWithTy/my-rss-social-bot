@@ -2,6 +2,10 @@ import sys
 import os
 import pytest
 import asyncio
+from utils.prompt_builder import init_globals_for_test
+
+# Initialize the state
+init_globals_for_test()
 
 # Add src path for module resolution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

@@ -9,7 +9,7 @@ import httpx
 import asyncio
 from typing import Optional, Dict, Any
 from utils import prompt_builder
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals
 import urllib.parse
 
 
@@ -24,8 +24,6 @@ FALLBACK_VOICE = "echo"
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 1.5
 
-# Initialize the state
-init_globals_for_test()
 
 # Get the shared global state
 state = get_prompt_globals()

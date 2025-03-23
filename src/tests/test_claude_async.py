@@ -13,6 +13,14 @@ from utils.prompt_builder import init_globals_for_test, get_prompt_globals # ✅
 init_globals_for_test()
 
 # Get the shared global state
+state = get_prompt_globals()
+
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
 
 @pytest.mark.asyncio
 async def test_send_message_to_claude():

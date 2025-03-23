@@ -9,7 +9,7 @@ from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
 from utils.medium_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
 
-
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 _prompt_globals = {
     "prompt": None,
     "creative_prompt": None,
@@ -177,37 +177,42 @@ def get_prompt_globals():
 
 def init_globals_if_needed() -> None:
     """
-    Initialize module-level globals only once.
+    Initialize _prompt_globals only once.
     If they are already set, do nothing.
     """
-    global prompt, creative_prompt, gif_prompt, hashtags, system_instructions, blog_content
+    global _prompt_globals
 
-    # If 'prompt' is not None, we've already done this initialization
-    if prompt is not None:
+    # If 'prompt' is not None, we've already initialized
+    if _prompt_globals.get("prompt") is not None:
         return
-    
-    blog_content = fetch_and_parse_blog(medium_username)
-    prompt_payload = build_prompt_payload(blog_content)
+
+    blog_content_raw = fetch_and_parse_blog(medium_username)
+    prompt_payload = build_prompt_payload(blog_content_raw)
+
     if not prompt_payload:
         print("⚠️ No prompt payload returned.")
         return
 
-    prompt = prompt_payload.get("content")
-    creative_prompt = prompt_payload.get("creative_prompt")
-    gif_prompt = prompt_payload.get("gif_prompt")
-    hashtags = prompt_payload.get("hashtags", [])
-    system_instructions = prompt_payload.get("system_instructions")
-    blog_content = prompt_payload.get("blog_content")
+    _prompt_globals.update({
+        "prompt": prompt_payload.get("content"),
+        "creative_prompt": prompt_payload.get("creative_prompt"),
+        "gif_prompt": prompt_payload.get("gif_prompt"),
+        "hashtags": prompt_payload.get("hashtags", []),
+        "system_instructions": prompt_payload.get("system_instructions"),
+        "blog_content": prompt_payload.get("blog_content"),
+    })
 
 
 def init_globals_for_test():
     global _prompt_globals
+    if not TEST_MODE:
+        raise RuntimeError("⚠️ init_globals_for_test() should only be used in TEST_MODE (.env boolean)")
 
     cached = load_blog_cache()
 
     if not cached:
         print("📥 No cached blog found. Fetching fresh one for test.")
-        fresh = fetch_latest_medium_blog(medium_username, saveState=True)
+        fresh = fetch_latest_medium_blog(medium_username)
         if not fresh or not fresh["latest_blog"]["content"]:
             raise RuntimeError("❌ Could not fetch fresh blog content for tests.")
         blog_content_raw = fresh['latest_blog']['content']

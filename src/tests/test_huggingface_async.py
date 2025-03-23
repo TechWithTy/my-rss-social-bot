@@ -1,8 +1,16 @@
 import sys
+    """
+    The function `test_run_huggingface_pipeline` is a pytest asynchronous test that checks the output of
+    a Hugging Face text generation pipeline for specific conditions and prints the results.
+    """
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 from models.huggingface_generator import run_huggingface_pipeline
+from utils.prompt_builder import init_globals_for_test
+
+# Initialize the state
+init_globals_for_test()
 
 @pytest.mark.asyncio
 async def test_run_huggingface_pipeline():

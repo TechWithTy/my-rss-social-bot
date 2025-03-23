@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.deepseek_generator import send_message_to_deepseek
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.prompt_builder import init_globals_for_test
 
 # Initialize the state
 init_globals_for_test()
