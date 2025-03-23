@@ -9,7 +9,7 @@ import httpx
 import asyncio
 from typing import Optional, Dict, Any
 from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 import urllib.parse
 
 
@@ -24,7 +24,19 @@ FALLBACK_VOICE = "echo"
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 1.5
 
+# Initialize the state
+init_globals_for_test()
 
+# Get the shared global state
+state = get_prompt_globals()
+
+# Access individual variables
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
 
 async def fetch_with_retries(url: str, client: httpx.AsyncClient) -> Optional[httpx.Response]:
     for attempt in range(MAX_RETRIES):

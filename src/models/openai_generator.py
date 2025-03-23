@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.config_loader import config
 
 # ✅ Load environment variables
@@ -21,8 +21,18 @@ env_path = ".env"
 
 OPENAI_API_KEY: Optional[str] = get_env_variable("OPENAI_API_KEY")
 OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
+# Initialize the state
+init_globals_for_test()
 
+# Get the shared global state
+state = get_prompt_globals()
 
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
 
 
 if not OPENAI_API_KEY:

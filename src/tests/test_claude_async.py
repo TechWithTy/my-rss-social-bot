@@ -7,6 +7,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from models.claude_generator import send_message_to_claude
 
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals # ✅ This will ensure blog + prompt vars are initialized
+
+# Initialize the state
+init_globals_for_test()
+
+# Get the shared global state
+
 @pytest.mark.asyncio
 async def test_send_message_to_claude():
     sample_blog = (
@@ -20,6 +27,8 @@ async def test_send_message_to_claude():
     print("\n📬 Claude Test Response:")
     print("📊 Status:", result.get("status"))
     print("📥 Response:", result.get("response"))
+    print("📦 Message:", result.get("message"))
+
     print("🔍 Status Code:", result.get("status_code"))
 
     if result.get("status") == "success":

@@ -1,15 +1,17 @@
+
 from src.utils.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import run_openai_pipeline
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
-from src.utils.prompt_builder import prompt
-
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 import asyncio
 
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
+
+
 
 
 def authenticate_linkedin() -> Optional[str]:
@@ -67,6 +69,7 @@ def post_to_linkedin_if_possible(post_text: str, media_url: Optional[str], media
 
 
 def main(medium_username: str) -> None:
+    init_globals_if_needed()
     try:
         linkedin_enabled = config['social_media_to_post_to']['linkedin'].get('enabled', False)
         text_model = config['ai']['text']['generate_text']['LLM']

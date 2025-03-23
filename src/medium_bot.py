@@ -140,7 +140,6 @@ def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
         blogs_data = fresh_data
         latest_blog = blogs_data["blogs"][0]
 
-        from utils.medium_helper import extract_blog_media  # or wherever it's imported
         media = extract_blog_media(latest_blog["content"])
 
         return {

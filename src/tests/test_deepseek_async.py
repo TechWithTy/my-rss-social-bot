@@ -6,13 +6,16 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.deepseek_generator import send_message_to_deepseek
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+
+# Initialize the state
+init_globals_for_test()
+
+
 
 @pytest.mark.asyncio
 async def test_send_message_to_deepseek():
-    sample_blog = (
-        "In 2024, emerging AI tools have changed how we work. "
-        "Here are 5 innovations you can't afford to ignore if you're in tech."
-    )
+    
 
     result = send_message_to_deepseek()
     print("🦈 DeepSeek Result",result)

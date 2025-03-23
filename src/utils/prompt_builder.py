@@ -7,6 +7,17 @@ from typing import Dict, Any, List, Tuple
 from utils.config_loader import config
 from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
+from utils.medium_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
+
+
+_prompt_globals = {
+    "prompt": None,
+    "creative_prompt": None,
+    "gif_prompt": None,
+    "hashtags": [],
+    "system_instructions": None,
+    "blog_content": None
+}
 
 ai_config = config.get("ai", {})
 user_config = config.get("user_profile", {})
@@ -34,9 +45,8 @@ def fetch_and_parse_blog(username: str) -> str | None:
 
 
 
-def build_prompt_payload() -> Dict[str, Any]:
-    
-    blog_content = fetch_and_parse_blog(medium_username)
+def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
+
 
     if not blog_content:
         print("Blog Content Empty 🫗",blog_content)
@@ -158,20 +168,66 @@ def build_prompt_payload() -> Dict[str, Any]:
     }
 
 
-prompt_payload = build_prompt_payload()
 
-if prompt_payload is None:
-    print("⚠️ No prompt payload returned.")
-    prompt = None
-    creative_prompt = None
-    gif_prompt = None
-    hashtags = []
-    system_instructions = None
-    blog_content = None
-else:
+
+
+
+def get_prompt_globals():
+    return _prompt_globals
+
+def init_globals_if_needed() -> None:
+    """
+    Initialize module-level globals only once.
+    If they are already set, do nothing.
+    """
+    global prompt, creative_prompt, gif_prompt, hashtags, system_instructions, blog_content
+
+    # If 'prompt' is not None, we've already done this initialization
+    if prompt is not None:
+        return
+    
+    blog_content = fetch_and_parse_blog(medium_username)
+    prompt_payload = build_prompt_payload(blog_content)
+    if not prompt_payload:
+        print("⚠️ No prompt payload returned.")
+        return
+
     prompt = prompt_payload.get("content")
     creative_prompt = prompt_payload.get("creative_prompt")
     gif_prompt = prompt_payload.get("gif_prompt")
     hashtags = prompt_payload.get("hashtags", [])
     system_instructions = prompt_payload.get("system_instructions")
     blog_content = prompt_payload.get("blog_content")
+
+
+def init_globals_for_test():
+    global _prompt_globals
+
+    cached = load_blog_cache()
+
+    if not cached:
+        print("📥 No cached blog found. Fetching fresh one for test.")
+        fresh = fetch_latest_medium_blog(medium_username, saveState=True)
+        if not fresh or not fresh["latest_blog"]["content"]:
+            raise RuntimeError("❌ Could not fetch fresh blog content for tests.")
+        blog_content_raw = fresh['latest_blog']['content']
+    else:
+        blog_content_raw = cached['blogs'][0]['content']
+        if not blog_content_raw:
+            raise RuntimeError("❌ Cached blog has no 'content' key.")
+
+    _prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
+
+    prompt_payload = build_prompt_payload(blog_content_raw)
+    if not prompt_payload:
+        raise RuntimeError("❌ No prompt payload could be generated.")
+
+    _prompt_globals.update({
+        "prompt": prompt_payload.get("content"),
+        "creative_prompt": prompt_payload.get("creative_prompt"),
+        "gif_prompt": prompt_payload.get("gif_prompt"),
+        "hashtags": prompt_payload.get("hashtags", []),
+        "system_instructions": prompt_payload.get("system_instructions"),
+    })
+
+    print("PromptBuilder Test Ran 🧪", _prompt_globals["prompt"])

@@ -2,7 +2,7 @@ from typing import Optional, Dict
 import httpx
 import asyncio
 import json
-from utils.prompt_builder import build_prompt_payload, prompt, creative_prompt, system_instructions, blog_content
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.config_loader import config
 from models.pollinations_generator import generate_image, generate_image_advanced,fetch_with_retries
 from models.openai_generator import generate_openai_image
@@ -12,6 +12,19 @@ from models.claude_generator import send_message_to_claude
 from utils.giphy import giphy_find_with_metadata  # ensure this is available
 
 FLUX_BASE_IMAGE_URL = "https://image.pollinations.ai"
+
+# Initialize the state
+init_globals_for_test()
+
+# Get the shared global state
+state = get_prompt_globals()
+
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
 
 async def generate_image_description() -> Optional[str]:
     if blog_content:
