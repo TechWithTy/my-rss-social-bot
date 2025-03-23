@@ -143,12 +143,17 @@ def build_pollinations_payload():
 def dispatch_text_pipeline(provider: str,):
     match provider:
         case "Pollinations_Text":
-            # Basic GET /{prompt}
             print("Pollinations_Text", prompt)
             safe_prompt = urllib.parse.quote(prompt)
             llm_response = asyncio.run(generate_text(prompt=safe_prompt))
-            print("Pollinations_Text LLM Response",llm_response)
-            return llm_response
+            print("Pollinations_Text LLM Response", type(llm_response), llm_response)
+
+            try:
+                parsed_response = json.loads(llm_response)
+                return parsed_response
+            except json.JSONDecodeError as e:
+                print("❌ Failed to parse JSON:", e)
+                return {"Text": llm_response}  # fallback if it's just plain text
 
         case "Pollinations_Text_Advanced":
             # POST / with messages + model
@@ -168,11 +173,10 @@ def dispatch_text_pipeline(provider: str,):
             }
 
             llm_response = asyncio.run(generate_text_advanced( payload=payload))
-            tool_calls = llm_response["choices"][0]["message"]["tool_calls"]
-      
+            parsed = json.loads(llm_response)
+            print("Pollinations_Text_Advanced LLM Parsed",parsed)
 
-            print("Pollinations_Text_Advanced LLM Response",llm_response["Text"])
-            return llm_response
+            return parsed
 
         case "Pollinations_Text_Completion":
             # OpenAI-compatible Chat Completions
@@ -225,7 +229,9 @@ def dispatch_text_pipeline(provider: str,):
                 ],
                 "system": claude_cfg['system']
             }
-            return asyncio.run(send_message_to_claude())
+            llm_response = send_message_to_claude()
+            print("🎅 Claude Response",llm_response)
+            return llm_response
 
         case _:
             raise ValueError(f"❌ Unsupported provider: {provider}")
