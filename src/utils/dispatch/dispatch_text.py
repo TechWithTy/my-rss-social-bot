@@ -11,17 +11,88 @@ from models.pollinations_generator import (
     fetch_image_feed,
     fetch_text_feed,
     call_openai_compatible_endpoint)
-
+import urllib.parse
 from models.openai_generator import run_openai_pipeline
 from models.huggingface_generator import run_huggingface_pipeline
 from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
-
+import asyncio
+import json
 prompt_payload = build_prompt_payload()
 prompt = prompt_payload.get("content")
 system_instructions = prompt_payload.get("system_instructions")
 
 
+
+def handle_pollinations_text_completion():
+    # Build the request payload (adjust as needed)
+    payload = build_pollinations_payload()
+    endpoint = config['user_profile']['llm']['Pollinations']['openai_compatible']['endpoint']
+    
+    # Make the async call to your OpenAI-like endpoint
+    llm_response = asyncio.run(call_openai_compatible_endpoint(endpoint, payload=payload))
+    tool_calls = llm_response["choices"][0]["message"]["tool_calls"]
+    
+    # Get the generate_post call
+    generate_post_call = next(call for call in tool_calls if call["function"]["name"] == "generate_post")
+    post_data = json.loads(generate_post_call["function"]["arguments"])
+    post_text = post_data["Text"]
+    post_hashtags = post_data.get("Hashtags", [])
+    
+    # Try to find generate_image call (may or may not exist)
+    generate_image_call = next(
+        (call for call in tool_calls if call["function"]["name"] == "generate_image"),
+        None
+    )
+    
+    # Try to find fetch_gif call (may or may not exist)
+    fetch_gif_call = next(
+        (call for call in tool_calls if call["function"]["name"] == "fetch_gif"),
+        None
+    )
+
+    # If you have an image call
+    if generate_image_call is not None:
+        image_data = json.loads(generate_image_call["function"]["arguments"])
+        image_description = image_data.get("description", "")
+        
+        # Build an example "image" JSON response
+        ai_img_example = {
+            "Text": post_text,
+            "Creative": f"[IMG] {image_description}",
+            # Example: building a hypothetical image URL using the description
+            "ImageAsset":  (
+                f"https://image.pollinations.ai/prompt={image_description.replace(' ', '%20')}"
+                f"?width={image_data.get('width', 1024)}"
+                f"&height={image_data.get('height', 1024)}"
+                f"&model={image_data.get('model', 'realistic_v4')}&nologo=true"
+            ),
+            "Hashtags": post_hashtags
+        }
+        
+        print("Pollinations_Text_OPENAI LLM Response (image):", ai_img_example["ImageAsset"])
+        return ai_img_example
+    
+    # Else if you have a gif call
+    elif fetch_gif_call is not None:
+        gif_data = json.loads(fetch_gif_call["function"]["arguments"])
+        gif_tags = gif_data.get("tags", [])
+        
+        # Build an example "gif" JSON response
+        ai_gif_example = {
+            "Text": post_text,
+            "Hashtags": post_hashtags,
+            "GifSearchTags": gif_tags
+        }
+        
+        print("Pollinations_Text_OPENAI LLM Response (gif):", ai_gif_example["GifSearchTags"])
+        return ai_gif_example
+    
+    # If neither is found, just return the post text or handle however you like
+    return {
+        "Text": post_text,
+        "Hashtags": post_hashtags
+    }
 
 def build_pollinations_payload():
     pollinations_cfg = config['user_profile']['llm']['Pollinations']['openai_compatible']
@@ -73,16 +144,20 @@ def dispatch_text_pipeline(provider: str,):
     match provider:
         case "Pollinations_Text":
             # Basic GET /{prompt}
-            prompt = parsed_blog
-            return asyncio.run(generate_text(prompt=prompt))
+            print("Pollinations_Text", prompt)
+            safe_prompt = urllib.parse.quote(prompt)
+            llm_response = asyncio.run(generate_text(prompt=safe_prompt))
+            print("Pollinations_Text LLM Response",llm_response)
+            return llm_response
 
         case "Pollinations_Text_Advanced":
             # POST / with messages + model
+            print("advanced_cfg")
             advanced_cfg = config['user_profile']['llm']['Pollinations']['native_post']
             messages = advanced_cfg.get("messages", [])
             for msg in messages:
                 if msg["role"] == "user":
-                    msg["content"] = parsed_blog
+                    msg["content"] = prompt
             payload = {
                 "messages": messages,
                 "model": advanced_cfg.get("model", "mistral"),
@@ -91,32 +166,42 @@ def dispatch_text_pipeline(provider: str,):
                 "private": advanced_cfg.get("private", True),
                 "reasoning_effort": advanced_cfg.get("reasoning_effort", "medium")
             }
-            return asyncio.run(generate_text_advanced("/", payload=payload))
+
+            llm_response = asyncio.run(generate_text_advanced( payload=payload))
+            tool_calls = llm_response["choices"][0]["message"]["tool_calls"]
+      
+
+            print("Pollinations_Text_Advanced LLM Response",llm_response["Text"])
+            return llm_response
 
         case "Pollinations_Text_Completion":
             # OpenAI-compatible Chat Completions
-            payload = build_pollinations_payload()
-            endpoint = config['user_profile']['llm']['Pollinations']['openai_compatible']['endpoint']
-            return asyncio.run(call_openai_compatible_endpoint(endpoint, payload=payload))
+             return handle_pollinations_text_completion()
 
         case "OpenAI":
             openai_cfg = config['user_profile']['llm']['OpenAI']
             payload = {
                 "model": openai_cfg['text_model'],
-                "messages": [{"role": "user", "content": parsed_blog}],
+                "messages": [{"role": "user", "content": prompt}],
                 "temperature": openai_cfg['temperature'],
                 "top_p": openai_cfg['top_p']
             }
             return asyncio.run(run_openai_pipeline())
 
-        case "HuggingFace":          
-            return asyncio.run(run_huggingface_pipeline())
+        case "HuggingFace":
+            print("🤗 Hugging Face")          
+            result = run_huggingface_pipeline()
+            print("🤗 Hugging Face Result", result.get('result'))          
+            llm_response = result.get('response')  # corrected typo
+            print("HF Response 🤗 " + str(type(llm_response).__name__) + " " + str(llm_response))            
+            return llm_response 
+
 
         case "DeepSeek":
             ds_cfg = config['user_profile']['llm']['DeepSeek']
             payload = {
                 "model": ds_cfg['text_model'],
-                "prompt": parsed_blog,
+                "prompt": prompt,
                 "temperature": ds_cfg['temperature'],
                 "top_p": ds_cfg['top_p'],
                 "presence_penalty": ds_cfg['presence_penalty'],
@@ -134,7 +219,7 @@ def dispatch_text_pipeline(provider: str,):
                 "temperature": claude_cfg['temperature'],
                 "top_p": claude_cfg['top_p'],
                 "messages": [
-                    {"role": "user", "content": parsed_blog}
+                    {"role": "user", "content": prompt}
                 ],
                 "system": claude_cfg['system']
             }

@@ -139,5 +139,4 @@ def run_huggingface_pipeline() -> dict:
             result["image_url"] = image_result["response"]
         else:
             result["image_error"] = image_result["response"]
-    print("HF Response", result)
     return result

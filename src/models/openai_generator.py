@@ -193,7 +193,7 @@ def run_openai_pipeline() -> dict:
                 "response": "❌ Failed to create OpenAI thread."
             }
 
-        send_message_to_openai(thread_id, prompt)
+        send_message_to_openai(thread_id)
         run_id = run_openai_assistant(thread_id)
         if not run_id:
             return {

@@ -6,76 +6,76 @@ user_profile:
   resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
   llm:
 
-   Pollinations:
-  # Common default settings
-  default_model: "openai"
-  seed: 42
-  temperature: 0.7
-  jsonMode: true
-  private: true
+    Pollinations:
+      # Common default settings
+      default_model: "openai"
+      seed: 42
+      temperature: 0.7
+      jsonMode: true
+      private: true
 
-  # OpenAI-Compatible Completion (POST to /openai)
-  openai_compatible:
-    endpoint: "/v1/chat/completions"
-    model: "text-davinci-003"  # or https://platform.openai.com/docs/models
-    prompt: "Your custom prompt"  # Dynamically replaced
-    suffix: null
-    best_of: 1
-    echo: false
-    frequency_penalty: 0.0
-    presence_penalty: 0.0
-    logit_bias: {}  # e.g., {"50256": -100} to block <|endoftext|>
-    logprobs: null
-    max_tokens: 256
-    "n": 1
-    seed: 42
-    stop: null  # Can be a string or array of strings
-    stream: false
-    stream_options: null
-    temperature: 0.7
-    top_p: 1.0
-    messages: [
-      {"role": "system", "content": "You are a helpful assistant."},
-      {"role": "user", "content": "What is artificial intelligence?"}
-    ]
-    audio: null  # Optional: For models like gpt-4o that can output audio
-    function_call: null  # Deprecated in favor of tool_choice, still optional
-    functions: []  # Deprecated, use tools instead if needed
-    max_completion_tokens: 256  # Use instead of max_tokens for o-series models
-    metadata: {}  # Optional: Custom key-value metadata
-    modalities: ["text"]  # Or ["text", "audio"] for multimodal models
-    parallel_tool_calls: true  # Enable or disable parallel function calls
-    prediction: null  # Optional prediction configuration
-    reasoning_effort: "medium"  # o-series models only: low | medium | high
-    response_format: null  # JSON schema config or {type: "json_object"}
-    service_tier: "auto"  # auto | default (relevant for Scale Tier users)
-    store: false  # Whether to store the output for model distillation
-    tool_choice: "auto"  # Controls tool usage: none, auto, or function spec
-    tools: []  # List of callable functions (OpenAI function calling format)
-    top_logprobs: null  # Used only if logprobs is true
-    web_search_options: null  # Advanced: for search-augmented completions
-    search_context_size: "medium"  # Guidance for search context
-    user_location: null  # Structured approximate location for search
-    user: "user_id_here"
+      # OpenAI-Compatible Completion (POST to /openai)
+      openai_compatible:
+        endpoint: "/v1/chat/completions"
+        model: "text-davinci-003"  # or https://platform.openai.com/docs/models
+        prompt: "Your custom prompt"  # Dynamically replaced
+        suffix: null
+        best_of: 1
+        echo: false
+        frequency_penalty: 0.0
+        presence_penalty: 0.0
+        logit_bias: {}  # e.g., {"50256": -100} to block <|endoftext|>
+        logprobs: null
+        max_tokens: 256
+        "n": 1
+        seed: 42
+        stop: null  # Can be a string or array of strings
+        stream: false
+        stream_options: null
+        temperature: 0.7
+        top_p: 1.0
+        messages: [
+          {"role": "system", "content": "You are a helpful assistant."},
+          {"role": "user", "content": "What is artificial intelligence?"}
+        ]
+        audio: null  # Optional: For models like gpt-4o that can output audio
+        function_call: null  # Deprecated in favor of tool_choice, still optional
+        functions: []  # Deprecated, use tools instead if needed
+        max_completion_tokens: 256  # Use instead of max_tokens for o-series models
+        metadata: {}  # Optional: Custom key-value metadata
+        modalities: ["text"]  # Or ["text", "audio"] for multimodal models
+        parallel_tool_calls: true  # Enable or disable parallel function calls
+        prediction: null  # Optional prediction configuration
+        reasoning_effort: "medium"  # o-series models only: low | medium | high
+        response_format: "json_object"  # JSON schema config or {type: "json_object"}
+        service_tier: "auto"  # auto | default (relevant for Scale Tier users)
+        store: false  # Whether to store the output for model distillation
+        tool_choice: "auto"  # Controls tool usage: none, auto, or function spec
+        tools: []  # List of callable functions (OpenAI function calling format)
+        top_logprobs: null  # Used only if logprobs is true
+        web_search_options: null  # Advanced: for search-augmented completions
+        search_context_size: "medium"  # Guidance for search context
+        user_location: null  # Structured approximate location for search
+        user: "user_id_here"
 
-  # Native Pollinations Completion (POST to /)
-  native_post:
-    endpoint: "https://text.pollinations.ai/"
-    model: "mistral"
-    messages:
-      - role: "system"
-        content: "You're a helpful assistant."
-      - role: "user"
-        content: "Your User Prompt"
-    reasoning_effort: "medium"
+      # Native Pollinations Completion (POST to /)
+      native_post:
+        endpoint: "https://text.pollinations.ai/"
+        model: "mistral"
+        messages:
+          - role: "system"
+            content: "You're a helpful assistant."
+          - role: "user"
+            content: "Your User Prompt"
+        reasoning_effort: "medium"
 
-  # Simple Pollinations GET Completion
-  native_get:
-    endpoint: "https://text.pollinations.ai/{prompt}"  # prompt will be URL encoded
-    model: "mistral"
-    system: "You're a helpful assistant."
-    json: true
-  
+      # Simple Pollinations GET Completion
+      native_get:
+        endpoint: "https://text.pollinations.ai/{prompt}"  # prompt will be URL encoded
+        model: "mistral"
+        system: "You're a helpful assistant."
+        json: true
+      
 
 
     OpenAI:
@@ -231,7 +231,7 @@ ai:
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
-      LLM: "Pollinations"
+      LLM: "HuggingFace"
       model: "Pollinations"
       # Available models: 'Pollinations', 'OpenAi', 'HuggingFace', 'DeepSeek', 'Claude'
   creative:

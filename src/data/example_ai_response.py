@@ -11,3 +11,74 @@ ai_gif_example  = {
   "Hashtags": ["#AI", "#MachineLearning", "#DataScience", "#Automation", "#Technology"],
   "GifSearchTags": ["lab organization", "printing labels", "tech innovation"]
 }
+
+
+ai_completion_example =  {
+    'choices': [{
+        'content_filter_results': {},
+        'finish_reason': 'tool_calls',
+        'index': 0,
+        'logprobs': None,
+        'message': {
+            'content': None,
+            'refusal': None,
+            'role': 'assistant',
+            'tool_calls': [{
+                'function': {
+                    'arguments': '{"Text": "Embracing tech innovation can transform your career! As a software engineer, I\'ve seen the incredible impact of tech solutions. Let\'s learn together and push boundaries! 🚀 #AI #MachineLearning #DataScience #Automation #Technology", "Hashtags": ["#AI", "#MachineLearning", "#DataScience", "#Automation", "#Technology"]}',
+                    'name': 'generate_post'
+                },
+                'id': 'call_GhnSBbNysIOnCn9DQ1yXKmUG',
+                'type': 'function'
+            }, {
+                'function': {
+                    'arguments': '{"description": "A software engineer embracing technology and innovation in a modern workspace", "width": 1024, "height": 1024, "model": "flux"}',
+                    'name': 'generate_image'
+                },
+                'id': 'call_SluDWO1LU0OgIDziQD6mWBmT',
+                'type': 'function'
+            }]
+        }
+    }],
+    'created': 1742705315,
+    'id': 'pllns_c88db803b22b7b00a1691c4e2a8e37a7',
+    'model': 'gpt-4o-mini-2024-07-18',
+    'object': 'chat.completion',
+    'prompt_filter_results': [{
+        'prompt_index': 0,
+        'content_filter_results': {
+            'hate': {
+                'filtered': False,
+                'severity': 'safe'
+            },
+            'self_harm': {
+                'filtered': False,
+                'severity': 'safe'
+            },
+            'sexual': {
+                'filtered': False,
+                'severity': 'safe'
+            },
+            'violence': {
+                'filtered': False,
+                'severity': 'safe'
+            }
+        }
+    }],
+    'system_fingerprint': 'fp_ded0d14823',
+    'usage': {
+        'completion_tokens': 130,
+        'completion_tokens_details': {
+            'accepted_prediction_tokens': 0,
+            'audio_tokens': 0,
+            'reasoning_tokens': 0,
+            'rejected_prediction_tokens': 0
+        },
+        'prompt_tokens': 764,
+        'prompt_tokens_details': {
+            'audio_tokens': 0,
+            'cached_tokens': 0
+        },
+        'total_tokens': 894
+    }
+}

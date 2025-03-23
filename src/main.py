@@ -4,22 +4,16 @@ from src.models.openai_generator import run_openai_pipeline
 from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
-from src.utils.dispatch_text import dispatch_text_pipeline
+from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 
 
-def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username, True)
-    if not blog_content:
-        print("ℹ️ No blog content found.")
-        return None
-    return parse_html_blog_content(blog_content)
 
 
 def main(medium_username: str) -> None:
     try:
         linkedin_enabled = config['social_media_to_post_to']['linkedin'].get('enabled', False)
-        text_model = config['ai']['text']['text']['model']
+        text_model = config['ai']['text']['generate_text']['LLM']
 
         if linkedin_enabled:
             profile_id = get_linkedin_profile_id()
@@ -28,7 +22,7 @@ def main(medium_username: str) -> None:
             print("✅ LinkedIn authenticated.")
 
             # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
-            linkedin_post = dispatch_text_pipeline()
+            linkedin_post = dispatch_text_pipeline(text_model)
             # linkedin_post = ai_img_example
 
             print("🚀 Preparing LinkedIn post...")
@@ -93,7 +87,7 @@ def main(medium_username: str) -> None:
             print(f"\n📋 Suggested Post:\n{linkedin_post}")
 
     except Exception as e:
-        print(f"❌ An error occurred: {e}")
+        print(f"❌ An error occurred in main: {e}")
 
 
 if __name__ == "__main__":

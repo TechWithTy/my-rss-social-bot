@@ -116,6 +116,7 @@ async def call_openai_compatible_endpoint(
             print(f"📥 Status: {response.status_code}")
             if response.status_code == 200:
                 try:
+                    print("Open AI Compatible Response",response.json)
                     return response.json()
                 except Exception:
                     return response.text
