@@ -67,6 +67,7 @@ def main(medium_username: str) -> None:
     try:
         linkedin_enabled = config['social_media_to_post_to']['linkedin'].get('enabled', False)
         text_model = config['ai']['text']['generate_text']['LLM']
+        image_provider = config['ai']['creative']['generate_image']['LLM']
 
         if not linkedin_enabled:
             print("🔕 LinkedIn post generation complete (posting disabled).")
@@ -75,6 +76,20 @@ def main(medium_username: str) -> None:
         profile_id = authenticate_linkedin()
         post = prepare_linkedin_post(text_model)
         post = attach_gif_to_post(post)
+
+        # Check for existing media before generating fallback
+        image_url = post.get("ImageAsset")
+        gif_asset = post.get("GifSearchTags")
+
+        if not image_url and not gif_asset:
+            print("⚠️ No media asset found — generating fallback image...")
+            image_data = asyncio.run(dispatch_image_pipeline(image_provider))
+            if image_data and image_data.get("ImageAsset"):
+                post["ImageAsset"] = image_data["ImageAsset"]
+            else:
+                print("❌ Fallback image generation failed.")
+
+        # Re-assemble content with new media
         post_text, media_url, media_type = assemble_post_content(post)
 
         print("📝 Final post text:\n", post_text)
@@ -83,7 +98,6 @@ def main(medium_username: str) -> None:
 
     except Exception as e:
         print(f"❌ An error occurred in main: {e}")
-
 
 if __name__ == "__main__":
     medium_username = config['user_profile'].get('medium_username')

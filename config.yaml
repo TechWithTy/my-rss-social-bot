@@ -89,7 +89,8 @@ user_profile:
     OpenAI:
       name: "gpt-4"
       text_model: "gpt-4o-mini"
-      image_model: "dale-3"
+      image_model: "dall-e-3"
+      image_size: "1024x1024"
       temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
       top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
       response_format: "json" # json | text | auto
@@ -156,8 +157,7 @@ user_profile:
         - role: "user"
           content: "Hello, world"
 
-      HuggingFace:
-      
+    HuggingFace:
         text_model: "mistralai/Mistral-7B-Instruct-v0.1"
         image_model: "runwayml/stable-diffusion-v1-5"
         video_model: "runwayml/stable-diffusion-v1-5"
@@ -235,23 +235,21 @@ ai:
   text:
     generate_text:
       enabled: true
-      user_description: "If true, generates an AI image tailored to the post."
+      user_description: "If true, generates a tailored AI Social Media Post and An Image Or Gif"
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
       LLM: "Pollinations_Text_Advanced"
-      model: "Pollinations"
       # Available models: 'Pollinations', 'OpenAi', 'HuggingFace', 'DeepSeek', 'Claude'
   creative:
     generate_image:
       enabled: true
-      user_description: "If true, generates an AI image tailored to the post."
+      user_description: "If true, generates a fallback image if the prompt fails to create one"
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
-      LLM: "Pollinations"
-      model: "flux"
-      # Hugging Face Models: https://huggingface.co/models?pipeline_tag=text-to-image  && Flux Models: 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
+      LLM: "Pollinations_Image_Get" # HuggingFace, OpenAI, Pollinations_Image_Get, Pollinations_Image 
+      # Hugging Face Models: https://huggingface.co/models?pipeline_tag=text-to-image  && Flux Models: 'flux', 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
       
     fetch_gif:
       enabled: false
