@@ -158,8 +158,11 @@ prompt_payload = build_prompt_payload()
 
 if prompt_payload is None:
     print("⚠️ No prompt payload returned.")
-    prompt = creative_prompt = gif_prompt = system_instructions = None
+    prompt = None
+    creative_prompt = None
+    gif_prompt = None
     hashtags = []
+    system_instructions = None
 else:
     prompt = prompt_payload.get("content")
     creative_prompt = prompt_payload.get("creative_prompt")

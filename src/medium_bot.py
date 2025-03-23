@@ -129,7 +129,7 @@ def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
 
         if cached_latest_id == fresh_latest_id:
             print("🟢 Latest blog already cached.")
-            blogs_data = cached_data
+            blogs_data = None
         else:
             print("🆕 New blog detected. Updating cache.")
             save_blog_cache(fresh_data)

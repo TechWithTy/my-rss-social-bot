@@ -4,6 +4,8 @@ from src.models.openai_generator import run_openai_pipeline
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
+from src.utils.prompt_builder import prompt
+
 import asyncio
 
 from src.data.example_ai_response import ai_img_example, ai_gif_example
@@ -73,34 +75,35 @@ def main(medium_username: str) -> None:
         if not linkedin_enabled:
             print("🔕 LinkedIn post generation complete (posting disabled).")
             return
+        if prompt:
+                
+            profile_id = authenticate_linkedin()
+            post = prepare_linkedin_post(text_model)
+            post = attach_gif_to_post(post)
 
-        profile_id = authenticate_linkedin()
-        post = prepare_linkedin_post(text_model)
-        post = attach_gif_to_post(post)
+            # Check for existing media before generating fallback
+            image_url = post.get("ImageAsset")
+            gif_asset = post.get("GifSearchTags")
 
-        # Check for existing media before generating fallback
-        image_url = post.get("ImageAsset")
-        gif_asset = post.get("GifSearchTags")
+            if not image_url and not gif_asset:
+                print("⚠️ No media asset found — generating fallback image...")
+                image_data = asyncio.run(dispatch_image_pipeline(image_provider))
 
-        if not image_url and not gif_asset:
-            print("⚠️ No media asset found — generating fallback image...")
-            image_data = asyncio.run(dispatch_image_pipeline(image_provider))
-
-            if image_data:
-                if "ImageAsset" in image_data:
-                    post["ImageAsset"] = image_data["ImageAsset"]
-                elif "GifAsset" in image_data:
-                    post["GifAsset"] = extract_social_upload_metadata(image_data["GifAsset"])
-                else:
-                    print("❌ Fallback asset generation failed.")
+                if image_data:
+                    if "ImageAsset" in image_data:
+                        post["ImageAsset"] = image_data["ImageAsset"]
+                    elif "GifAsset" in image_data:
+                        post["GifAsset"] = extract_social_upload_metadata(image_data["GifAsset"])
+                    else:
+                        print("❌ Fallback asset generation failed.")
 
 
-        # Re-assemble content with new media
-        post_text, media_url, media_type = assemble_post_content(post)
+            # Re-assemble content with new media
+            post_text, media_url, media_type = assemble_post_content(post)
 
-        print("📝 Final post text:\n", post_text)
-        print(f"📦 Media: {media_type} -> {media_url}")
-        # post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
+            print("📝 Final post text:\n", post_text)
+            print(f"📦 Media: {media_type} -> {media_url}")
+            # post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
 
     except Exception as e:
         print(f"❌ An error occurred in main: {e}")
