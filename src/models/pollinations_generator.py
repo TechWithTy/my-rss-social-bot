@@ -17,6 +17,7 @@ MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 1.5
 
 
+
 async def fetch_with_retries(url: str, client: httpx.AsyncClient) -> Optional[httpx.Response]:
     for attempt in range(MAX_RETRIES):
         try:
@@ -188,3 +189,4 @@ async def fetch_text_feed() -> Optional[Dict[str, Any]]:
         except Exception as e:
             print(f"Error fetching text feed: {e}")
             return None
+

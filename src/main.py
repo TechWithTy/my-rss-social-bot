@@ -83,11 +83,16 @@ def main(medium_username: str) -> None:
 
         if not image_url and not gif_asset:
             print("⚠️ No media asset found — generating fallback image...")
-            image_data = asyncio.run(dispatch_image_pipeline(image_provider))
-            if image_data and image_data.get("ImageAsset"):
-                post["ImageAsset"] = image_data["ImageAsset"]
-            else:
-                print("❌ Fallback image generation failed.")
+            image_data = dispatch_image_pipeline(image_provider)
+
+            if image_data:
+                if "ImageAsset" in image_data:
+                    post["ImageAsset"] = image_data["ImageAsset"]
+                elif "GifAsset" in image_data:
+                    post["GifAsset"] = extract_social_upload_metadata(image_data["GifAsset"])
+                else:
+                    print("❌ Fallback asset generation failed.")
+
 
         # Re-assemble content with new media
         post_text, media_url, media_type = assemble_post_content(post)
