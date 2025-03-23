@@ -5,7 +5,6 @@ user_profile:
   professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
   resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
   llm:
-
     Pollinations:
       # Common default settings
       default_model: "openai"
@@ -76,7 +75,16 @@ user_profile:
         system: "You're a helpful assistant."
         json: true
       
-
+      pollinations_image_get:
+        endpoint: "https://image.pollinations.ai/prompt/{prompt}"  # prompt will be URL encoded
+        model: "flux"              # Options: flux, flux-realism, flux-anime, turbo, etc.
+        seed: 42                   # Controls image randomness
+        width: 1024                # Image width in pixels
+        height: 1024               # Image height in pixels
+        nologo: true               # Remove watermark if true
+        private: true              # Make image generation private
+        enhance: false             # Enhance quality (if supported)
+        safe: true                 # Apply safety filters
 
     OpenAI:
       name: "gpt-4"

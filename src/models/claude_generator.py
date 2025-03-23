@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
-from utils.prompt_builder import build_prompt_payload
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
 
 # ✅ Load environment variables
 load_dotenv()
@@ -28,10 +28,7 @@ def send_message_to_claude() -> dict:
         "Content-Type": "application/json"
     }
 
-    prompt_payload = build_prompt_payload()
-    prompt = prompt_payload.get("content")
-    prompt_creative = prompt_payload.get("creative_prompt")
-    system_instructions = prompt_payload.get("system_instructions")
+
 
     print("📤 Sending message to Claude...")
     print("📝 Prompt:\n", prompt)

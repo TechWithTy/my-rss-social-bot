@@ -2,10 +2,9 @@ import httpx
 import asyncio
 from typing import Optional, Dict, Any
 from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
 
-prompt_payload = build_prompt_payload()
-prompt = prompt_payload.get("content")
+
 # Constants
 BASE_IMAGE_URL = "https://image.pollinations.ai"
 BASE_TEXT_URL = "https://text.pollinations.ai"
@@ -37,6 +36,50 @@ async def generate_image(prompt: str) -> Optional[str]:
     async with httpx.AsyncClient() as client:
         response = await fetch_with_retries(url, client)
         return url if response else None
+
+
+async def generate_image_advanced(
+    prompt: str,
+    model: str = "flux",
+    seed: int = 42,
+    width: int = 1024,
+    height: int = 1024,
+    nologo: bool = True,
+    private: bool = True,
+    enhance: bool = False,
+    safe: bool = True
+) -> Optional[str]:
+    """
+    Generates an advanced AI image via Pollinations with extended GET parameters.
+    Returns the image URL if successful, otherwise None.
+    """
+
+    query = {
+        "model": model,
+        "seed": seed,
+        "width": width,
+        "height": height,
+        "nologo": str(nologo).lower(),
+        "private": str(private).lower(),
+        "enhance": str(enhance).lower(),
+        "safe": str(safe).lower(),
+    }
+
+    encoded_prompt = urllib.parse.quote(prompt)
+    url = f"{BASE_IMAGE_URL}/prompt/{encoded_prompt}"
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=query, timeout=15)
+            if response.status_code == 200:
+                return str(response.url)
+            else:
+                print(f"❌ Failed to generate image: {response.status_code}")
+                return None
+    except Exception as e:
+        print(f"🔥 Exception during image generation: {e}")
+        return None
+
 
 
 async def list_image_models() -> Optional[Dict[str, Any]]:

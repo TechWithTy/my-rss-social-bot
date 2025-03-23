@@ -135,3 +135,9 @@ def build_prompt_payload() -> Dict[str, Any]:
         "hashtags": hashtags,
         "system_instructions": system_instructions
     }
+
+
+prompt_payload = build_prompt_payload()
+prompt = prompt_payload.get("content")
+creative_prompt = prompt_payload.get("creative_prompt")
+system_instructions = prompt_payload.get("system_instructions")

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
 
 # ✅ Load environment variables
 load_dotenv()
@@ -23,9 +23,6 @@ hf_image_model = hf_config.get("image_model", "runwayml/stable-diffusion-v1-5")
 temperature = hf_config.get("temperature", 0.7)
 max_tokens = hf_config.get("max_tokens", 500)
 
-prompt_payload = build_prompt_payload()
-prompt = prompt_payload.get("content")
-prompt_creative = prompt_payload.get("creative_prompt")
 
 def send_message_to_huggingface(prompt_text: str) -> dict:
     url = f"https://api-inference.huggingface.co/models/{hf_text_model}"

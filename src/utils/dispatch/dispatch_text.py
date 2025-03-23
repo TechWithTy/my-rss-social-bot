@@ -1,15 +1,14 @@
 
-from utils.prompt_builder import build_prompt_payload
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
 from utils.config_loader import config
 from models.pollinations_generator import (
-    generate_image,
-    list_image_models,
+
+
     generate_text,
     generate_text_advanced,
     generate_audio,
     list_text_models,
-    fetch_image_feed,
-    fetch_text_feed,
+
     call_openai_compatible_endpoint)
 import urllib.parse
 from models.openai_generator import run_openai_pipeline
@@ -18,9 +17,7 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
-prompt_payload = build_prompt_payload()
-prompt = prompt_payload.get("content")
-system_instructions = prompt_payload.get("system_instructions")
+
 
 
 

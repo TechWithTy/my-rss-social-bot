@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from src.utils.index import get_env_variable
 from src.utils import prompt_builder
-from src.utils.prompt_builder import build_prompt_payload
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
 from src.utils.config_loader import config
 
 # ✅ Load environment variables
@@ -18,9 +18,7 @@ OPENAI_API_KEY: Optional[str] = get_env_variable("OPENAI_API_KEY")
 OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
 
 
-prompt_payload = build_prompt_payload()
-prompt = prompt_payload.get("content")
-system_instructions = prompt_payload.get("system_instructions")
+
 
 if not OPENAI_API_KEY:
     raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
@@ -183,6 +181,42 @@ def get_openai_response(thread_id: str) -> Optional[str]:
 
     print("❌ Error fetching response:", response.json())
     return None
+
+
+def generate_openai_image() -> Optional[str]:
+    """
+    Generates an image using OpenAI's Image API (DALL·E).
+    Configuration is pulled from YAML settings.
+    """
+    url = "https://api.openai.com/v1/images/generations"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    openai_cfg = config.get("user_profile", {}).get("llm", {}).get("OpenAI", {})
+    model = openai_cfg.get("image_model", "dall-e-3")
+    size = openai_cfg.get("image_size", "1024x1024")  # You can add this to YAML if not present
+
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "n": 1,
+        "size": size,
+        "response_format": "url"
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code == 200:
+        image_data = response.json().get("data", [])
+        if image_data and "url" in image_data[0]:
+            return image_data[0]["url"]
+    else:
+        print("❌ Failed to generate OpenAI image:", response.json())
+    
+    return None
+
 
 def run_openai_pipeline() -> dict:
     try:
