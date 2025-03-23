@@ -209,7 +209,9 @@ def dispatch_text_pipeline(provider: str,):
                 "response_format": ds_cfg['response_format'],
                 "max_tokens": ds_cfg['max_tokens']
             }
-            return asyncio.run(send_message_to_deepseek())
+            llm_response = send_message_to_deepseek()
+            print("🦈 Deep Seek Response",llm_response)
+            return llm_response
 
         case "Claude":
             claude_cfg = config['user_profile']['llm']['Anthropic']

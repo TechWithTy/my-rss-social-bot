@@ -231,7 +231,7 @@ ai:
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
-      LLM: "HuggingFace"
+      LLM: "DeepSeek"
       model: "Pollinations"
       # Available models: 'Pollinations', 'OpenAi', 'HuggingFace', 'DeepSeek', 'Claude'
   creative:
