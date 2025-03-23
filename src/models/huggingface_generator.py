@@ -18,6 +18,8 @@ if not HUGGINGFACE_API_KEY:
 hf_config = config.get("user_profile",{}).get("llm", {}).get("HuggingFace", {})
 print("hfconfig",hf_config)
 hf_text_model = hf_config.get("text_model", "mistralai/Mistral-7B-Instruct-v0.1")
+hf_image_model = hf_config.get("image_model", "runwayml/stable-diffusion-v1-5")
+
 temperature = hf_config.get("temperature", 0.7)
 max_tokens = hf_config.get("max_tokens", 500)
 
@@ -74,11 +76,11 @@ def send_message_to_huggingface(prompt_text: str) -> dict:
 
         
 def generate_image_with_huggingface(prompt: str) -> dict:
-    if not image_model:
+    if not hf_image_model:
         print("❌ No image model configured.")
         return {"status": "error", "response": "Image model not configured."}
 
-    url = f"https://api-inference.huggingface.co/models/{image_model}"
+    url = f"https://api-inference.huggingface.co/models/{hf_image_model}"
     headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
     payload = {
         "inputs": prompt,
@@ -88,7 +90,7 @@ def generate_image_with_huggingface(prompt: str) -> dict:
         }
     }
 
-    print(f"🎨 Generating image with model: {image_model}")
+    print(f"🎨 Generating image with model: {hf_image_model}")
     print(f"📝 Image prompt:\n{prompt}\n")
 
     response = requests.post(url, headers=headers, json=payload)
@@ -113,16 +115,16 @@ def generate_image_with_huggingface(prompt: str) -> dict:
         }
 
 
-def run_huggingface_pipeline(username: str) -> dict:
+def run_huggingface_pipeline() -> dict:
     prompt_payload = build_prompt_payload()  # Assume uses username internally
-    prompt_text = prompt_payload.get("content")
+    prompt = prompt_payload.get("content")
     prompt_creative = prompt_payload.get("creative_prompt")
     ai_config = config.get("user_profile",{}).get("ai", {})
     generate_image_enabled = config.get("creative",{}).get("generate_image",{}).get("enabled",{})
 
 
 
-    text_result = send_message_to_huggingface(prompt_text)
+    text_result = send_message_to_huggingface(prompt)
     if text_result["status"] != "success":
         return {"status": "failed", "response": text_result["response"], "details": text_result.get("details")}
 

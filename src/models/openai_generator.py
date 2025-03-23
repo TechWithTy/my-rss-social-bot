@@ -4,10 +4,10 @@ import requests
 import time
 import os
 from dotenv import load_dotenv
-from utils.index import get_env_variable
-from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload
-from utils.config_loader import config
+from src.utils.index import get_env_variable
+from src.utils import prompt_builder
+from src.utils.prompt_builder import build_prompt_payload
+from src.utils.config_loader import config
 
 # ✅ Load environment variables
 load_dotenv()
@@ -82,7 +82,7 @@ def create_openai_thread() -> Optional[str]:
         print("❌ Error creating OpenAI thread:", response.json())
         return None
 
-def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
+def send_message_to_openai(thread_id: str,  ) -> None:
     """Sends a blog post to OpenAI Assistant with instructions, creative cues, and viral preferences from config."""
     url = f"https://api.openai.com/v1/threads/{thread_id}/messages"
     headers = {
@@ -94,12 +94,13 @@ def send_message_to_openai(thread_id: str, blog_content: str, ) -> None:
     # 🔧 Config sections
   
     # 📨 Final Message Content
-    content = (prompt)
-    print('Message Content:\n\n', content)
+    
+    print('Message Content:\n\n', prompt)
     data = {
         "role": "user",
-        "content": content,
+        "content": prompt,
         "attachments": [],
+
         "metadata": {
             "system_instructions": system_instructions
         }
@@ -183,7 +184,7 @@ def get_openai_response(thread_id: str) -> Optional[str]:
     print("❌ Error fetching response:", response.json())
     return None
 
-def run_openai_pipeline(blog_content: str) -> dict:
+def run_openai_pipeline() -> dict:
     try:
         thread_id = create_openai_thread()
         if not thread_id:
@@ -192,7 +193,7 @@ def run_openai_pipeline(blog_content: str) -> dict:
                 "response": "❌ Failed to create OpenAI thread."
             }
 
-        send_message_to_openai(thread_id, blog_content)
+        send_message_to_openai(thread_id, prompt)
         run_id = run_openai_assistant(thread_id)
         if not run_id:
             return {

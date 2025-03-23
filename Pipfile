@@ -10,6 +10,7 @@ app = "python -m src.main"
 test = "pytest -s -v src/tests/"
 test-html = "pytest -s -v src/tests/ --html=src/tests/reports/html/_report.html"
 
+test-pollinations = "pytest -s -v src/tests/test_pollinations_async.py --html=src/tests/reports/html/pollinations_report.html"
 [packages]
 anyio = "==4.9.0"
 beautifulsoup4 = "==4.13.3"

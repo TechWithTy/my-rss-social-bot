@@ -6,10 +6,10 @@ import random
 from typing import Dict, Any, List, Tuple
 from utils.config_loader import config
 from medium_bot import fetch_latest_medium_blog
-from utils.index import parse_html_blog_content
+from src.utils.index import parse_html_blog_content
 
 def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username,False)
+    blog_content = fetch_latest_medium_blog(username,True)
     if not blog_content:
         print("ℹ️ No blog content found.")
         return None

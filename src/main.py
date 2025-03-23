@@ -1,12 +1,10 @@
 from src.utils.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
-from src.models.openai_generator import (
-run_openai_pipeline
-)
+from src.models.openai_generator import run_openai_pipeline
 from src.medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
-
+from src.utils.dispatch_text import dispatch_text_pipeline
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 
 
@@ -18,27 +16,21 @@ def fetch_and_parse_blog(username: str) -> str | None:
     return parse_html_blog_content(blog_content)
 
 
-
-
 def main(medium_username: str) -> None:
     try:
         linkedin_enabled = config['social_media_to_post_to']['linkedin'].get('enabled', False)
-        print(f"🔄 LinkedIn Enabled: {linkedin_enabled} | Medium: {medium_username}")
-
-        profile_id = get_linkedin_profile_id()
-        if not profile_id:
-            raise ValueError("Could not retrieve LinkedIn profile ID.")
-        print("✅ LinkedIn authenticated.")
-
-        parsed_blog = fetch_and_parse_blog(medium_username)
-        if not parsed_blog:
-            return
-
-        # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
-        linkedin_post = run_openai_pipeline(parsed_blog)
-        # linkedin_post = ai_img_example
+        text_model = config['ai']['text']['text']['model']
 
         if linkedin_enabled:
+            profile_id = get_linkedin_profile_id()
+            if not profile_id:
+                raise ValueError("Could not retrieve LinkedIn profile ID.")
+            print("✅ LinkedIn authenticated.")
+
+            # 🔁 REPLACE THIS STATIC OBJECT WITH OPENAI-DRIVEN GENERATION LATER
+            linkedin_post = dispatch_text_pipeline()
+            # linkedin_post = ai_img_example
+
             print("🚀 Preparing LinkedIn post...")
 
             gif_tags = linkedin_post.get("GifSearchTags", [])
@@ -46,9 +38,9 @@ def main(medium_username: str) -> None:
 
             if gif_tags:
                 gif_result = giphy_find_with_metadata(gif_tags)
-                print(gif_result,"gif_results")
+                print(gif_result, "gif_results")
                 gif_obj = gif_result.get("result", {}).get("gif")
-                print(gif_obj,"gif_obj")
+                print(gif_obj, "gif_obj")
 
                 if gif_obj:
                     print("🎞️ Found GIF result, extracting metadata...")
@@ -73,6 +65,7 @@ def main(medium_username: str) -> None:
             # Decide media type
             media_url = None
             media_type = None
+
             if gif_asset:
                 media_url = gif_asset.get("gif_url")
                 media_type = "GIF"

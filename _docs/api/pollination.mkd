@@ -1,7 +1,7 @@
 Api Docs
 https://github.com/pollinations/pollinations/blob/master/APIDOCS.md
 
-Available Text Models In Polination
+Available Text Models In Polination : https://text.pollinations.ai/models
 
 | Name                | Type   | Censored | Description                                     | Base Model | Vision | Reasoning | Provider    | Max Tokens | Audio | Voices                        |
 |---------------------|--------|----------|-------------------------------------------------|------------|--------|-----------|-------------|-------------|--------|-------------------------------|
@@ -102,4 +102,6 @@ curl https://text.pollinations.ai/openai/v1/chat/completions \
         ]
       }'
 ```
+
+
 

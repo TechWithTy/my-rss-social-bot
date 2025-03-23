@@ -9,6 +9,7 @@ prompt = prompt_payload.get("content")
 # Constants
 BASE_IMAGE_URL = "https://image.pollinations.ai"
 BASE_TEXT_URL = "https://text.pollinations.ai"
+OPENAI_ENDPOINT = f"{BASE_TEXT_URL}/openai"
 DEFAULT_VOICE = "nova"
 FALLBACK_VOICE = "echo"
 
@@ -101,6 +102,29 @@ async def list_text_models() -> Optional[Dict[str, Any]]:
             print(f"Error fetching text models: {e}")
             return None
 
+async def call_openai_compatible_endpoint(
+    endpoint: str,
+    method: str = "POST",
+    payload: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, str]] = None
+) -> Optional[Any]:
+    url = f"{OPENAI_ENDPOINT}{endpoint}"
+    async with httpx.AsyncClient() as client:
+        try:
+            print(f"🔄 Calling {method} {url}")
+            response = await client.request(method, url, json=payload, params=params)
+            print(f"📥 Status: {response.status_code}")
+            if response.status_code == 200:
+                try:
+                    return response.json()
+                except Exception:
+                    return response.text
+            else:
+                print("⚠️ Error Response:", response.text)
+                return None
+        except Exception as e:
+            print(f"❌ Exception calling endpoint: {e}")
+            return None
 
 async def fetch_image_feed() -> Optional[Dict[str, Any]]:
     async with httpx.AsyncClient() as client:

@@ -6,7 +6,7 @@ import asyncio
 # Add src path for module resolution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from models.pollinations_async import (
+from models.pollinations_generator import (
     generate_image,
     list_image_models,
     generate_text,
@@ -15,6 +15,7 @@ from models.pollinations_async import (
     list_text_models,
     fetch_image_feed,
     fetch_text_feed,
+    call_openai_compatible_endpoint
 )
 from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
@@ -32,12 +33,16 @@ def fetch_and_parse_blog(username: str) -> str | None:
 TEST_PROMPT = "hello world"
 TEST_IMAGE_PROMPT = "a futuristic city skyline at sunset"
 TEST_PAYLOAD = {
-    "model": "llama2",
-    "messages": [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "hello world"}
-    ]
-}
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What is artificial intelligence?"}
+        ],
+        "model": "openai",
+        "seed": 42,
+        "jsonMode": true,  // Optional: Forces the response to be valid JSON
+        "private": true,   // Optional: Prevents response from appearing in public feed
+        "reasoning_effort": "high"  // Optional: Sets reasoning effort for o3-mini model
+    }
 
 
 
@@ -102,7 +107,90 @@ async def test_list_text_models():
     assert all("name" in m and "description" in m for m in models), "❌ Each model should have 'name' and 'description'"
     print(f"✅ list_text_models returned {len(models)} models")
 
+@pytest.mark.asyncio
+async def test_openai_chat_completions():
+    payload = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "user", "content": "What’s the capital of Japan?"}
+        ],
+        "temperature": 0.5
+    }
 
+    result = await call_openai_compatible_endpoint("/v1/chat/completions", payload=payload)
+
+    assert result is not None, "❌ Response should not be None"
+    assert isinstance(result, dict), "❌ Expected a dictionary response"
+    assert "choices" in result, "❌ 'choices' key not in response"
+    assert isinstance(result["choices"], list) and result["choices"], "❌ 'choices' should be a non-empty list"
+    assert "message" in result["choices"][0], "❌ 'message' key missing in first choice"
+
+    print("✅ test_openai_chat_completions passed.")
+
+
+# @pytest.mark.asyncio
+# async def test_completions():
+#     payload = {
+#         "model": "text-davinci-003",
+#         "prompt": TEST_PROMPT,
+#         "max_tokens": 30
+#     }
+#     result = await call_openai_compatible_endpoint("/v1/completions", payload=payload)
+#     assert result and "choices" in result, "❌ completions failed"
+
+# # Endpoint Functions
+# @pytest.mark.asyncio
+# async def test_embeddings():
+#     payload = {
+#         "model": "text-embedding-ada-002",
+#         "input": TEST_PROMPT
+#     }
+#     result = await call_openai_compatible_endpoint("/v1/embeddings", payload=payload)
+#     assert result and "data" in result, "❌ embeddings failed"
+
+# @pytest.mark.asyncio
+# async def test_moderations():
+#     payload = {
+#         "input": "You are so stupid!"
+#     }
+#     result = await call_openai_compatible_endpoint("/v1/moderations", payload=payload)
+#     assert result and "results" in result, "❌ moderations failed"
+
+# @pytest.mark.asyncio
+# async def test_list_models():
+#     result = await call_openai_compatible_endpoint("/v1/models", method="GET")
+#     assert result and "data" in result, "❌ models list failed"
+
+# @pytest.mark.asyncio
+# async def test_model_info():
+#     result = await call_openai_compatible_endpoint("/v1/models/gpt-3.5-turbo", method="GET")
+#     assert result and "id" in result, "❌ model info failed"
+
+# @pytest.mark.asyncio
+# async def test_image_generation():
+#     payload = {
+#         "prompt": TEST_IMAGE_PROMPT,
+#         "n": 1,
+#         "size": "512x512"
+#     }
+#     result = await call_openai_compatible_endpoint("/v1/images/generations", payload=payload)
+#     assert result and "data" in result, "❌ image generation failed"
+
+# @pytest.mark.asyncio
+# async def test_audio_transcriptions():
+#     pytest.skip("🔇 Pollinations may not support audio uploads for transcriptions. Manual test or mock required.")
+
+# @pytest.mark.asyncio
+# async def test_audio_translations():
+#     pytest.skip("🔇 Pollinations may not support audio translations. Manual test or mock required.")
+
+# @pytest.mark.asyncio
+# async def test_file_upload_list():
+#     pytest.skip("📂 Pollinations likely doesn’t support file endpoints. Skip or mock for now.")
+
+# @pytest.mark.asyncio
+# async def test_fine_tuning_jobs():
+#     pytest.skip("🧠 Fine-tuning jobs likely unsupported on Pollinations API.")
 # @pytest.mark.asyncio
 # async def test_fetch_image_feed():
 #     feed = await fetch_image_feed()

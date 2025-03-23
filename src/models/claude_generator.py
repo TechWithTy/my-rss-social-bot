@@ -19,7 +19,7 @@ claude_model = claude_config.get("text_model", "claude-3-sonnet")
 temperature = claude_config.get("temperature", 0.7)
 max_tokens = claude_config.get("max_tokens", 500)
 
-def send_message_to_claude(blog_content: str) -> dict:
+def send_message_to_claude() -> dict:
     """Sends a blog post to Claude AI and returns a structured result."""
     url = "https://api.anthropic.com/v1/messages"
     headers = {

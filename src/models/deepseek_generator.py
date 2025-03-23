@@ -13,7 +13,7 @@ DEEPSEEK_API_KEY: Optional[str] = get_env_variable("DEEPSEEK_API_KEY")
 
 if not DEEPSEEK_API_KEY:
     raise ValueError("❌ DEEPSEEK_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
-def send_message_to_deepseek(blog_content: str) -> dict:
+def send_message_to_deepseek() -> dict:
     """
     Sends a blog post to DeepSeek AI and returns a result dict with status, response, and metadata.
     """

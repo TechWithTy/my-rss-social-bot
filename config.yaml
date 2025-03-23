@@ -5,13 +5,87 @@ user_profile:
   professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
   resume_url: "https://www.linkedin.com/in/your-linkedin-url"  # Replace with your LinkedIn URL
   llm:
- 
+
+   Pollinations:
+  # Common default settings
+  default_model: "openai"
+  seed: 42
+  temperature: 0.7
+  jsonMode: true
+  private: true
+
+  # OpenAI-Compatible Completion (POST to /openai)
+  openai_compatible:
+    endpoint: "/v1/chat/completions"
+    model: "text-davinci-003"  # or https://platform.openai.com/docs/models
+    prompt: "Your custom prompt"  # Dynamically replaced
+    suffix: null
+    best_of: 1
+    echo: false
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    logit_bias: {}  # e.g., {"50256": -100} to block <|endoftext|>
+    logprobs: null
+    max_tokens: 256
+    "n": 1
+    seed: 42
+    stop: null  # Can be a string or array of strings
+    stream: false
+    stream_options: null
+    temperature: 0.7
+    top_p: 1.0
+    messages: [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is artificial intelligence?"}
+    ]
+    audio: null  # Optional: For models like gpt-4o that can output audio
+    function_call: null  # Deprecated in favor of tool_choice, still optional
+    functions: []  # Deprecated, use tools instead if needed
+    max_completion_tokens: 256  # Use instead of max_tokens for o-series models
+    metadata: {}  # Optional: Custom key-value metadata
+    modalities: ["text"]  # Or ["text", "audio"] for multimodal models
+    parallel_tool_calls: true  # Enable or disable parallel function calls
+    prediction: null  # Optional prediction configuration
+    reasoning_effort: "medium"  # o-series models only: low | medium | high
+    response_format: null  # JSON schema config or {type: "json_object"}
+    service_tier: "auto"  # auto | default (relevant for Scale Tier users)
+    store: false  # Whether to store the output for model distillation
+    tool_choice: "auto"  # Controls tool usage: none, auto, or function spec
+    tools: []  # List of callable functions (OpenAI function calling format)
+    top_logprobs: null  # Used only if logprobs is true
+    web_search_options: null  # Advanced: for search-augmented completions
+    search_context_size: "medium"  # Guidance for search context
+    user_location: null  # Structured approximate location for search
+    user: "user_id_here"
+
+  # Native Pollinations Completion (POST to /)
+  native_post:
+    endpoint: "https://text.pollinations.ai/"
+    model: "mistral"
+    messages:
+      - role: "system"
+        content: "You're a helpful assistant."
+      - role: "user"
+        content: "Your User Prompt"
+    reasoning_effort: "medium"
+
+  # Simple Pollinations GET Completion
+  native_get:
+    endpoint: "https://text.pollinations.ai/{prompt}"  # prompt will be URL encoded
+    model: "mistral"
+    system: "You're a helpful assistant."
+    json: true
+  
+
+
     OpenAI:
       name: "gpt-4"
       text_model: "gpt-4o-mini"
+      image_model: "dale-3"
       temperature: 0.7  # Adjusts randomness of responses (0 = strict, 1 = creative)
       top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
       response_format: "json" # json | text | auto
+      tool: Null
       available_models: # List of available models for this provider Check https://platform.openai.com/docs/api-reference/models
         - "gpt-4o"
         - "gpt-4o-mini"
@@ -151,14 +225,15 @@ ai:
   custom_user_instructions: "Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux&nologo=true\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\": [\"term one\", \"term two\", \"term three\"] }"  # Optional user-level AI guidance
 
   text:
-    generate_image:
+    generate_text:
       enabled: true
       user_description: "If true, generates an AI image tailored to the post."
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
+      LLM: "Pollinations"
       model: "Pollinations"
-      # Available models: 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
+      # Available models: 'Pollinations', 'OpenAi', 'HuggingFace', 'DeepSeek', 'Claude'
   creative:
     generate_image:
       enabled: true
@@ -166,8 +241,9 @@ ai:
       width: 1024,
       height: 1024,
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
+      LLM: "Pollinations"
       model: "flux"
-      # Available models: 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
+      # Hugging Face Models: https://huggingface.co/models?pipeline_tag=text-to-image  && Flux Models: 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
       
     fetch_gif:
       enabled: false
