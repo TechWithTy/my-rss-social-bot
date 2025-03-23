@@ -44,7 +44,8 @@ def send_message_to_huggingface(prompt_text: str) -> dict:
     print(f"📝 Prompt:\n{prompt_text}\n")
 
     response = requests.post(url, headers=headers, json=data)
-    print("📥 Response JSON:",  response.json()[0])
+    print("Status Code",response.status_code)
+    print("📥 Response JSON:",  response.reason)
     
     if response.status_code == 200:
         try:
