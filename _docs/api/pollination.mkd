@@ -1,3 +1,6 @@
+Api Docs
+https://github.com/pollinations/pollinations/blob/master/APIDOCS.md
+
 Available Text Models In Polination
 
 | Name                | Type   | Censored | Description                                     | Base Model | Vision | Reasoning | Provider    | Max Tokens | Audio | Voices                        |
@@ -43,3 +46,60 @@ Available Image Models in polination
 | `flux-anime`   | Anime/manga-style art – perfect for characters, scenes, or posters in that style|
 | `flux-3d`      | 3D render-style images – use for objects, environments, or isometric views     |
 | `turbo`        | Fast image generation with decent quality – best for quick drafts or previews  |
+
+
+Hey! 👋 To see what endpoints are available via an **OpenAI-compatible API** like `https://text.pollinations.ai/openai`, you can look for two things:
+
+---
+
+### ✅ 1. **OpenAI API Reference (Compatible Services Follow This)**
+Pollinations' `/openai` endpoint is built to mimic OpenAI’s API, so it supports many of the same endpoints.
+
+**Core OpenAI endpoints:**
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /v1/chat/completions` | ChatGPT-style conversational completions |
+| `POST /v1/completions` | Legacy GPT-3-style completions |
+| `POST /v1/embeddings` | Generate vector embeddings |
+| `POST /v1/moderations` | Run content moderation |
+| `GET /v1/models` | List available models |
+| `GET /v1/models/{model}` | Get model info |
+| `POST /v1/images/generations` | Generate images from prompt (DALL·E style) |
+| `POST /v1/audio/transcriptions` | Speech-to-text (Whisper) |
+| `POST /v1/audio/translations` | Translate audio to English |
+| `POST /v1/files` / `GET /v1/files` | For fine-tuning (GPT-3.5) |
+| `POST /v1/fine_tuning/jobs` | Fine-tune jobs for GPT models |
+
+If the service claims OpenAI compatibility, it likely supports at least:
+
+- `POST /v1/chat/completions`
+- `GET /v1/models`
+- Possibly `POST /v1/completions` and `POST /v1/embeddings`
+
+---
+
+### ✅ 2. **Try This: Get Supported Models**
+You can test what models are available by sending:
+
+```bash
+curl https://text.pollinations.ai/openai/v1/models
+```
+
+If it supports this endpoint, it’ll return a list of models and their metadata.
+
+---
+
+### ✅ 3. Use `POST /openai/v1/chat/completions` (like this)
+
+```bash
+curl https://text.pollinations.ai/openai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "gpt-4",
+        "messages": [
+          {"role": "user", "content": "Write a viral LinkedIn post about AI."}
+        ]
+      }'
+```
+

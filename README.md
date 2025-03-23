@@ -28,7 +28,7 @@ linkedin-action-auto-post/
 │── .env                         # API keys (not committed)
 │── .gitignore                   # Ignore sensitive files
 │── config.yaml                  # 🔧 User-defined settings
-│── requirements.txt             # Project dependencies
+│── pipfile                      # Project dependencies and Scripts
 │── README.md                    # You’re here!
 ```
 
@@ -41,17 +41,18 @@ git clone https://github.com/your-username/linkedin-action-auto-post.git
 cd linkedin-action-auto-post
 ```
 
-### **2️⃣ Set Up Virtual Environment**
-```bash
-python -m venv venv
-source venv/Scripts/activate  # (Windows)
-source venv/bin/activate      # (Mac/Linux)
-```
-
 ### **3️⃣ Install Dependencies**
 ```bash
-pip install -r requirements.txt
+pipenv install
+
+pipenv install <package-name>
 ```
+
+### **🧪 Test APP Tests Medium | LinkedIn LLM Usability make sure to upload funds to required platforms**
+```bash
+pipenv test
+```
+
 
 ### **4️⃣ Configure API Keys**
 - **Create** a `.env` file in the root directory:
