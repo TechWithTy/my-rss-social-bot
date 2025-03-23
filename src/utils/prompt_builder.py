@@ -8,22 +8,23 @@ from utils.config_loader import config
 from medium_bot import fetch_latest_medium_blog
 from src.utils.index import parse_html_blog_content
 
+ai_config = config.get("ai", {})
+user_config = config.get("user_profile", {})
+social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
+medium_username = user_config.get('medium_username')
+
 def fetch_and_parse_blog(username: str) -> str | None:
     blog_content = fetch_latest_medium_blog(username,True)
     if not blog_content:
         print("ℹ️ No blog content found.")
         return None
     return parse_html_blog_content(blog_content)
-    
+
+blog_content = fetch_and_parse_blog(medium_username)
 
 def build_prompt_payload() -> Dict[str, Any]:
-    ai_config = config.get("ai", {})
-    user_config = config.get("user_profile", {})
-    social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
-
-    medium_username = user_config.get('medium_username')
+ 
     
-    blog_content = fetch_and_parse_blog(medium_username)
     # 🔧 Instructions
     system_instructions = ai_config.get("custom_system_instructions") or (
         "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
@@ -140,4 +141,6 @@ def build_prompt_payload() -> Dict[str, Any]:
 prompt_payload = build_prompt_payload()
 prompt = prompt_payload.get("content")
 creative_prompt = prompt_payload.get("creative_prompt")
+gif_prompt = prompt_payload.get("gif_prompt")
+hashtags = prompt_payload.get("hashtags")
 system_instructions = prompt_payload.get("system_instructions")

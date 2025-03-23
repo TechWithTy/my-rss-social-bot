@@ -72,7 +72,7 @@ def send_message_to_huggingface(prompt_text: str) -> dict:
         }
 
         
-def generate_image_with_huggingface(prompt: str) -> dict:
+def generate_image_with_huggingface(scoped_prompt: str) -> dict:
     if not hf_image_model:
         print("❌ No image model configured.")
         return {"status": "error", "response": "Image model not configured."}
@@ -80,7 +80,7 @@ def generate_image_with_huggingface(prompt: str) -> dict:
     url = f"https://api-inference.huggingface.co/models/{hf_image_model}"
     headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
     payload = {
-        "inputs": prompt,
+        "inputs": scoped_prompt,
         "parameters": {
             "height": int(image_height),
             "width": int(image_width)
@@ -88,7 +88,7 @@ def generate_image_with_huggingface(prompt: str) -> dict:
     }
 
     print(f"🎨 Generating image with model: {hf_image_model}")
-    print(f"📝 Image prompt:\n{prompt}\n")
+    print(f"📝 Image prompt:\n{scoped_prompt}\n")
 
     response = requests.post(url, headers=headers, json=payload)
 
@@ -113,9 +113,7 @@ def generate_image_with_huggingface(prompt: str) -> dict:
 
 
 def run_huggingface_pipeline() -> dict:
-    prompt_payload = build_prompt_payload()  # Assume uses username internally
-    prompt = prompt_payload.get("content")
-    prompt_creative = prompt_payload.get("creative_prompt")
+
     ai_config = config.get("user_profile",{}).get("ai", {})
     generate_image_enabled = config.get("creative",{}).get("generate_image",{}).get("enabled",{})
 
@@ -131,7 +129,7 @@ def run_huggingface_pipeline() -> dict:
     }
 
     if generate_image_enabled:
-        image_result = generate_image_with_huggingface(prompt_creative)
+        image_result = generate_image_with_huggingface(creative_prompt)
         if image_result["status"] == "success":
             result["image_url"] = image_result["response"]
         else:

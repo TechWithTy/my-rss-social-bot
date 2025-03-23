@@ -183,7 +183,7 @@ def get_openai_response(thread_id: str) -> Optional[str]:
     return None
 
 
-def generate_openai_image() -> Optional[str]:
+def generate_openai_image(scoped_prompt: str) -> Optional[str]:
     """
     Generates an image using OpenAI's Image API (DALL·E).
     Configuration is pulled from YAML settings.
@@ -200,7 +200,7 @@ def generate_openai_image() -> Optional[str]:
 
     payload = {
         "model": model,
-        "prompt": prompt,
+        "prompt": scoped_prompt,
         "n": 1,
         "size": size,
         "response_format": "url"

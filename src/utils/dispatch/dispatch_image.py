@@ -1,5 +1,5 @@
 
-from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
+from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions,blog_content
 from utils.config_loader import config
 from models.pollinations_generator import (
   
@@ -13,87 +13,69 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
+from typing import Optional
+import httpx
+from utils.fetch import fetch_with_retries  # Assuming you have this helper
+from models.openai_generator import generate_openai_image  # Missing in import
+from models.huggingface_generator import generate_image_with_huggingface  # Missing in import
 
 
 
+async def generate_image_description() -> Optional[str]:
+    """
+    Generates a creative image description based on blog content and prompt instructions.
+    Returns a short descriptive string.
+    """
+    prompt = f"{creative_prompt}\n\nBLOG:\n{blog_content.strip()}"
+    encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")  # URL-safe
+
+    url = f"{BASE_TEXT_URL}/{encoded_prompt}"
+    async with httpx.AsyncClient() as client:
+        response = await fetch_with_retries(url, client)
+        return response.text.strip() if response else None
 
 
-def dispatch_image_pipeline(provider: str,):
-    match provider:
-        case "Pollinations_Image":
-            print("🖼️ Pollinations_Image", creative_prompt)
-            image_url = await generate_image(prompt=creative_prompt)
-            return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
+creative_prompt_output = asyncio.run(generate_image_description())
 
-        case "Pollinations_Image_Get":
-            print("🎨 Pollinations Image GET Setup")
-            cfg = config['user_profile']['llm']['Pollinations']['pollinations_image_get']
+async def dispatch_image_pipeline(provider: str):
+        match provider:
+            case "Pollinations_Image":
+                print("🖼️ Pollinations_Image", creative_prompt_output)
+                image_url = await generate_image(prompt=creative_prompt_output)
+                return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
 
-            image_url = await generate_advanced_image(
-                prompt=creative_prompt,
-                model=cfg.get("model", "flux"),
-                seed=cfg.get("seed", 42),
-                width=cfg.get("width", 1024),
-                height=cfg.get("height", 1024),
-                nologo=cfg.get("nologo", True),
-                private=cfg.get("private", True),
-                enhance=cfg.get("enhance", False),
-                safe=cfg.get("safe", True),
-            )
+            case "Pollinations_Image_Get":
+                print("🎨 Pollinations Image GET Setup")
+                cfg = config['user_profile']['llm']['Pollinations']['pollinations_image_get']
 
-            return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
+                image_url = await generate_advanced_image(
+                    prompt=creative_prompt_output,
+                    model=cfg.get("model", "flux"),
+                    seed=cfg.get("seed", 42),
+                    width=cfg.get("width", 1024),
+                    height=cfg.get("height", 1024),
+                    nologo=cfg.get("nologo", True),
+                    private=cfg.get("private", True),
+                    enhance=cfg.get("enhance", False),
+                    safe=cfg.get("safe", True),
+                )
 
-
-        case "OpenAI":
-            openai_cfg = config['user_profile']['llm']['OpenAI']
-            payload = {
-                "model": openai_cfg['text_model'],
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": openai_cfg['temperature'],
-                "top_p": openai_cfg['top_p']
-            }
-            return asyncio.run(run_openai_pipeline())
-
-        case "HuggingFace":
-            print("🤗 Hugging Face")          
-            result = run_huggingface_pipeline()
-            print("🤗 Hugging Face Result", result.get('result'))          
-            llm_response = result.get('response')  # corrected typo
-            print("HF Response 🤗 " + str(type(llm_response).__name__) + " " + str(llm_response))            
-            return llm_response 
+                return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
 
 
-        case "DeepSeek":
-            ds_cfg = config['user_profile']['llm']['DeepSeek']
-            payload = {
-                "model": ds_cfg['text_model'],
-                "prompt": prompt,
-                "temperature": ds_cfg['temperature'],
-                "top_p": ds_cfg['top_p'],
-                "presence_penalty": ds_cfg['presence_penalty'],
-                "frequency_penalty": ds_cfg['frequency_penalty'],
-                "response_format": ds_cfg['response_format'],
-                "max_tokens": ds_cfg['max_tokens']
-            }
-            llm_response = send_message_to_deepseek()
-            print("🦈 Deep Seek Response",llm_response)
-            return llm_response
+            case "OpenAI":
+                image_url = await generate_image(prompt=creative_prompt_output)
+                print("🖼️ Pollinations_Image", creative_prompt_output, image_url)
+                return image_url
 
-        case "Claude":
-            claude_cfg = config['user_profile']['llm']['Anthropic']
-            payload = {
-                "model": claude_cfg['text_model'],
-                "max_tokens": claude_cfg['max_tokens'],
-                "temperature": claude_cfg['temperature'],
-                "top_p": claude_cfg['top_p'],
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ],
-                "system": claude_cfg['system']
-            }
-            llm_response = send_message_to_claude()
-            print("🎅 Claude Response",llm_response)
-            return llm_response
+            case "HuggingFace":
+                print("🤗 Hugging Face")          
+                result = generate_image_with_huggingface()
+                url = result.get("response")
+                print("🤗 Hugging Face Image Result", url)          
+                
+            
+                return url 
 
-        case _:
-            raise ValueError(f"❌ Unsupported provider: {provider}")
+            case _:
+                raise ValueError(f"❌ Unsupported provider: {provider}")
