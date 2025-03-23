@@ -14,11 +14,24 @@ social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
 medium_username = user_config.get('medium_username')
 
 def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username,True)
-    if not blog_content:
-        print("ℹ️ No blog content found.")
+    response = fetch_latest_medium_blog(username)
+    
+    if response is None:
+        print("ℹ️ No new blogs to parse — already up to date.")
         return None
+    blog_json = response["latest_blog"]
+    blog_content = response["latest_blog"]["content"]
+    if not blog_content:
+        print("ℹ️ No blog content found in the latest blog.")
+        return None
+    cleaned_blog_content = parse_html_blog_content(blog_content)
+
+    print("✅ fetch_and_parse_blog output:" + cleaned_blog_content)
+    print(f"✅ fetch_and_parse_blog response:{response}" )
+    print(f"✅ fetch_and_parse_blog json: {blog_json}" )
+
     return parse_html_blog_content(blog_content)
+
 
 blog_content = fetch_and_parse_blog(medium_username)
 
@@ -128,6 +141,9 @@ def build_prompt_payload() -> Dict[str, Any]:
         f"{user_instructions}"
       
     )
+    if not blog_content:
+        return None
+
 
     return {
         "content": content.strip(),
@@ -139,8 +155,14 @@ def build_prompt_payload() -> Dict[str, Any]:
 
 
 prompt_payload = build_prompt_payload()
-prompt = prompt_payload.get("content")
-creative_prompt = prompt_payload.get("creative_prompt")
-gif_prompt = prompt_payload.get("gif_prompt")
-hashtags = prompt_payload.get("hashtags")
-system_instructions = prompt_payload.get("system_instructions")
+
+if prompt_payload is None:
+    print("⚠️ No prompt payload returned.")
+    prompt = creative_prompt = gif_prompt = system_instructions = None
+    hashtags = []
+else:
+    prompt = prompt_payload.get("content")
+    creative_prompt = prompt_payload.get("creative_prompt")
+    gif_prompt = prompt_payload.get("gif_prompt")
+    hashtags = prompt_payload.get("hashtags", [])
+    system_instructions = prompt_payload.get("system_instructions")

@@ -16,7 +16,7 @@ if not HUGGINGFACE_API_KEY:
 
 # ✅ LLM Configuration for Hugging Face
 hf_config = config.get("user_profile",{}).get("llm", {}).get("HuggingFace", {})
-print("hfconfig",hf_config)
+# print("hfconfig",hf_config)
 hf_text_model = hf_config.get("text_model", "mistralai/Mistral-7B-Instruct-v0.1")
 hf_image_model = hf_config.get("image_model", "runwayml/stable-diffusion-v1-5")
 

@@ -4,33 +4,42 @@ import requests
 from bs4 import BeautifulSoup, Tag  # ✅ Import `Tag` explicitlyfrom tabulate import tabulate
 import os
 from tabulate import tabulate
-
+from utils.medium_helper import (
+    load_blog_cache,
+    save_blog_cache,
+    delete_blog_cache,
+    is_blog_cache_valid,
+    extract_blog_media
+)
 TEMP_FOLDER = "_temp"
 LAST_BLOG_FILE = os.path.join(TEMP_FOLDER, "last_post.txt")
 
-def get_medium_avatar(username: str) -> Optional[str]:
+
+def get_medium_avatar(username: str) -> str:
     """
-    Fetches the Medium user's profile avatar.
+    Fetch the Medium user's avatar by scraping their profile page.
 
     Args:
         username (str): Medium username (without '@')
 
     Returns:
-        Optional[str]: URL of the user's avatar or None if not found.
+        str: URL of the user's profile avatar or a default avatar.
     """
     profile_url = f"https://medium.com/@{username}"
-    response = requests.get(profile_url, timeout=10)
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        avatar_tag = soup.find("img", {"class": "avatar-image"})
+    try:
+        response = requests.get(profile_url, headers={"User-Agent": "Mozilla/5.0"})
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+            # Look for the Open Graph image tag (og:image) which contains the avatar
+            og_image = soup.find("meta", property="og:image")
+            if og_image and og_image.get("content"):
+                return og_image["content"]
+    except Exception as e:
+        print(f"Error fetching avatar: {e}")
 
-        # ✅ Ensure `avatar_tag` is a valid `Tag` before calling `.get()`
-        if isinstance(avatar_tag, Tag):
-            avatar_url = avatar_tag.get("src")
-            return str(avatar_url) if avatar_url else None  # ✅ Ensure return type is `Optional[str]`
-
-    return None  # ✅ Return `None` if no avatar is found
+    # Return default avatar if not found
+    return "https://cdn-images-1.medium.com/fit/c/64/64/1*2Y7paYtPz5-Nj0zTLOzSwg.png"
 
 def get_medium_blogs(username: str) -> Dict[str, Any]:
     """
@@ -47,7 +56,7 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
 
     # Fetch user avatar
     user_avatar = get_medium_avatar(username)
-
+    print("User AVatar",  user_avatar,username)
     blogs: List[Dict[str, Any]] = []
     for entry in feed.entries:
         # ✅ Ensure `categories` is always a List[str]
@@ -94,74 +103,54 @@ def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:
     headers = ["#", "Title", "Categories", "Published", "Link"]
     print(tabulate(table_data, headers, tablefmt="grid"))
 
-
-
-
-def ensure_temp_folder_exists() -> None:
-    """Ensures the _temp folder exists."""
-    if not os.path.exists(TEMP_FOLDER):
-        os.makedirs(TEMP_FOLDER)
-
-
-def read_last_medium_blog() -> Optional[str]:
-    """Reads the last processed blog post from a file in _temp."""
-    ensure_temp_folder_exists()  # ✅ Ensure the folder exists before reading
-    
-    if os.path.exists(LAST_BLOG_FILE):
-        with open(LAST_BLOG_FILE, "r", encoding="utf-8") as file:
-            return file.read().strip()
-    
-    return None
-
-
-def write_last_medium_blog(blog_id: str) -> None:
-    """Writes the last processed blog post to a file in _temp."""
-    ensure_temp_folder_exists()  # ✅ Ensure the folder exists before writing
-    
-    with open(LAST_BLOG_FILE, "w", encoding="utf-8") as file:
-        file.write(blog_id)
-    
-    print(f"✅ Saved last blog post ID: {blog_id}")
-
-
-def delete_last_medium_blog() -> None:
-    """Deletes the last processed blog post file from _temp."""
-    if os.path.exists(LAST_BLOG_FILE):
-        os.remove(LAST_BLOG_FILE)
-        print("🗑️ Deleted last blog post record.")
-    else:
-        print("⚠️ No last blog post file found to delete.")
-        
-def fetch_latest_medium_blog(username: str,saveState: bool) -> Optional[str]:
+def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
     """
-    Fetches the latest blog post from a Medium RSS feed.
+    Fetches all Medium blogs with metadata, including parsed media from the latest blog.
 
     Args:
-        username (str): Medium username.
+        username (str): Medium username
 
     Returns:
-        Optional[str]: Latest blog content if new, otherwise None.
+        Optional[Dict[str, Any]]: Dictionary with all blogs, latest blog, and its media
     """
     try:
-        print("🔹 Fetching latest blog post from Medium...")
-        blogs = get_medium_blogs(username)["blogs"]
+        print("🔹 Checking blog cache validity...")
+        cached_data = load_blog_cache() if is_blog_cache_valid() else None
+        cached_latest_id = cached_data["blogs"][0]["id"] if cached_data and cached_data.get("blogs") else None
 
-        if not blogs:
-            print("❌ No blogs found. Exiting.")
+        print("🔄 Fetching fresh Medium blogs...")
+        fresh_data = get_medium_blogs(username)
+        fresh_blogs = fresh_data.get("blogs", [])
+        fresh_latest_id = fresh_blogs[0]["id"] if fresh_blogs else None
+
+        # Debug logs to trace comparison
+        print(f"🧾 Cached blog ID: {cached_latest_id}")
+        print(f"🆕 Fresh blog ID: {fresh_latest_id}")
+
+        if cached_latest_id == fresh_latest_id:
+            print("🟢 Latest blog already cached.")
+            blogs_data = cached_data
+        else:
+            print("🆕 New blog detected. Updating cache.")
+            save_blog_cache(fresh_data)
+            blogs_data = fresh_data
+
+        if not blogs_data or not blogs_data.get("blogs"):
+            print("❌ No blogs found.")
             return None
 
-        latest_blog = blogs[0]  # Most recent post
-        last_processed_blog = read_last_medium_blog()
+        latest_blog = blogs_data["blogs"][0]
+        media = extract_blog_media(latest_blog["content"])
 
-        if latest_blog["id"] == last_processed_blog:
-            print("ℹ️ No new blog posts found.")
-            return None
+        return {
+            "user_avatar": get_medium_avatar(),
+            "all_blogs": blogs_data["blogs"],
+            "latest_blog": latest_blog,
+            "latest_blog_links": media["links"],
+            "latest_blog_images": media["images"],
+            "latest_blog_embeds": media["embeds"],
+        }
 
-        # ✅ Save the new blog ID
-        if saveState:
-         write_last_medium_blog(latest_blog["id"])
-
-        return latest_blog["content"]
     except Exception as e:
         print(f"❌ Error fetching Medium blogs: {e}")
         return None

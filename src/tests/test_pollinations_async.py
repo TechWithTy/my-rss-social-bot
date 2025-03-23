@@ -17,16 +17,8 @@ from models.pollinations_generator import (
     fetch_text_feed,
     call_openai_compatible_endpoint
 )
-from medium_bot import fetch_latest_medium_blog
-from utils.index import parse_html_blog_content
 
 
-def fetch_and_parse_blog(username: str) -> str | None:
-    blog_content = fetch_latest_medium_blog(username, False)
-    if not blog_content:
-        print("ℹ️ No blog content found for user:", username)
-        return None
-    return parse_html_blog_content(blog_content)
 
 
 # Constants for tests

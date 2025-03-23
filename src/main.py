@@ -1,10 +1,11 @@
 from src.utils.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import run_openai_pipeline
-from src.medium_bot import fetch_latest_medium_blog
-from src.utils.index import parse_html_blog_content
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
+from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
+import asyncio
+
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
 
@@ -83,7 +84,7 @@ def main(medium_username: str) -> None:
 
         if not image_url and not gif_asset:
             print("⚠️ No media asset found — generating fallback image...")
-            image_data = dispatch_image_pipeline(image_provider)
+            image_data = asyncio.run(dispatch_image_pipeline(image_provider))
 
             if image_data:
                 if "ImageAsset" in image_data:
@@ -99,7 +100,7 @@ def main(medium_username: str) -> None:
 
         print("📝 Final post text:\n", post_text)
         print(f"📦 Media: {media_type} -> {media_url}")
-        post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
+        # post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
 
     except Exception as e:
         print(f"❌ An error occurred in main: {e}")
