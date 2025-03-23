@@ -37,6 +37,30 @@ def get_linkedin_profile_id() -> Optional[str]:
     return None
 
 
+def get_linkedin_profile(access_token: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetch the authenticated user's LinkedIn profile.
+
+    Args:
+        access_token (str): LinkedIn OAuth2 access token.
+
+    Returns:
+        Optional[Dict[str, Any]]: The LinkedIn profile data if successful, else None.
+    """
+    url = "https://api.linkedin.com/v2/me"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "X-Restli-Protocol-Version": "2.0.0"
+    }
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"❌ Error fetching LinkedIn profile: {response.status_code} - {response.text}")
+        return None
+
+
 def upload_linkedin_media(profile_id: str, media_url: str, media_type: str) -> Optional[str]:
     """
     Uploads media (image, GIF, or video) to LinkedIn and returns a media URN.

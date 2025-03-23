@@ -4,8 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
+
+app = "python -m src.main"
+
 test = "pytest -s -v src/tests/"
-test-html = "pytest -s -v src/tests/ --html=report.html"
+test-html = "pytest -s -v src/tests/ --html=src/tests/reports/html/_report.html"
 
 [packages]
 anyio = "==4.9.0"

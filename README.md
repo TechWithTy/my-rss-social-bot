@@ -1,29 +1,31 @@
-# 🚀 **LinkedIn Auto-Post from Medium Blog**  
+# 🚀 **LinkedIn Auto-Post from Medium Blog**
 
-This project **automates** LinkedIn post creation from your **Medium blog RSS feed** using **OpenAI** for content generation and **LinkedIn API** for posting. It includes **AI-generated images**, GIF support, and viral engagement techniques.  
+This project **automates** LinkedIn post creation from your **Medium blog RSS feed** using **OpenAI** for content generation and **LinkedIn API** for posting. It includes **AI-generated images**, GIF support, and viral engagement techniques.
 
 ---
 
 ## **📌 Features**
+
 ✅ **Fetches Latest Medium Blog** – Uses RSS to track new posts  
 ✅ **AI-Generated LinkedIn Posts** – Customizable OpenAI prompts  
 ✅ **Image & GIF Support** – Dynamic AI-generated visuals or GIFs  
 ✅ **Viral Post Formatting** – Hooks, storytelling, and data-backed insights  
-✅ **Hashtag Optimization** – Auto-includes relevant tags for engagement  
+✅ **Hashtag Optimization** – Auto-includes relevant tags for engagement
 
 ---
 
 ## **📂 Project Structure**
+
 ```
 linkedin-action-auto-post/
 │── .github/                     # GitHub Actions for automation
-│── src/                         
+│── src/
 │   ├── __init__.py              # Makes `src` a package
 │   ├── main.py                  # 🚀 Main script to run
 │   ├── linkedin_bot.py          # Handles LinkedIn API requests
 │   ├── medium_bot.py            # Fetches latest blog post from Medium
 │   ├── openai_generator.py      # AI-powered content generation
-│   ├── config_loader.py         # Loads settings from `config.yaml`
+│   ├── utils.config_loader.py         # Loads settings from `config.yaml`
 │── venv/                        # Virtual environment (not committed)
 │── .env                         # API keys (not committed)
 │── .gitignore                   # Ignore sensitive files
@@ -35,13 +37,16 @@ linkedin-action-auto-post/
 ---
 
 ## **🛠️ Installation & Setup**
+
 ### **1️⃣ Clone the Repository**
+
 ```bash
 git clone https://github.com/your-username/linkedin-action-auto-post.git
 cd linkedin-action-auto-post
 ```
 
 ### **3️⃣ Install Dependencies**
+
 ```bash
 pipenv install
 
@@ -49,13 +54,18 @@ pipenv install <package-name>
 ```
 
 ### **🧪 Test APP Tests Medium | LinkedIn LLM Usability make sure to upload funds to required platforms**
+
 ```bash
 pipenv test
+
 ```
 
+check reports in /tests/reports/html
 
 ### **4️⃣ Configure API Keys**
+
 - **Create** a `.env` file in the root directory:
+
 ```ini
 LINKEDIN_ACCESS_TOKEN="your_linkedin_access_token"
 OPENAI_API_KEY="your_openai_api_key"
@@ -67,20 +77,23 @@ OPENAI_ASSISTANT_ID="your_openai_assistant_id"
 ---
 
 ## **🚀 Running the Bot**
+
 ```bash
 python -m src.main
 ```
 
-- Fetches the latest Medium post  
-- Sends content to OpenAI for optimization  
-- Generates a viral LinkedIn post  
-- Uploads an AI image or GIF (if enabled)  
-- **Auto-posts** to LinkedIn 🎯  
+- Fetches the latest Medium post
+- Sends content to OpenAI for optimization
+- Generates a viral LinkedIn post
+- Uploads an AI image or GIF (if enabled)
+- **Auto-posts** to LinkedIn 🎯
 
 ---
 
 ## **🛠️ Configuration (`config.yaml`)**
+
 Easily **customize** how your posts are generated:
+
 ```yaml
 user_profile:
   medium_username: "codingoni"
@@ -107,16 +120,18 @@ ai:
 ---
 
 ## **📌 Automating with GitHub Actions**
+
 1️⃣ **Enable GitHub Actions** in your repo  
 2️⃣ **Commit & push your project**  
 3️⃣ Add **GitHub Secrets** for API keys  
-4️⃣ Edit `.github/workflows/rss-to-linkedin.yml` for **automatic posting**  
+4️⃣ Edit `.github/workflows/rss-to-linkedin.yml` for **automatic posting**
 
 ---
 
 ## **📝 Example LinkedIn Post Generated**
-```txt
-🚀 AI won’t replace you. But a person using AI will. 
+
+````txt
+🚀 AI won’t replace you. But a person using AI will.
 
 Are you adapting? The tech landscape is evolving, and those who master AI tools will thrive.
 
@@ -149,7 +164,7 @@ OpenAI Assistants provide a memory-aware, instruction-driven experience. We use 
 > 🔐 **Important:** You must **copy this Assistant ID** and add it to your `.env` or GitHub secrets:
 ```bash
 OPENAI_ASSISTANT_ID=asst_abc123def456
-```
+````
 
 All assistant behavior (style, tone, visuals, hashtags, etc.) is pulled from your YAML configuration — no coding required.
 
@@ -179,6 +194,7 @@ HuggingFace:
 ### 🦾 **DeepSeek Integration**
 
 We support both:
+
 - `deepseek-lite` (for basic summarization)
 - `deepseek-chat` (for longer, conversation-aware generation)
 
@@ -200,17 +216,17 @@ All user preferences — tone, image prompts, emotional storytelling, hashtags, 
 
 No need to modify code. Just update your YAML, and the system adapts.
 
-
-
 ---
 
 ## **📌 Contributions**
-Feel free to **fork, modify, and contribute!** 🎯 PRs are welcome!  
+
+Feel free to **fork, modify, and contribute!** 🎯 PRs are welcome!
 
 ---
 
 ### **🔗 Stay Connected**
-<!-- 📢 Follow me on **LinkedIn**: [Your Profile Link]  
+
+<!-- 📢 Follow me on **LinkedIn**: [Your Profile Link]
 📧 Contact: your.email@example.com   -->
 
 🚀 **Let’s automate & go viral together!** 🚀

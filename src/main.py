@@ -1,4 +1,4 @@
-from src.config_loader import config
+from src.utils.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import (
 run_openai_pipeline

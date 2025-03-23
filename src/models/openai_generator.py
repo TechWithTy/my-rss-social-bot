@@ -4,10 +4,10 @@ import requests
 import time
 import os
 from dotenv import load_dotenv
-from utils.index import get_env_variable
-from utils import prompt_builder
-from utils.prompt_builder import build_prompt_payload
-from config_loader import config
+from src.utils.index import get_env_variable
+from src.utils import prompt_builder
+from src.utils.prompt_builder import build_prompt_payload
+from utils.config_loader import config
 
 # ✅ Load environment variables
 load_dotenv()

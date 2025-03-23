@@ -2,7 +2,7 @@ from typing import Optional, Dict, Any
 import requests
 import os
 from dotenv import load_dotenv
-from config_loader import config
+from utils.config_loader import config
 from utils.index import get_env_variable
 from utils.prompt_builder import build_prompt_payload
 
