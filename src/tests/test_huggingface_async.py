@@ -6,7 +6,7 @@ from models.huggingface_generator import run_huggingface_pipeline
 
 @pytest.mark.asyncio
 async def test_run_huggingface_pipeline():
-    result = run_huggingface_pipeline("codingoni")  # username for blog content
+    result = run_huggingface_pipeline()  # username for blog content
 
     assert isinstance(result, dict), "Expected pipeline to return a dict"
     assert result.get("status") != "failed", f"❌ Hugging Face text generation failed: {result.get('response')}"

@@ -13,7 +13,7 @@ async def test_send_message_to_claude():
         "Claude AI is making waves in 2024. Here's how it's revolutionizing AI-driven communication in tech and business."
     )
 
-    result = send_message_to_claude(sample_blog)
+    result = send_message_to_claude()
 
     assert isinstance(result, dict), "❌ Expected result to be a dictionary"
 

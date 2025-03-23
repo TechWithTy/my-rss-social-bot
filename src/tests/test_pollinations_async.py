@@ -31,9 +31,9 @@ TEST_PAYLOAD = {
         ],
         "model": "openai",
         "seed": 42,
-        "jsonMode": true,  // Optional: Forces the response to be valid JSON
-        "private": true,   // Optional: Prevents response from appearing in public feed
-        "reasoning_effort": "high"  // Optional: Sets reasoning effort for o3-mini model
+        "jsonMode": True,  
+        "private": True,  
+        "reasoning_effort": "high" 
     }
 
 

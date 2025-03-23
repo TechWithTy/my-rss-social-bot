@@ -14,13 +14,13 @@ async def test_send_message_to_deepseek():
         "Here are 5 innovations you can't afford to ignore if you're in tech."
     )
 
-    result = send_message_to_deepseek(sample_blog)
-
+    result = send_message_to_deepseek()
+    print("🦈 DeepSeek Result",result)
     assert isinstance(result, dict), "❌ Expected result to be a dictionary"
 
     # If request failed, log it and fail the test
     if result.get("status") != "success":
-        print("⚠️ DeepSeek returned a failure")
+        print("⚠️ DeepSeek returned a failure",result)
         print("📥 Response:", result.get("response"))
         print("🧾 Details:", result.get("details"))
         error_message = result.get("details", {}).get("raw", {}).get("error", {}).get("message")

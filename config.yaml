@@ -121,20 +121,21 @@ user_profile:
 
     #https://api-docs.deepseek.com/api/create-chat-completion
     DeepSeek:
-      text_model: "deepseek-chat"
-      presence_penalty: 0.0 # Possible values: >= -2 and <= 2
-      frequency_penalty: 0.0 # Possible values: >= -2 and <= 2
-      response_format: "json_object" # json_object | text | auto
-      temperature: 0.7 # Possible values: <= 2
+      text_model: "deepseek-chat"  # Ensure this matches the model you intend to use
+      presence_penalty: 0.0  # Float between -2 and 2
+      frequency_penalty: 0.0  # Float between -2 and 2
+      response_format: "json_object"  # "json_object" or "text"
+      temperature: 0.7  # Float ≤ 2
       max_tokens: 500  # Integer between 1 and 8192
-      tools: "function" # A list of tools the text_model may call. Currently, only functions are supported as a tool. 
-      tool_choice: "auto" # Controls which (if any) tool is called by the text_model.
-      top_p: 0.95  # Adjusts the likelihood of the text_model generating the top response (0 = no bias, 1 = strict bias)
-      logprobs: false # Whether to return log probabilities of the output tokens or not. 
-      top_logprobs: 5 # An integer between 0 and 20 specifying the number of most likely tokens to return at each token position
+      tools: "function"  # Specify tools if applicable
+      tool_choice: "auto"  # "none", "auto", or specific tool name
+      top_p: 0.95  # Float between 0 and 1
+      logprobs: false  # Boolean
+      top_logprobs: 5  # Integer between 0 and 20
       available_models:
         - "deepseek-chat"
         - "deepseek-reasoner"
+
 
     Anthropic:
       text_model: "claude-3-sonnet-20240229"  # Default text_model

@@ -11,6 +11,7 @@ from utils.medium_helper import (
     is_blog_cache_valid,
     extract_blog_media
 )
+import traceback
 TEMP_FOLDER = "_temp"
 LAST_BLOG_FILE = os.path.join(TEMP_FOLDER, "last_post.txt")
 
@@ -104,46 +105,46 @@ def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:
     print(tabulate(table_data, headers, tablefmt="grid"))
 
 def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
-    """
-    Fetches all Medium blogs with metadata, including parsed media from the latest blog.
-
-    Args:
-        username (str): Medium username
-
-    Returns:
-        Optional[Dict[str, Any]]: Dictionary with all blogs, latest blog, and its media
-    """
+    print("fetch_latest_medium_blog() called from:\n", "".join(traceback.format_stack()))
     try:
         print("🔹 Checking blog cache validity...")
         cached_data = load_blog_cache() if is_blog_cache_valid() else None
-        cached_latest_id = cached_data["blogs"][0]["id"] if cached_data and cached_data.get("blogs") else None
+        cached_latest_id = (
+            cached_data["blogs"][0]["id"]
+            if cached_data and cached_data.get("blogs")
+            else None
+        )
 
         print("🔄 Fetching fresh Medium blogs...")
         fresh_data = get_medium_blogs(username)
         fresh_blogs = fresh_data.get("blogs", [])
-        fresh_latest_id = fresh_blogs[0]["id"] if fresh_blogs else None
+        if not fresh_blogs:
+            print("❌ No blogs found in the feed.")
+            return None
+
+        fresh_latest_id = fresh_blogs[0]["id"]
 
         # Debug logs to trace comparison
         print(f"🧾 Cached blog ID: {cached_latest_id}")
         print(f"🆕 Fresh blog ID: {fresh_latest_id}")
 
         if cached_latest_id == fresh_latest_id:
-            print("🟢 Latest blog already cached.")
-            blogs_data = None
-        else:
-            print("🆕 New blog detected. Updating cache.")
-            save_blog_cache(fresh_data)
-            blogs_data = fresh_data
+            print("🟢 Latest blog already cached. No new blog to parse.")
+            return None  # Exit here with a clear message
 
-        if not blogs_data or not blogs_data.get("blogs"):
-            print("❌ No blogs found.")
-            return None
+        # Otherwise, we have a new blog entry
+        print("🆕 New blog detected. Updating cache.")
+        save_blog_cache(fresh_data)
 
+        # At this point, fresh_data should be our new blogs_data
+        blogs_data = fresh_data
         latest_blog = blogs_data["blogs"][0]
+
+        from utils.medium_helper import extract_blog_media  # or wherever it's imported
         media = extract_blog_media(latest_blog["content"])
 
         return {
-            "user_avatar": get_medium_avatar(),
+            "user_avatar": get_medium_avatar(username),
             "all_blogs": blogs_data["blogs"],
             "latest_blog": latest_blog,
             "latest_blog_links": media["links"],

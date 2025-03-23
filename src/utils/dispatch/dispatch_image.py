@@ -14,25 +14,29 @@ from utils.giphy import giphy_find_with_metadata  # ensure this is available
 FLUX_BASE_IMAGE_URL = "https://image.pollinations.ai"
 
 async def generate_image_description() -> Optional[str]:
-    prompt = f"{creative_prompt}\n\nBLOG:\n{blog_content.strip()}"
-    encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")
-    url = f"{FLUX_BASE_IMAGE_URL}/{encoded_prompt}"
-    async with httpx.AsyncClient() as client:
-        response = await fetch_with_retries(url, client)
-        return response.text.strip() if response else None
-
+    if blog_content:
+        prompt = f"{creative_prompt}\n\nBLOG:\n{blog_content.strip()}"
+        encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")
+        url = f"{FLUX_BASE_IMAGE_URL}/{encoded_prompt}"
+        async with httpx.AsyncClient() as client:
+            response = await fetch_with_retries(url, client)
+            return response.text.strip() if response else None
+    else:
+        return None
 async def generate_gif_tags() -> Optional[Dict[str, list]]:
-    prompt = f"{system_instructions}\n\nBLOG:\n{blog_content.strip()}"
-    encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")
-    url = f"{FLUX_BASE_IMAGE_URL}/{encoded_prompt}"
-    async with httpx.AsyncClient() as client:
-        response = await fetch_with_retries(url, client)
-        if response:
-            try:
-                return response.json()
-            except Exception:
-                return {"GifSearchTags": [tag.strip() for tag in response.text.split(",") if tag.strip()]}
-    return None
+    if blog_content:
+        prompt = f"{system_instructions}\n\nBLOG:\n{blog_content.strip()}"
+        encoded_prompt = httpx.QueryParams({"prompt": prompt}).get("prompt")
+        url = f"{FLUX_BASE_IMAGE_URL}/{encoded_prompt}"
+        async with httpx.AsyncClient() as client:
+            response = await fetch_with_retries(url, client)
+            if response:
+                try:
+                    return response.json()
+                except Exception:
+                    return {"GifSearchTags": [tag.strip() for tag in response.text.split(",") if tag.strip()]}
+    else:
+        return None
 
 async def dispatch_image_pipeline(provider: str) -> Optional[Dict[str, str]]:
     creative_prompt_output = await generate_image_description()

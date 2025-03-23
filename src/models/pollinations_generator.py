@@ -1,8 +1,16 @@
+import sys
+
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 import httpx
 import asyncio
 from typing import Optional, Dict, Any
 from utils import prompt_builder
 from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
+import urllib.parse
 
 
 # Constants

@@ -1,13 +1,18 @@
+import sys
+
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from typing import Optional, Dict, Any
 import requests
 import time
 import os
 from dotenv import load_dotenv
-from src.utils.index import get_env_variable
-from src.utils import prompt_builder
+from utils.index import get_env_variable
+from utils import prompt_builder
 from utils.prompt_builder import build_prompt_payload,prompt,creative_prompt,system_instructions
-from src.utils.config_loader import config
+from utils.config_loader import config
 
 # ✅ Load environment variables
 load_dotenv()

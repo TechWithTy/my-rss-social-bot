@@ -12,7 +12,7 @@ async def test_run_openai_pipeline():
         "Here are 5 tools every beginner should master in 2024. Let’s dive in!"
     )
 
-    result = run_openai_pipeline(sample_blog)
+    result = run_openai_pipeline()
 
     assert isinstance(result, dict), "Expected result to be a dictionary"
     assert result.get("status") != "failed", f"❌ Assistant failed: {result.get('response')}"

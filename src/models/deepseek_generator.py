@@ -1,3 +1,9 @@
+import sys
+
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from typing import Optional, Dict, Any, List
 import requests
 import os
@@ -38,22 +44,27 @@ def send_message_to_deepseek() -> dict:
         "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
         "Content-Type": "application/json"
     }
+    print("🦈 DeepSeek System Prompt",system_instructions)
+    print("🦈 DeepSeek Global Prompt",prompt)
 
     payload = {
-        "model": deep_seek_text_model,
+        "model": deep_seek_text_model,  # Ensure this variable matches one of the available models, e.g., "deepseek-chat"
         "messages": [
             {"role": "system", "content": system_instructions},
             {"role": "user", "content": prompt}
         ],
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "top_p": top_p,
-        "frequency_penalty": frequency_penalty,
-        "presence_penalty": presence_penalty,
-        "response_format": {"type": response_format},
-        "tool_choice": tool_choice,
-        "logprobs": logprobs,
+        "temperature": temperature,  # Ensure this is a float ≤ 2
+        "max_tokens": max_tokens,  # Ensure this is an integer between 1 and 8192
+        "top_p": top_p,  # Ensure this is a float between 0 and 1
+        "frequency_penalty": frequency_penalty,  # Ensure this is a float between -2 and 2
+        "presence_penalty": presence_penalty,  # Ensure this is a float between -2 and 2
+        "response_format": {"type": response_format},  # Typically "text" or "json_object"
+        "tool_choice": tool_choice,  # Ensure this matches the expected tool choice, e.g., "none" or "auto"
+        "logprobs": logprobs,  # Boolean indicating whether to return log probabilities
+        # Include 'tools', 'stop', 'stream', 'stream_options', and 'top_logprobs' if required by your application
     }
+
+
     # Only add tools if valid and required by the model
     if tools == "function":
         payload["tools"] = [{
@@ -80,9 +91,10 @@ def send_message_to_deepseek() -> dict:
 
     try:
         response_data = response.json()
-        print("🧠 Response JSON:", response_data)
     except Exception as e:
         print("❌ Failed to parse JSON:", e)
+        print(f"🧠 Headers: {dict(response.headers)}")
+        print(f"🦈 DeepSeek Failed - Status: {response.status_code} | Reason: {response.reason} | Text: {response.text}")
         return {
             "status": "error",
             "response": "Invalid JSON response",
@@ -95,7 +107,7 @@ def send_message_to_deepseek() -> dict:
 
     if response.status_code == 200:
         completion = response_data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-
+        print("🦈 Deep Seek Completion")
         if completion == prompt.strip():
             return {
                 "status": "failed",
