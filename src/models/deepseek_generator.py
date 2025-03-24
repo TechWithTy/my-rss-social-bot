@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import  get_prompt_globals# ✅ Load environment variables
+from utils.prompt_builder import  get_prompt_globals,init_globals_for_test# ✅ Load environment variables
 load_dotenv()
 
 DEEPSEEK_API_KEY: Optional[str] = get_env_variable("DEEPSEEK_API_KEY")
@@ -19,7 +19,10 @@ DEEPSEEK_API_KEY: Optional[str] = get_env_variable("DEEPSEEK_API_KEY")
 if not DEEPSEEK_API_KEY:
     raise ValueError("❌ DEEPSEEK_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
 
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
+if TEST_MODE:
+    init_globals_for_test()
 # Initialize the state
 
 

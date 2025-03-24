@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import  get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals,init_globals_for_test
 from utils.config_loader import config
 
 # ✅ Load environment variables
@@ -27,7 +27,10 @@ OPENAI_ASSISTANT_ID: Optional[str] = get_env_variable("OPENAI_ASSISTANT_ID")
 
 if not OPENAI_API_KEY:
     raise ValueError("❌ OPENAI_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
+if TEST_MODE:
+    init_globals_for_test()
 state = get_prompt_globals()
 
 prompt = state["prompt"]

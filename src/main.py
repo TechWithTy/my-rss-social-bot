@@ -5,8 +5,17 @@ from src.models.openai_generator import run_openai_pipeline
 from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
+from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
+from utils.medium_helper import (
+    load_blog_cache,
+    save_blog_cache,
+    delete_blog_cache,
+    is_blog_cache_valid,
+    extract_blog_media
+)
 from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
+import traceback
 
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
@@ -56,18 +65,52 @@ def assemble_post_content(post: dict) -> tuple[str, Optional[str], Optional[str]
     return full_text, media_url, media_type
 
 
-def post_to_linkedin_if_possible(post_text: str, media_url: Optional[str], media_type: Optional[str], profile_id: str):
+def post_to_linkedin_if_possible(
+    post_text: str,
+    media_url: Optional[str],
+    media_type: Optional[str],
+    profile_id: str
+):
     if media_url and media_type:
-        post_to_linkedin(
-            post_text=post_text,
-            profile_id=profile_id,
-            media_url=media_url,
-            media_type=media_type
-        )
+        try:
+            post_to_linkedin(
+                post_text=post_text,
+                profile_id=profile_id,
+                media_url=media_url,
+                media_type=media_type
+            )
+            print("✅ LinkedIn post submitted successfully.")
+
+            # ✅ After successful post, update the blog cache
+            state = get_prompt_globals()
+            raw_blog = state.get("raw_blog")
+
+            if raw_blog:
+                cached = load_blog_cache()
+
+                # 🧠 Normalize the cache structure to always support cached["blogs"]
+                if isinstance(cached, list):
+                    print("⚠️ Cache is a list — converting to dict with blogs key.")
+                    cached = {"blogs": cached}
+                elif not isinstance(cached, dict):
+                    print("⚠️ Invalid cache structure — resetting.")
+                    cached = {"blogs": []}
+                elif "blogs" not in cached:
+                    cached["blogs"] = []
+
+                print("🧠 Updating blog cache with new post ID...", raw_blog)
+                cached["blogs"].insert(0, raw_blog)  # Prepend newest blog
+                save_blog_cache(cached)
+                print("💾 Blog successfully saved to cache.")
+
+            else:
+                print("⚠️ raw_blog missing from state — cache not updated.")
+
+        except Exception as e:
+            print("❌ Failed to post to LinkedIn:", e)
     else:
         print("🚫 Skipping post — no valid media asset was available.")
 
-import traceback
 
 def main(medium_username: str) -> None:
     print("🚀 Starting main() with medium_username:", medium_username)
@@ -133,9 +176,7 @@ def main(medium_username: str) -> None:
         print("------------------------------------------------------")
         print(f"📦 Media: {media_type} -> {media_url}")
 
-        print("📤 Posting to LinkedIn...")
-        # post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
-        print("✅ LinkedIn post submitted successfully.")
+        post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
 
     except Exception as e:
         print("❌ An error occurred in main:")

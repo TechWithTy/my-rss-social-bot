@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
-from utils.prompt_builder import  get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals,init_globals_for_test
 
 # ✅ Load environment variables
 load_dotenv()
@@ -18,7 +18,10 @@ ANTHROPIC_API_KEY: Optional[str] = get_env_variable("ANTHROPIC_API_KEY")
 
 if not ANTHROPIC_API_KEY:
     raise ValueError("❌ ANTHROPIC_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
+if TEST_MODE:
+    init_globals_for_test()
 
 # ✅ LLM Configuration for Claude
 claude_config = config.get("user_profile", {}).get("llm", {}).get("Anthropic", {})

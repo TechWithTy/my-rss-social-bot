@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
 from utils import prompt_builder
-from utils.prompt_builder import  get_prompt_globals
+from utils.prompt_builder import  get_prompt_globals,init_globals_for_test
 # ✅ Load environment variables
 load_dotenv()
 HUGGINGFACE_API_KEY: Optional[str] = get_env_variable("HUGGINGFACE_API_KEY")
@@ -19,6 +19,10 @@ HUGGINGFACE_API_KEY: Optional[str] = get_env_variable("HUGGINGFACE_API_KEY")
 if not HUGGINGFACE_API_KEY:
     raise ValueError("❌ HUGGINGFACE_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
 
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+
+if TEST_MODE:
+    init_globals_for_test()
 # Get the shared global state
 
 # ✅ LLM Configuration for Hugging Face
@@ -30,6 +34,16 @@ hf_image_model = hf_config.get("image_model", "runwayml/stable-diffusion-v1-5")
 temperature = hf_config.get("temperature", 0.7)
 max_tokens = hf_config.get("max_tokens", 500)
 
+state = get_prompt_globals()
+
+prompt = state["prompt"]
+creative_prompt = state["creative_prompt"]
+gif_prompt = state["gif_prompt"]
+hashtags = state["hashtags"]
+system_instructions = state["system_instructions"]
+blog_content = state["blog_content"]
+print(f"📤 Sending prompt to Hugging Face model: {hf_text_model}")
+print(f"📝🤗 Prompt:\n{state["prompt"]}\n")
 
 def send_message_to_huggingface(prompt_text: str) -> dict:
     url = f"https://api-inference.huggingface.co/models/{hf_text_model}"
@@ -45,16 +59,7 @@ def send_message_to_huggingface(prompt_text: str) -> dict:
             "max_length": max_tokens,
         }
     }
-    state = get_prompt_globals()
-
-    prompt = state["prompt"]
-    creative_prompt = state["creative_prompt"]
-    gif_prompt = state["gif_prompt"]
-    hashtags = state["hashtags"]
-    system_instructions = state["system_instructions"]
-    blog_content = state["blog_content"]
-    print(f"📤 Sending prompt to Hugging Face model: {hf_text_model}")
-    print(f"📝 Prompt:\n{prompt_text}\n")
+   
 
     response = requests.post(url, headers=headers, json=data)
     print("Status Code",response.status_code)

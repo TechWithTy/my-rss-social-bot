@@ -15,7 +15,7 @@ async def test_run_openai_pipeline(initialized_prompt_state):
     prompt = initialized_prompt_state["prompt"]
     assert prompt is not None, "❌ Prompt is still None"
     print("👁️Open Ai Test print",prompt)
-    result = run_openai_pipeline(prompt=prompt)
+    result = run_openai_pipeline()
     assert isinstance(result, dict), "Expected result to be a dictionary"
     assert result.get("status") != "failed", f"❌ Assistant failed: {result.get('response')}"
     assert result.get("status") == "success", f"❌ Pipeline did not complete successfully: {result}"
