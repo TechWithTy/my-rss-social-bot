@@ -3,7 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-from src.utils.index import get_env_variable
+from utils.index import get_env_variable
 
 # ✅ Load environment variables
 load_dotenv()
@@ -37,7 +37,7 @@ def get_linkedin_profile_id() -> Optional[str]:
     return None
 
 
-def get_linkedin_profile(access_token: str) -> Optional[Dict[str, Any]]:
+def get_linkedin_profile() -> Optional[Dict[str, Any]]:
     """
     Fetch the authenticated user's LinkedIn profile.
 
@@ -47,9 +47,9 @@ def get_linkedin_profile(access_token: str) -> Optional[Dict[str, Any]]:
     Returns:
         Optional[Dict[str, Any]]: The LinkedIn profile data if successful, else None.
     """
-    url = "https://api.linkedin.com/v2/me"
+    url = "https://api.linkedin.com/v2/userinfo"
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
         "X-Restli-Protocol-Version": "2.0.0"
     }
 

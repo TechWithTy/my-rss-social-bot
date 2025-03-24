@@ -21,7 +21,10 @@ from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
 
 
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
+if TEST_MODE:
+    init_globals_for_test()
 
 def authenticate_linkedin() -> Optional[str]:
     profile_id = get_linkedin_profile_id()
@@ -113,6 +116,8 @@ def post_to_linkedin_if_possible(
 
 
 def main(medium_username: str) -> None:
+    if TEST_MODE:
+        raise RuntimeError("❌ main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly.")
     print("🚀 Starting main() with medium_username:", medium_username)
     try:
         is_new_blog = init_globals_if_needed()
