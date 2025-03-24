@@ -253,7 +253,7 @@ ai:
       # Hugging Face Models: https://huggingface.co/models?pipeline_tag=text-to-image  && Flux Models: 'flux', 'flux-realism', 'any-dark', 'flux-anime', 'flux-3d', 'turbo'
       
     fetch_gif:
-      enabled: false
+      enabled: true
       user_description: "If true, ai suggests tags from giphy then pick the giph with the most relevant title"
       prompt: "return atleast 3 giphy search terms in the returned object in an array"
 

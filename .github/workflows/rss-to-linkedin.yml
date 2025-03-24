@@ -1,123 +1,57 @@
 name: RSS to LinkedIn
 
 on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
   push:
     branches:
       - master
-  schedule:
-    - cron: '0 * * * *' # Runs every hour
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
-  check_rss:
+  run-script:
     runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_ASSISTANT_ID: ${{ secrets.OPENAI_ASSISTANT_ID }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
+      LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+      GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
+      MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
+      TEST_MODE: true
+
     steps:
-      - name: Checkout repo
+      - name: 🧾 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-      - name: Restore Latest Post Cache
-        id: cache_latest
+      - name: 📦 Install Pipenv
+        run: pip install pipenv
+
+      - name: 📦 Install Dependencies with Pipenv
+        run: pipenv install --deploy --ignore-pipfile
+
+      - name: ♻️ Restore Blog Cache
         uses: actions/cache@v3
         with:
-          path: latest_post.txt
-          key: latest-post
+          path: _temp/blog_cache.json
+          key: blog-cache-${{ runner.os }}
+          restore-keys: |
+            blog-cache-
 
-      - name: Fetch RSS Feed
-        id: fetch_rss
-        run: |
-          FEED_URL="https://medium.com/feed/@${{ secrets.MEDIUM_USERNAME }}"
-          echo "Using RSS Feed: $FEED_URL"
-          
-          RESPONSE=$(curl -s -L "$FEED_URL")
-          
-          # Ensure the response is valid XML
-          if echo "$RESPONSE" | grep -iq "<rss"; then
-            LATEST_ENTRY=$(echo "$RESPONSE" | xmllint --xpath '//item[1]/link/text()' - 2>/dev/null || echo "")
-            echo "latest_post=$LATEST_ENTRY" >> $GITHUB_ENV
-          else
-            echo "Error: Invalid RSS feed response"
-            exit 1
-          fi
+      - name: 🚀 Run Main App Script
+        run: pipenv run app
 
-      - name: Check for new post
-        id: check_new_post
-        run: |
-          if [ ! -f latest_post.txt ] || ! grep -q "$LATEST_ENTRY" latest_post.txt; then
-            echo "new_post=true" >> $GITHUB_ENV
-            echo "$LATEST_ENTRY" > latest_post.txt
-          else
-            echo "new_post=false" >> $GITHUB_ENV
-          fi
-
-      - name: Process blog post with OpenAI Assistant
-        if: env.new_post == 'true'
-        id: process_blog
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          THREAD_ID=$(curl -s -X POST "https://api.openai.com/v1/threads" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer $OPENAI_API_KEY" \
-          -H "OpenAI-Beta: assistants=v2" | jq -r '.id')
-
-
-          curl -s -X POST "https://api.openai.com/v1/threads/$THREAD_ID/messages" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -d '{
-              "role": "user",
-              "content": "Summarize this blog post into an engaging LinkedIn post: '"$LATEST_ENTRY"'"
-            }'
-
-          RUN_ID=$(curl -s -X POST "https://api.openai.com/v1/threads/$THREAD_ID/runs" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -d '{
-              "assistant_id": "${{ secrets.OPENAI_ASSISTANT_ID }}"
-            }' | jq -r '.id')
-
-          STATUS="in_progress"
-          while [[ "$STATUS" == "in_progress" || "$STATUS" == "queued" ]]; do
-            sleep 5
-            STATUS=$(curl -s -X GET "https://api.openai.com/v1/threads/$THREAD_ID/runs/$RUN_ID" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $OPENAI_API_KEY" | jq -r '.status')
-          done
-
-          PROCESSED_CONTENT=$(curl -s -X GET "https://api.openai.com/v1/threads/$THREAD_ID/messages" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENAI_API_KEY" | jq -r '.data[0].content[0].text.value')
-
-          echo "processed_content=$PROCESSED_CONTENT" >> $GITHUB_ENV
-
-
-      - name: Post to LinkedIn
-        if: env.new_post == 'true'
-        env:
-          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-        run: |
-          curl -X POST "https://api.linkedin.com/v2/ugcPosts" \
-            -H "Authorization: Bearer $LINKEDIN_ACCESS_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "author": "urn:li:person:yourLinkedInID",
-              "lifecycleState": "PUBLISHED",
-              "specificContent": {
-                "com.linkedin.ugc.ShareContent": {
-                  "shareCommentary": {
-                    "text": "'"$processed_content"'"
-                  },
-                  "shareMediaCategory": "ARTICLE",
-                  "media": [{
-                    "status": "READY",
-                    "originalUrl": "'"$LATEST_ENTRY"'"
-                  }]
-                }
-              },
-              "visibility": {
-                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-              }
-            }'
+      - name: 💾 Save Blog Cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: _temp/blog_cache.json
+          key: blog-cache-${{ runner.os }}-${{ github.run_id }}
