@@ -41,6 +41,24 @@ async def test_upload_linkedin_media_image_async():
     assert "urn:li:digitalmediaAsset" in urn
 
 @pytest.mark.asyncio
+async def test_upload_linkedin_media_gif_async():
+    profile_id = get_linkedin_profile_id()
+    test_gif_url = "https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif"
+    urn = upload_linkedin_media(profile_id, test_gif_url, "GIF")
+    print("🎞️ GIF URN:", urn)
+    assert urn is not None
+    assert "urn:li:digitalmediaAsset" in urn
+
+@pytest.mark.asyncio
+async def test_upload_linkedin_media_video_async():
+    profile_id = get_linkedin_profile_id()
+    test_video_url = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+    urn = upload_linkedin_media(profile_id, test_video_url, "VIDEO")
+    print("🎬 Video URN:", urn)
+    assert urn is not None
+    assert "urn:li:digitalmediaAsset" in urn
+
+@pytest.mark.asyncio
 async def test_post_to_linkedin_async():
     profile_id = get_linkedin_profile_id()
     test_text = "📢 Hello from automated test post!"
