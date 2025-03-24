@@ -1,0 +1,57 @@
+name: Auto Test (CI)
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  run-tests-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_ASSISTANT_ID: ${{ secrets.OPENAI_ASSISTANT_ID }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
+      LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+      GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
+      MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
+      TEST_MODE: 'true'  # Hardcoded to 'true' for always running tests and deploying
+
+    steps:
+      # Step 1: Checkout code
+      - name: 🧾 Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python environment
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Step 3: Install dependencies (always install when TEST_MODE is true)
+      - name: 📦 Install Dependencies with Pipenv
+        run: |
+          pip install pipenv
+          pipenv install --deploy --ignore-pipfile
+
+      # Step 4: Run tests (always run when TEST_MODE is true)
+      - name: 🔬 Run Tests
+        run: |
+          pipenv run pytest --maxfail=1 --disable-warnings -q
+          
+      # Step 5: Fail the workflow if tests fail
+      - name: 🚫 Fail if tests fail
+        if: failure()
+        run: exit 1  # This will exit and mark the action as failed
+
+      # Step 6: Deploy application (always deploy when TEST_MODE is true and tests pass)
+      - name: 🚀 Deploy Application
+        if: success()  # Deploy only if tests pass
+        run: |
+          echo "Deploying the application to production!"
+          # Add your actual deployment command here, for example:
+          # pipenv run deploy or your cloud service deploy command.
