@@ -38,11 +38,14 @@ jobs:
       - name: 📦 Install Dependencies with Pipenv
         run: pipenv install --deploy --ignore-pipfile
 
+      - name: ♻️ Ensure Cache Path Exists
+        run: mkdir -p _temp && touch _temp/blog_cache.json
+
       - name: ♻️ Restore Blog Cache
         uses: actions/cache@v3
         with:
           path: _temp/blog_cache.json
-          key: blog-cache-${{ runner.os }}
+          key: blog-cache-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             blog-cache-
 
