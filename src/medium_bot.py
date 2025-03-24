@@ -133,8 +133,7 @@ def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
             return None  # Exit here with a clear message
 
         # Otherwise, we have a new blog entry
-        print("🆕 New blog detected. Updating cache.")
-        save_blog_cache(fresh_data)
+        print("🆕 New blog detected")
 
         # At this point, fresh_data should be our new blogs_data
         blogs_data = fresh_data

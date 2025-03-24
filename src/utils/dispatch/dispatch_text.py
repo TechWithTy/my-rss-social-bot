@@ -35,6 +35,7 @@ openai_config = config.get("user_profile", {}).get("llm", {}).get("OpenAI", {})
 
 
 def handle_pollinations_text_completion():
+
     # Build the request payload (adjust as needed)
     payload = build_pollinations_payload()
     endpoint = config['user_profile']['llm']['Pollinations']['openai_compatible']['endpoint']
@@ -111,7 +112,7 @@ def build_pollinations_payload():
     messages = pollinations_cfg.get("messages", [])
     for message in messages:
         if message['role'] == "user":
-            message['content'] = prompt
+            message['content'] = state['prompt']
 
     return {
         "model": pollinations_cfg["model"],
@@ -151,10 +152,12 @@ def build_pollinations_payload():
 
 
 def dispatch_text_pipeline(provider: str,):
+    print("Dispatch Text State",state['prompt'])
     match provider:
         case "Pollinations_Text":
             print("Pollinations_Text", prompt)
-            safe_prompt = urllib.parse.quote(prompt)
+            print("Pollinations_Text_Extracted", state['prompt'])
+            safe_prompt = urllib.parse.quote(state['prompt'])
             llm_response = asyncio.run(generate_text(prompt=safe_prompt))
             print("Pollinations_Text LLM Response", type(llm_response), llm_response)
 
@@ -167,12 +170,13 @@ def dispatch_text_pipeline(provider: str,):
 
         case "Pollinations_Text_Advanced":
             # POST / with messages + model
-            print("advanced_cfg")
+            print("advanced_pollinations_cfg",state['prompt'])
+            print("Pollinations_Text_Extracted", state['prompt'])
             advanced_cfg = config['user_profile']['llm']['Pollinations']['native_post']
             messages = advanced_cfg.get("messages", [])
             for msg in messages:
                 if msg["role"] == "user":
-                    msg["content"] = prompt
+                    msg["content"] = state['prompt']
             payload = {
                 "messages": messages,
                 "model": advanced_cfg.get("model", "mistral"),
@@ -215,7 +219,7 @@ def dispatch_text_pipeline(provider: str,):
             ds_cfg = config['user_profile']['llm']['DeepSeek']
             payload = {
                 "model": ds_cfg['text_model'],
-                "prompt": prompt,
+                "prompt": state['prompt'],
                 "temperature": ds_cfg['temperature'],
                 "top_p": ds_cfg['top_p'],
                 "presence_penalty": ds_cfg['presence_penalty'],
@@ -235,7 +239,7 @@ def dispatch_text_pipeline(provider: str,):
                 "temperature": claude_cfg['temperature'],
                 "top_p": claude_cfg['top_p'],
                 "messages": [
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": state['prompt']}
                 ],
                 "system": claude_cfg['system']
             }

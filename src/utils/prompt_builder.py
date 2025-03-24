@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import random
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from utils.config_loader import config
 from medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
@@ -24,24 +24,28 @@ user_config = config.get("user_profile", {})
 social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
 medium_username = user_config.get('medium_username')
 
-def fetch_and_parse_blog(username: str) -> str | None:
+def fetch_and_parse_blog(username: str) -> Optional[dict]:
     response = fetch_latest_medium_blog(username)
-    
+
     if response is None:
         print("ℹ️ No new blogs to parse — already up to date.")
         return None
+
     blog_json = response["latest_blog"]
-    blog_content = response["latest_blog"]["content"]
+    blog_content = blog_json.get("content")
+    blog_id = blog_json.get("id")
+
     if not blog_content:
         print("ℹ️ No blog content found in the latest blog.")
         return None
+
     cleaned_blog_content = parse_html_blog_content(blog_content)
 
-    print("✅ fetch_and_parse_blog output:" + cleaned_blog_content)
-    print(f"✅ fetch_and_parse_blog response:{response}" )
-    print(f"✅ fetch_and_parse_blog json: {blog_json}" )
-
-    return parse_html_blog_content(blog_content)
+    return {
+        "id": blog_id,
+        "content": cleaned_blog_content,
+        "raw": blog_json
+    }
 
 
 
@@ -175,23 +179,36 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
 def get_prompt_globals():
     return _prompt_globals
 
-def init_globals_if_needed() -> None:
-    """
-    Initialize _prompt_globals only once.
-    If they are already set, do nothing.
-    """
+def init_globals_if_needed() -> bool:
     global _prompt_globals
 
-    # If 'prompt' is not None, we've already initialized
-    if _prompt_globals.get("prompt") is not None:
-        return
+    blog_data = fetch_and_parse_blog(medium_username)
+    if not blog_data:
+        return False
 
-    blog_content_raw = fetch_and_parse_blog(medium_username)
-    prompt_payload = build_prompt_payload(blog_content_raw)
+    blog_id = blog_data["id"]
+    cached = load_blog_cache()
 
+    # 🔐 Normalize cached structure
+    if isinstance(cached, list):  # legacy or empty structure
+        cached = {"blogs": cached}
+    elif not isinstance(cached, dict):
+        print("⚠️ Cache is invalid. Resetting.")
+        cached = {"blogs": []}
+
+    print('Global Cache Check:', cached)
+
+    # ✅ Now this is safe
+    cached_blog_ids = [b["id"] for b in cached.get("blogs", [])]
+
+    if blog_id in cached_blog_ids:
+        print(f"🛑 Blog with ID {blog_id} already processed.")
+        return False
+
+    prompt_payload = build_prompt_payload(blog_data["content"])
     if not prompt_payload:
         print("⚠️ No prompt payload returned.")
-        return
+        return False
 
     _prompt_globals.update({
         "prompt": prompt_payload.get("content"),
@@ -200,7 +217,11 @@ def init_globals_if_needed() -> None:
         "hashtags": prompt_payload.get("hashtags", []),
         "system_instructions": prompt_payload.get("system_instructions"),
         "blog_content": prompt_payload.get("blog_content"),
+        "raw_blog": blog_data["raw"]  # Needed for saving later
     })
+
+    return True
+
 
 
 def init_globals_for_test():

@@ -72,6 +72,10 @@ import traceback
 def main(medium_username: str) -> None:
     print("🚀 Starting main() with medium_username:", medium_username)
     try:
+        is_new_blog = init_globals_if_needed()
+        if not is_new_blog:
+            print("🛑 No new blog detected — skipping generation and post.")
+            return
         print("🔧 Initializing global state...")
         init_globals_if_needed()
         print("✅ Global state initialized.")
@@ -89,7 +93,6 @@ def main(medium_username: str) -> None:
 
         print("🔐 Authenticating LinkedIn profile...")
         profile_id = authenticate_linkedin()
-        print(f"✅ Authenticated LinkedIn profile: {profile_id}")
 
         print("🛠 Preparing post using model:", text_model)
         post = prepare_linkedin_post(text_model)
