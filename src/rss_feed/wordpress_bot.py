@@ -100,7 +100,8 @@ def fetch_latest_wordpress_blog(base_url: str, tag: Optional[str] = None) -> Opt
             return None
 
         latest_blog = fresh_blogs[0]
-        from utils.medium_helper import extract_blog_media  # reuse same util
+        from utils.blog_rss_helper
+ import extract_blog_media  
         media = extract_blog_media(latest_blog["content"])
 
         return {

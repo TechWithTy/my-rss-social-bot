@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Tuple, Optional
 from utils.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
-from utils.medium_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
+from utils.blog_rss_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
 
 TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 _prompt_globals = {

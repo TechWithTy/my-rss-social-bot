@@ -7,7 +7,7 @@ import feedparser
 import requests
 from bs4 import BeautifulSoup
 import traceback
-from utils.medium_helper import extract_blog_media  # reuse your media utility
+from utils.blog_rss_helper import extract_blog_media  # reuse your media utility
 
 
 def get_wix_avatar(base_url: str) -> str:

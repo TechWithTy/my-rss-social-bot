@@ -6,7 +6,7 @@ from src.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
-from utils.medium_helper import (
+from utils.blog_rss_helper import (
     load_blog_cache,
     save_blog_cache,
     delete_blog_cache,
