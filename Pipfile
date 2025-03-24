@@ -10,7 +10,10 @@ app = "python -m src.main"
 test = "pytest -s -v src/tests/"
 test-html = "pytest -s -v src/tests/ --html=src/tests/reports/html/_report.html"
 
-test-medium = "pytest -s -v src/tests/test_medium_async.py --html=src/tests/reports/html/medium.html --log-cli-level=INFO"
+test-medium = "pytest -s -v src/tests/feeds/test_medium_async.py --html=src/tests/reports/feeds/html/medium.html --log-cli-level=INFO"
+test-wix = "pytest -s -v src/tests/feeds/test_wix_async.py --html=src/tests/reports/feeds/html/wix.html --log-cli-level=INFO"
+test-wordpress = "pytest -s -v src/tests/feeds/test_wordpress_async.py --html=src/tests/reports/feeds/html/wordpress.html --log-cli-level=INFO"
+
 test-linkedin = "pytest -s -v src/tests/test_linkedin_async.py --html=src/tests/reports/html/linkedin.html --log-cli-level=INFO"
 test-giphy = "pytest -s -v src/tests/test_giphy_async.py --html=src/tests/reports/html/giphy.html --log-cli-level=INFO"
 

@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import os
 from tabulate import tabulate
 import traceback
+from utils.blog_rss_helper import extract_blog_media  # reuse your media utility
 
 # You can adapt this if your WordPress site structure is different
 def get_wordpress_avatar(base_url: str) -> str:
@@ -100,8 +101,7 @@ def fetch_latest_wordpress_blog(base_url: str, tag: Optional[str] = None) -> Opt
             return None
 
         latest_blog = fresh_blogs[0]
-        from utils.blog_rss_helper
- import extract_blog_media  
+ 
         media = extract_blog_media(latest_blog["content"])
 
         return {
