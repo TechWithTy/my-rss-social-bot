@@ -1,13 +1,19 @@
 name: Auto Test (CI)
 
 on:
+  workflow_run:
+    workflows: ["Auto Test (CI)"]  # Trigger only after "Auto Test (CI)" finishes
+    types:
+      - completed
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
   push:
     branches:
       - master
   workflow_dispatch:
 
 jobs:
-  run-tests-and-deploy:
+  run-tests:
     runs-on: ubuntu-latest
 
     env:
@@ -19,39 +25,33 @@ jobs:
       LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
-      TEST_MODE: 'true'  # Hardcoded to 'true' for always running tests and deploying
+      TEST_MODE: 'true'  # Hardcoded to 'true' for always running tests
 
     steps:
-      # Step 1: Checkout code
       - name: 🧾 Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python environment
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Install dependencies (always install when TEST_MODE is true)
-      - name: 📦 Install Dependencies with Pipenv
-        run: |
-          pip install pipenv
-          pipenv install --deploy --ignore-pipfile
+      - name: 📦 Install Pipenv
+        run: pip install pipenv
 
-      # Step 4: Run tests (always run when TEST_MODE is true)
+      - name: 📦 Install Dependencies with Pipenv
+        run: pipenv install --deploy --ignore-pipfile
+
       - name: 🔬 Run Tests
         run: |
           pipenv run pytest --maxfail=1 --disable-warnings -q
           
-      # Step 5: Fail the workflow if tests fail
       - name: 🚫 Fail if tests fail
         if: failure()
-        run: exit 1  # This will exit and mark the action as failed
+        run: exit 1  # Will stop the workflow if tests fail
 
-      # Step 6: Deploy application (always deploy when TEST_MODE is true and tests pass)
       - name: 🚀 Deploy Application
-        if: success()  # Deploy only if tests pass
+        if: success()
         run: |
           echo "Deploying the application to production!"
-          # Add your actual deployment command here, for example:
-          # pipenv run deploy or your cloud service deploy command.
+          # Add your actual deployment script here
