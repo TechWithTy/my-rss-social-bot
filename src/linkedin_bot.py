@@ -3,7 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-from utils.index import get_env_variable
+from src.utils.index import get_env_variable
 
 # ✅ Load environment variables
 load_dotenv()

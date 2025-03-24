@@ -2,7 +2,7 @@
 import os
 import requests
 from typing import List, Optional,Any,Dict,Union
-from src.utils.index import get_env_variable
+from utils.index import get_env_variable
 
 def giphy_find_with_metadata(search_terms: List[str]) -> Dict[str, Union[Dict, List[str]]]:
     api_key: Optional[str] = get_env_variable("GIPHY_ASSET_TOKEN")
@@ -51,7 +51,7 @@ def extract_social_upload_metadata(gif_object: Dict[str, Any]) -> Dict[str, str]
     """
     Extracts MP4, web-friendly formats, and metadata for uploading to social platforms.
 
-    Args:
+    Args:a
         gif_object (Dict[str, Any]): The Giphy GIF object.
 
     Returns:

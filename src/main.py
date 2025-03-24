@@ -2,7 +2,7 @@
 from src.utils.config_loader import config
 from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import run_openai_pipeline
-from src.utils.giphy import giphy_find_with_metadata, extract_social_upload_metadata
+from src.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
@@ -16,7 +16,7 @@ from utils.medium_helper import (
 from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
-
+import os
 from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
 

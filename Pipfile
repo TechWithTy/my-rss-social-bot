@@ -12,6 +12,7 @@ test-html = "pytest -s -v src/tests/ --html=src/tests/reports/html/_report.html"
 
 test-medium = "pytest -s -v src/tests/test_medium_async.py --html=src/tests/reports/html/medium.html --log-cli-level=INFO"
 test-linkedin = "pytest -s -v src/tests/test_linkedin_async.py --html=src/tests/reports/html/linkedin.html --log-cli-level=INFO"
+test-giphy = "pytest -s -v src/tests/test_giphy_async.py --html=src/tests/reports/html/giphy.html --log-cli-level=INFO"
 
 test-pollinations = "pytest -s -v src/tests/test_pollinations_async.py --html=src/tests/reports/html/pollinations_report.html --log-cli-level=INFO"
 test-deepseek = "pytest -s -v src/tests/test_deepseek_async.py --html=src/tests/reports/html/deepseek_report.html --log-cli-level=INFO"

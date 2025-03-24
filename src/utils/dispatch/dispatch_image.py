@@ -10,7 +10,7 @@ from models.openai_generator import generate_openai_image
 from models.huggingface_generator import generate_image_with_huggingface
 from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
-from utils.giphy import giphy_find_with_metadata  # ensure this is available
+from giphy import giphy_find_with_metadata  # ensure this is available
 
 FLUX_BASE_TEXT_URL = "https://text.pollinations.ai"
 
