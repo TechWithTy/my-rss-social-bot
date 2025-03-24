@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 import pytest
-from medium_bot import (
+from rss_feed.medium_bot import (
     get_medium_avatar,
     get_medium_blogs,
     fetch_latest_medium_blog,

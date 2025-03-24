@@ -1,3 +1,8 @@
+import sys
+import os
+
+# Add src to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from typing import Dict, List, Any, Optional
 import feedparser
 import requests

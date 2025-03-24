@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import random
 from typing import Dict, Any, List, Tuple, Optional
 from utils.config_loader import config
-from medium_bot import fetch_latest_medium_blog
+from rss_feed.medium_bot import fetch_latest_medium_blog
 from utils.index import parse_html_blog_content
 from utils.medium_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
 
