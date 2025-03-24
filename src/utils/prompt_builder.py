@@ -6,6 +6,9 @@ import random
 from typing import Dict, Any, List, Tuple, Optional
 from utils.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
+from rss_feed.wix_bot import fetch_latest_wix_blog
+from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
+
 from utils.index import parse_html_blog_content
 from utils.blog_rss_helper import is_blog_cache_valid, load_blog_cache, save_blog_cache
 
@@ -22,16 +25,39 @@ _prompt_globals = {
 ai_config = config.get("ai", {})
 user_config = config.get("user_profile", {})
 social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
-medium_username = user_config.get('medium_username')
 
-def fetch_and_parse_blog(username: str) -> Optional[dict]:
-    response = fetch_latest_medium_blog(username)
+medium_username = user_config.get('medium_username')
+wix_url = user_config.get('wix_url')
+wordpress_url = user_config.get('wordpress_url')
+
+def fetch_and_parse_blog() -> Optional[dict]:
+    """
+    Fetch the latest blog from the first available source in order of priority:
+    Medium → Wix → WordPress.
+
+    Returns:
+        Optional[dict]: Latest blog data if found, otherwise None.
+    """
+    sources = {
+        "Medium": (medium_username, fetch_latest_medium_blog),
+        "Wix": (wix_url, fetch_latest_wix_blog),
+        "WordPress": (wordpress_url, fetch_latest_wordpress_blog),
+    }
+
+    response = None  # Initialize response to avoid undefined variable error
+
+    for platform, (identifier, fetch_function) in sources.items():
+        if identifier:
+            print(f"🔹 Fetching from {platform}...")
+            response = fetch_function(identifier)
+            if response:
+                break  # Stop at the first valid response
 
     if response is None:
         print("ℹ️ No new blogs to parse — already up to date.")
         return None
 
-    blog_json = response["latest_blog"]
+    blog_json = response.get("latest_blog", {})
     blog_content = blog_json.get("content")
     blog_id = blog_json.get("id")
 
@@ -46,9 +72,6 @@ def fetch_and_parse_blog(username: str) -> Optional[dict]:
         "content": cleaned_blog_content,
         "raw": blog_json
     }
-
-
-
 def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
 
 
@@ -182,7 +205,7 @@ def get_prompt_globals():
 def init_globals_if_needed() -> bool:
     global _prompt_globals
 
-    blog_data = fetch_and_parse_blog(medium_username)
+    blog_data = fetch_and_parse_blog()
     if not blog_data:
         return False
 
