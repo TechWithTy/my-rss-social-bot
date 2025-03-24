@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import pytest
 import asyncio
-from linkedin_bot import (
+from socials.linkedin_bot import (
     get_linkedin_profile_id,
     get_linkedin_profile,
     upload_linkedin_media,

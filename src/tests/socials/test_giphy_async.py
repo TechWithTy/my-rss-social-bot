@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
-from giphy import giphy_find_with_metadata, extract_social_upload_metadata  # adjust path as needed
+from socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata  # adjust path as needed
 from utils.index import get_env_variable
 
 @pytest.mark.asyncio

@@ -1,8 +1,8 @@
 
 from src.utils.config_loader import config
-from src.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
+from src.socials.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.models.openai_generator import run_openai_pipeline
-from src.giphy import giphy_find_with_metadata, extract_social_upload_metadata
+from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline

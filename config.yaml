@@ -1,7 +1,7 @@
 # ✅ User Profile Settings
 user_profile:
-  medium_username: Null  # codingoni
-  wix_url:  "https://www.zionadventurephotog.com"
+  medium_username:  "codingoni"
+  wix_url: Null  # "https://www.zionadventurephotog.com"
   wordpress_url: Null # https://wordpress.org/news
   target_audience: "Non Technical People Looking For Tech Thought Leadership"  # Replace with your target audience
   professional_summary: "I'm a Software Engineer with a passion for creating innovative solutions and sharing my knowledge with the world. I'm always looking for new ways to improve my skills and help others do the same."  # Replace with your professional summary
