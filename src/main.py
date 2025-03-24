@@ -73,12 +73,12 @@ def post_to_linkedin_if_possible(
 ):
     if media_url and media_type:
         try:
-            post_to_linkedin(
-                post_text=post_text,
-                profile_id=profile_id,
-                media_url=media_url,
-                media_type=media_type
-            )
+            # post_to_linkedin(
+            #     post_text=post_text,
+            #     profile_id=profile_id,
+            #     media_url=media_url,
+            #     media_type=media_type
+            # )
             print("✅ LinkedIn post submitted successfully.")
 
             # ✅ After successful post, update the blog cache
