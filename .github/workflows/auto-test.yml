@@ -35,7 +35,11 @@ jobs:
 
       - name: 📦 Install Dependencies with Pipenv
         run: pipenv install --deploy --ignore-pipfile
-
+      
+      - name: Debug Hugging Face Token
+        run: |
+          echo "HF token starts with: ${HUGGINGFACE_API_KEY:0:5}"
+      
       - name: 🔬 Run Tests
         run: |
           pipenv run pytest --maxfail=1 --disable-warnings -q

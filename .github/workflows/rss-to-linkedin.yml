@@ -8,6 +8,11 @@ on:
       - master
   workflow_dispatch:
 
+# on:
+#   workflow_run:
+#     workflows: ["Auto Test (CI)"]
+#     types:
+#       - completed
 jobs:
   run-script:
     runs-on: ubuntu-latest
