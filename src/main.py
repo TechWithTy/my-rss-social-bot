@@ -113,10 +113,10 @@ def post_to_linkedin_if_possible(
         print("🚫 Skipping post — no valid media asset was available.")
 
 
-def main(medium_username: str) -> None:
+def main(rss_source: str) -> None:
     if TEST_MODE:
         raise RuntimeError("❌ main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly.")
-    print("🚀 Starting main() with medium_username:", medium_username)
+    print("🚀 Starting main() with rss_source:", rss_source)
     try:
         is_new_blog = init_globals_if_needed()
         if not is_new_blog:
@@ -185,10 +185,18 @@ def main(medium_username: str) -> None:
         print("❌ An error occurred in main:")
         traceback.print_exc()
 
-
 if __name__ == "__main__":
     medium_username = config['user_profile'].get('medium_username')
-    if medium_username:
-        main(medium_username)
+    wix_url = config['user_profile'].get('wix_url')
+    wordpress_url = config['user_profile'].get('wordpress_url')
+
+    # Collect enabled sources
+    enabled_sources = [source for source in [medium_username, wix_url, wordpress_url] if source]
+
+    # Ensure only ONE source is enabled at a time
+    if len(enabled_sources) > 1:
+        print("⚠️ Only one RSS source can be enabled at a time. Please check your config.")
+    elif enabled_sources:
+        main(enabled_sources[0])  # Pass only the single enabled source
     else:
-        print("⚠️ Medium username not found in config.")
+        print("⚠️ RSS Feed URL or Username Not Given In Config")
