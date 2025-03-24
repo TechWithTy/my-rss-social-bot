@@ -19,7 +19,9 @@ Explore Cyberoni’s Culturing Tool
 
 Join the #CyberOniCommunity and transform your culturing projects with a touch of our tech. Your stories and thoughts are what inspire us to keep innovating—so let’s get chatting below!
 """
-fetch_and_parse_blog = {
+
+
+example_returned_blog = {
     'id': 'https://medium.com/p/7c3afdce787b',
     'title': 'Revolutionize Your Culturing Projects with Cyberoni’s Innovative Tech Solution',
     'link': 'https://medium.com/@codingoni/revolutionize-your-culturing-projects-with-cyberonis-innovative-tech-solution-7c3afdce787b?source=rss-ac915744952d------2',
