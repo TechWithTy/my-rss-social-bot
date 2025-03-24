@@ -175,3 +175,4 @@ cython_debug/
 
 #Temp Files
 _temp/
+src/tests/_report/

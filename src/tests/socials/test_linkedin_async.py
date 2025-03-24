@@ -61,6 +61,6 @@ async def test_upload_linkedin_media_video_async():
 @pytest.mark.asyncio
 async def test_post_to_linkedin_async():
     profile_id = get_linkedin_profile_id()
-    test_text = "📢 Hello from automated test post!"
-    post_to_linkedin(test_text, profile_id, media_url=None, media_type="NONE")
+    test_text = "📢 This is an automated test post please delete 🧪Working on something cool"
+    # post_to_linkedin(test_text, profile_id, media_url=None, media_type="NONE")
     assert True  # If no exception was raised, the post was successful
