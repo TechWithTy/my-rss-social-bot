@@ -23,8 +23,6 @@ from typing import Optional
 
 TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
-if TEST_MODE:
-    init_globals_for_test()
 
 def authenticate_linkedin() -> Optional[str]:
     profile_id = get_linkedin_profile_id()
