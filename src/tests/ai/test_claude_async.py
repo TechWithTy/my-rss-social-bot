@@ -32,7 +32,7 @@ async def test_send_message_to_claude():
     print("\n📬 Claude Test Response:")
     print("📊 Status:", result.get("status"))
     print("📥 Response:", result.get("response"))
-    print("📦 Message:", result.get("message"))
+    print("📦 Message:", result.get("response").get("message"))  # Corrected line to extract message
     print("🔍 Status Code:", result.get("status_code"))
 
     # Check if the result indicates a successful response
@@ -41,13 +41,11 @@ async def test_send_message_to_claude():
         assert len(result.get("response").strip()) > 0, "❌ Claude response should not be empty"
     else:
         # Special case: check if the error is related to billing issues
-        if result.get("message") == "Your credit balance is too low to access the Anthropic API.":
+        if result.get("response").get("message") == "Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.":
             warnings.warn("⚠️ Claude test passed, but billing error encountered: Your credit balance is too low.")
-            pytest.mark.passed  # Explicitly mark the test as passed for billing error
-            return  # Skip the failure and proceed with the test as passed
+            pytest.skip("Skipping test due to billing error")  # Skip the test with a message
 
-        # Log full details on error
+        # Log full details on other errors
         print("❌ Claude returned an error.")
         print("🧾 Full Error Info:", result.get("raw"))
-        # This should be reached only if there is another failure
-        pytest.fail(f"Claude failed: {result.get('response')}")
+        pytest.fail(f"Claude failed: {result.get('response')}")  # Fail for other unexpected errors
