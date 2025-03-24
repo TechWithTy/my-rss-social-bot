@@ -1,12 +1,6 @@
 name: Auto Test (CI)
 
 on:
-  workflow_run:
-    workflows: ["Auto Test (CI)"]  # Trigger only after "Auto Test (CI)" finishes
-    types:
-      - completed
-  schedule:
-    - cron: '0 * * * *'  # Run every hour
   push:
     branches:
       - master
