@@ -3,9 +3,7 @@ name: RSS to LinkedIn
 on:
   schedule:
     - cron: '0 * * * *'  # Every hour
-  push:
-    branches:
-      - master
+
   workflow_dispatch:
 
 jobs:
