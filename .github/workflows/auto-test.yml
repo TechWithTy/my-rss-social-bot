@@ -19,7 +19,7 @@ jobs:
       LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
-      TEST_MODE: true  # Hardcoded to 'true' for always running tests
+      TEST_MODE: true # Hardcoded to 'true' for always running tests
 
     steps:
       - name: 🧾 Checkout Repository
@@ -28,18 +28,18 @@ jobs:
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: 📦 Install Pipenv
         run: pip install pipenv
 
       - name: 📦 Install Dependencies with Pipenv
         run: pipenv install --deploy --ignore-pipfile
-      
+
       - name: Debug Hugging Face Token
         run: |
           echo "HF token starts with: ${HUGGINGFACE_API_KEY:0:5}"
-      
+
       - name: 🔬 Run Tests
         id: run_tests
         run: |

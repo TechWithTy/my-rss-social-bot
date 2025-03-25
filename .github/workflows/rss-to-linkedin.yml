@@ -2,7 +2,7 @@ name: RSS to LinkedIn
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
+    - cron: "0 * * * *" # Every hour
 
   workflow_dispatch:
 
@@ -28,7 +28,7 @@ jobs:
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: 📦 Install Pipenv
         run: pip install pipenv
