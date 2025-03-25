@@ -76,7 +76,7 @@ cd my-rss-social-bot
 
 ### **2️⃣ Enable GitHub Actions**
 
-Ensure **GitHub Actions** are enabled for your forked repository:
+Ensure **GitHub Actions** are enablead for your forked repository:
 
 - Go to the **Actions** tab in your forked repository.
 - If it's the first time using actions, you'll need to enable it by clicking **I understand my workflows, go ahead and enable them**.
