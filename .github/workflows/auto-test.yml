@@ -20,7 +20,7 @@ jobs:
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
       TEST_MODE: true # Hardcoded to 'true' for always running tests
-
+      ONE_WORKING_LLM: true
     steps:
       - name: 🧾 Checkout Repository
         uses: actions/checkout@v3

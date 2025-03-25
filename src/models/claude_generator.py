@@ -2,23 +2,25 @@ import sys
 
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from typing import Optional 
+from typing import Optional
 import requests
 import os
 from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
-from utils.prompt_builder import  get_prompt_globals,init_globals_for_test
+from utils.prompt_builder import get_prompt_globals, init_globals_for_test
 
 # ✅ Load environment variables
 load_dotenv()
 ANTHROPIC_API_KEY: Optional[str] = get_env_variable("ANTHROPIC_API_KEY")
 
 if not ANTHROPIC_API_KEY:
-    raise ValueError("❌ ANTHROPIC_API_KEY is missing! Set it in your .env file or GitHub Secrets.")
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+    raise ValueError(
+        "❌ ANTHROPIC_API_KEY is missing! Set it in your .env file or GitHub Secrets."
+    )
+TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 
 if TEST_MODE:
     init_globals_for_test()
@@ -29,15 +31,16 @@ claude_model = claude_config.get("text_model", "claude-3-sonnet")
 temperature = claude_config.get("temperature", 0.7)
 max_tokens = claude_config.get("max_tokens", 500)
 
+
 def send_message_to_claude() -> dict:
     """Sends a blog post to Claude AI and returns a structured result."""
     url = "https://api.anthropic.com/v1/messages"
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
-   
+
     state = get_prompt_globals()
     prompt = state["prompt"]
     creative_prompt = state["creative_prompt"]
@@ -48,10 +51,7 @@ def send_message_to_claude() -> dict:
 
     if not prompt:
         print("No Prompt Given Claude")
-        return {
-            "status": "error",
-            "message": "No prompt given"
-        }
+        return {"status": "error", "message": "No prompt given"}
 
     print("📤 Sending message to Claude...")
     print("📝 Prompt:\n", prompt)
@@ -63,15 +63,15 @@ def send_message_to_claude() -> dict:
         "temperature": temperature,
         "messages": [
             {"role": "system", "content": system_instructions},
-            {"role": "user", "content": prompt}
-        ]
+            {"role": "user", "content": prompt},
+        ],
     }
 
     try:
         response = requests.post(url, headers=headers, json=data)
         print("📥 Status Code:", response.status_code)
         print("📦 Headers:", dict(response.headers))
-        
+
         try:
             response_json = response.json()
             print("🧠 Response JSON:", response_json)
@@ -81,7 +81,7 @@ def send_message_to_claude() -> dict:
                 "status": "error",
                 "response": "Invalid JSON response",
                 "status_code": response.status_code,
-                "raw": response.text
+                "raw": response.text,
             }
 
         if response.status_code == 200:
@@ -93,7 +93,7 @@ def send_message_to_claude() -> dict:
                     "status": "success",
                     "response": text,
                     "status_code": 200,
-                    "raw": response_json
+                    "raw": response_json,
                 }
             else:
                 print("❌ Unexpected content format in Claude response.")
@@ -101,7 +101,7 @@ def send_message_to_claude() -> dict:
                     "status": "error",
                     "response": "Claude returned an unexpected content format.",
                     "status_code": 200,
-                    "raw": response_json
+                    "raw": response_json,
                 }
         else:
             print("❌ Claude API returned an error:", response_json)
@@ -109,7 +109,7 @@ def send_message_to_claude() -> dict:
                 "status": "failed",
                 "response": response_json.get("error", "Unknown error from Claude API"),
                 "status_code": response.status_code,
-                "raw": response_json
+                "raw": response_json,
             }
 
     except requests.RequestException as req_err:
@@ -118,5 +118,5 @@ def send_message_to_claude() -> dict:
             "status": "error",
             "response": "Request exception occurred",
             "status_code": None,
-            "raw": str(req_err)
+            "raw": str(req_err),
         }

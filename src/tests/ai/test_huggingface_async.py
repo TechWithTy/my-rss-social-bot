@@ -1,6 +1,7 @@
 import sys
 import os
 import pytest
+import warnings
 from models.huggingface_generator import run_huggingface_pipeline
 from utils.prompt_builder import init_globals_for_test
 
@@ -23,9 +24,10 @@ async def test_run_huggingface_pipeline():
 
     # Check for subscription/balance issues
     if "Check Model or Balance / HF Subscription" in result.get("response", ""):
+        warnings.warn("HuggingFace API subscription or balance issue detected. Please check your account status.")
         pytest.skip("⚠️ Skipping test: HuggingFace API subscription or balance issue detected")
 
-        # Print debugging information
+    # Print debugging information
     print("\n=== Hugging Face Pipeline Test ===")
     print(f"🤗HF Status: {result.get('status')}")
     print(f"🤗HF Status Code: {result.get('status_code')}")

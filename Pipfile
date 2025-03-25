@@ -7,12 +7,13 @@ name = "pypi"
 
 app = "python -m src.main"
 
-test = "pytest -s -v src/tests/"
+test = "pytest -s -v  src/tests/"
 test-html = "pytest -s -v src/tests/ --html=src/tests/_reports/html/_report.html"
+test-one-working-llm = "pytest -s -v src/tests/ -m one_working_llm --html=src/tests/_reports/html/_report.html"
 
-test-feeds =" pytest -s -v src/tests/feeds/ --html=src/tests/_reports/feeds/html/_report.html"
-test-socials =" pytest -s -v src/tests/socials/ --html=src/tests/_reports/socials/html/_report.html"
-test-ai =" pytest -s -v  src/tests/ai/ --html=src/tests/_reports/ai/html/_report.html"
+test-feeds ="pytest -s -v src/tests/feeds/ --html=src/tests/_reports/feeds/html/_report.html"
+test-socials ="pytest -s -v src/tests/socials/ --html=src/tests/_reports/socials/html/_report.html"
+test-ai ="pytest -s -v  src/tests/ai/ --html=src/tests/_reports/ai/html/_report.html"
 
 
 test-medium = "pytest -s -v src/tests/feeds/test_medium_async.py --html=src/tests/_reports/feeds/html/medium.html --log-cli-level=INFO"

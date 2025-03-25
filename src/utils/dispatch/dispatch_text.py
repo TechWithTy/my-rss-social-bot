@@ -1,4 +1,3 @@
-
 from utils.config_loader import config
 import os
 from models.pollinations_generator import (
@@ -6,8 +5,8 @@ from models.pollinations_generator import (
     generate_text_advanced,
     generate_audio,
     list_text_models,
-
-    call_openai_compatible_endpoint)
+    call_openai_compatible_endpoint,
+)
 import urllib.parse
 from models.openai_generator import run_openai_pipeline
 from models.huggingface_generator import run_huggingface_pipeline
@@ -15,14 +14,15 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
-from utils.prompt_builder import  init_globals_for_test,get_prompt_globals
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.index import get_env_variable
 
 
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 
 if TEST_MODE:
     init_globals_for_test()
-    
+
 state = get_prompt_globals()
 
 prompt = state["prompt"]
@@ -35,84 +35,94 @@ openai_config = config.get("user_profile", {}).get("llm", {}).get("OpenAI", {})
 
 
 def handle_pollinations_text_completion():
-
     # Build the request payload (adjust as needed)
     payload = build_pollinations_payload()
-    endpoint = config['user_profile']['llm']['Pollinations']['openai_compatible']['endpoint']
-    
+    endpoint = config["user_profile"]["llm"]["Pollinations"]["openai_compatible"][
+        "endpoint"
+    ]
+
     # Make the async call to your OpenAI-like endpoint
-    llm_response = asyncio.run(call_openai_compatible_endpoint(endpoint, payload=payload))
+    llm_response = asyncio.run(
+        call_openai_compatible_endpoint(endpoint, payload=payload)
+    )
     tool_calls = llm_response["choices"][0]["message"]["tool_calls"]
-    
+
     # Get the generate_post call
-    generate_post_call = next(call for call in tool_calls if call["function"]["name"] == "generate_post")
+    generate_post_call = next(
+        call for call in tool_calls if call["function"]["name"] == "generate_post"
+    )
     post_data = json.loads(generate_post_call["function"]["arguments"])
     post_text = post_data["Text"]
     post_hashtags = post_data.get("Hashtags", [])
-    
+
     # Try to find generate_image call (may or may not exist)
     generate_image_call = next(
         (call for call in tool_calls if call["function"]["name"] == "generate_image"),
-        None
+        None,
     )
-    
+
     # Try to find fetch_gif call (may or may not exist)
     fetch_gif_call = next(
-        (call for call in tool_calls if call["function"]["name"] == "fetch_gif"),
-        None
+        (call for call in tool_calls if call["function"]["name"] == "fetch_gif"), None
     )
 
     # If you have an image call
     if generate_image_call is not None:
         image_data = json.loads(generate_image_call["function"]["arguments"])
         image_description = image_data.get("description", "")
-        
+
         # Build an example "image" JSON response
         ai_img_example = {
             "Text": post_text,
             "Creative": f"[IMG] {image_description}",
             # Example: building a hypothetical image URL using the description
-            "ImageAsset":  (
+            "ImageAsset": (
                 f"https://image.pollinations.ai/prompt={image_description.replace(' ', '%20')}"
                 f"?width={image_data.get('width', 1024)}"
                 f"&height={image_data.get('height', 1024)}"
                 f"&model={image_data.get('model', 'realistic_v4')}&nologo=true"
             ),
-            "Hashtags": post_hashtags
+            "Hashtags": post_hashtags,
         }
-        
-        print("Pollinations_Text_OPENAI LLM Response (image):", ai_img_example["ImageAsset"])
+
+        print(
+            "Pollinations_Text_OPENAI LLM Response (image):",
+            ai_img_example["ImageAsset"],
+        )
         return ai_img_example
-    
+
     # Else if you have a gif call
     elif fetch_gif_call is not None:
         gif_data = json.loads(fetch_gif_call["function"]["arguments"])
         gif_tags = gif_data.get("tags", [])
-        
+
         # Build an example "gif" JSON response
         ai_gif_example = {
             "Text": post_text,
             "Hashtags": post_hashtags,
-            "GifSearchTags": gif_tags
+            "GifSearchTags": gif_tags,
         }
-        
-        print("Pollinations_Text_OPENAI LLM Response (gif):", ai_gif_example["GifSearchTags"])
+
+        print(
+            "Pollinations_Text_OPENAI LLM Response (gif):",
+            ai_gif_example["GifSearchTags"],
+        )
         return ai_gif_example
-    
+
     # If neither is found, just return the post text or handle however you like
-    return {
-        "Text": post_text,
-        "Hashtags": post_hashtags
-    }
+    return {"Text": post_text, "Hashtags": post_hashtags}
+
 
 def build_pollinations_payload():
-    pollinations_cfg = config['user_profile']['llm']['Pollinations']['openai_compatible']
-    
+    pollinations_cfg = config["user_profile"]["llm"]["Pollinations"][
+        "openai_compatible"
+    ]
+
     # Replace {blog_text} in the user message or prompt
     messages = pollinations_cfg.get("messages", [])
     for message in messages:
-        if message['role'] == "user":
-            message['content'] = state['prompt']
+        if message["role"] == "user":
+            message["content"] = state["prompt"]
 
     return {
         "model": pollinations_cfg["model"],
@@ -147,17 +157,19 @@ def build_pollinations_payload():
         "functions": pollinations_cfg.get("functions"),
         "search_context_size": pollinations_cfg.get("search_context_size"),
         "user_location": pollinations_cfg.get("user_location"),
-        "web_search_options": pollinations_cfg.get("web_search_options")
+        "web_search_options": pollinations_cfg.get("web_search_options"),
     }
 
 
-def dispatch_text_pipeline(provider: str,):
-    print("Dispatch Text State",state['prompt'])
+def dispatch_text_pipeline(
+    provider: str,
+):
+    print("Dispatch Text State", state["prompt"])
     match provider:
         case "Pollinations_Text":
             print("Pollinations_Text", prompt)
-            print("Pollinations_Text_Extracted", state['prompt'])
-            safe_prompt = urllib.parse.quote(state['prompt'])
+            print("Pollinations_Text_Extracted", state["prompt"])
+            safe_prompt = urllib.parse.quote(state["prompt"])
             llm_response = asyncio.run(generate_text(prompt=safe_prompt))
             print("Pollinations_Text LLM Response", type(llm_response), llm_response)
 
@@ -170,81 +182,83 @@ def dispatch_text_pipeline(provider: str,):
 
         case "Pollinations_Text_Advanced":
             # POST / with messages + model
-            print("advanced_pollinations_cfg",state['prompt'])
-            print("Pollinations_Text_Extracted", state['prompt'])
-            advanced_cfg = config['user_profile']['llm']['Pollinations']['native_post']
+            print("advanced_pollinations_cfg", state["prompt"])
+            print("Pollinations_Text_Extracted", state["prompt"])
+            advanced_cfg = config["user_profile"]["llm"]["Pollinations"]["native_post"]
             messages = advanced_cfg.get("messages", [])
             for msg in messages:
                 if msg["role"] == "user":
-                    msg["content"] = state['prompt']
+                    msg["content"] = state["prompt"]
             payload = {
                 "messages": messages,
                 "model": advanced_cfg.get("model", "mistral"),
                 "seed": advanced_cfg.get("seed", 42),
                 "jsonMode": advanced_cfg.get("jsonMode", True),
                 "private": advanced_cfg.get("private", True),
-                "reasoning_effort": advanced_cfg.get("reasoning_effort", "medium")
+                "reasoning_effort": advanced_cfg.get("reasoning_effort", "medium"),
             }
 
-            llm_response = asyncio.run(generate_text_advanced( payload=payload))
+            llm_response = asyncio.run(generate_text_advanced(payload=payload))
             parsed = json.loads(llm_response)
-            print("Pollinations_Text_Advanced LLM Parsed",parsed)
+            print("Pollinations_Text_Advanced LLM Parsed", parsed)
 
             return parsed
 
         case "Pollinations_Text_Completion":
             # OpenAI-compatible Chat Completions
-             return handle_pollinations_text_completion()
+            return handle_pollinations_text_completion()
 
         case "OpenAI":
-            openai_cfg = config['user_profile']['llm']['OpenAI']
+            openai_cfg = config["user_profile"]["llm"]["OpenAI"]
             payload = {
-                "model": openai_cfg['text_model'],
+                "model": openai_cfg["text_model"],
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": openai_cfg['temperature'],
-                "top_p": openai_cfg['top_p']
+                "temperature": openai_cfg["temperature"],
+                "top_p": openai_cfg["top_p"],
             }
             return asyncio.run(run_openai_pipeline())
 
         case "HuggingFace":
-            print("🤗 Hugging Face")          
+            print("🤗 Hugging Face")
             result = run_huggingface_pipeline()
-            print("🤗 Hugging Face Result", result.get('result'))          
-            llm_response = result.get('response')  # corrected typo
-            print("HF Response 🤗 " + str(type(llm_response).__name__) + " " + str(llm_response))            
-            return llm_response 
-
+            print("🤗 Hugging Face Result", result.get("result"))
+            llm_response = result.get("response")  # corrected typo
+            print(
+                "HF Response 🤗 "
+                + str(type(llm_response).__name__)
+                + " "
+                + str(llm_response)
+            )
+            return llm_response
 
         case "DeepSeek":
-            ds_cfg = config['user_profile']['llm']['DeepSeek']
+            ds_cfg = config["user_profile"]["llm"]["DeepSeek"]
             payload = {
-                "model": ds_cfg['text_model'],
-                "prompt": state['prompt'],
-                "temperature": ds_cfg['temperature'],
-                "top_p": ds_cfg['top_p'],
-                "presence_penalty": ds_cfg['presence_penalty'],
-                "frequency_penalty": ds_cfg['frequency_penalty'],
-                "response_format": ds_cfg['response_format'],
-                "max_tokens": ds_cfg['max_tokens']
+                "model": ds_cfg["text_model"],
+                "prompt": state["prompt"],
+                "temperature": ds_cfg["temperature"],
+                "top_p": ds_cfg["top_p"],
+                "presence_penalty": ds_cfg["presence_penalty"],
+                "frequency_penalty": ds_cfg["frequency_penalty"],
+                "response_format": ds_cfg["response_format"],
+                "max_tokens": ds_cfg["max_tokens"],
             }
             llm_response = send_message_to_deepseek()
-            print("🦈 Deep Seek Response",llm_response)
+            print("🦈 Deep Seek Response", llm_response)
             return llm_response
 
         case "Claude":
-            claude_cfg = config['user_profile']['llm']['Anthropic']
+            claude_cfg = config["user_profile"]["llm"]["Anthropic"]
             payload = {
-                "model": claude_cfg['text_model'],
-                "max_tokens": claude_cfg['max_tokens'],
-                "temperature": claude_cfg['temperature'],
-                "top_p": claude_cfg['top_p'],
-                "messages": [
-                    {"role": "user", "content": state['prompt']}
-                ],
-                "system": claude_cfg['system']
+                "model": claude_cfg["text_model"],
+                "max_tokens": claude_cfg["max_tokens"],
+                "temperature": claude_cfg["temperature"],
+                "top_p": claude_cfg["top_p"],
+                "messages": [{"role": "user", "content": state["prompt"]}],
+                "system": claude_cfg["system"],
             }
             llm_response = send_message_to_claude()
-            print("🎅 Claude Response",llm_response)
+            print("🎅 Claude Response", llm_response)
             return llm_response
 
         case _:

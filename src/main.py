@@ -10,11 +10,11 @@ from utils.blog_rss_helper import (
 from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
-import os
+from utils.index import get_env_variable
 from typing import Optional
 
 
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 
 
 def authenticate_linkedin() -> Optional[str]:
