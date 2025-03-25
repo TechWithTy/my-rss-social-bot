@@ -4,13 +4,12 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from typing import Optional, Dict, Any
+from typing import Optional
 import requests
 import time
 import os
 from dotenv import load_dotenv
 from utils.index import get_env_variable
-from utils import prompt_builder
 from utils.prompt_builder import  get_prompt_globals,init_globals_for_test
 from utils.config_loader import config
 

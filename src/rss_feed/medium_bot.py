@@ -6,13 +6,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from typing import Dict, List, Any, Optional
 import feedparser
 import requests
-from bs4 import BeautifulSoup, Tag  # ✅ Import `Tag` explicitlyfrom tabulate import tabulate
+from bs4 import BeautifulSoup
 import os
 from tabulate import tabulate
 from utils.blog_rss_helper import (
     load_blog_cache,
-    save_blog_cache,
-    delete_blog_cache,
+
     is_blog_cache_valid,
     extract_blog_media
 )

@@ -56,7 +56,7 @@ pipenv install <package-name>
 ### **🧪 Test APP Tests Medium | LinkedIn LLM Usability make sure to upload funds to required platforms**
 
 ```bash
-pipenv test
+pipenv run test
 
 ```
 

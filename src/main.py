@@ -1,23 +1,16 @@
-
 from src.utils.config_loader import config
 from src.socials.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
-from src.models.openai_generator import run_openai_pipeline
 from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
-from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
 from utils.blog_rss_helper import (
     load_blog_cache,
     save_blog_cache,
-    delete_blog_cache,
-    is_blog_cache_valid,
-    extract_blog_media
 )
 from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
 import os
-from src.data.example_ai_response import ai_img_example, ai_gif_example
 from typing import Optional
 
 
@@ -40,7 +33,7 @@ def prepare_linkedin_post(text_model: str) -> dict:
 def attach_gif_to_post(post: dict) -> dict:
     gif_tags = post.get("GifSearchTags", [])
     print(f"🔍 GIF search tags: {gif_tags}")
-    
+
     if gif_tags:
         gif_result = giphy_find_with_metadata(gif_tags)
         gif_obj = gif_result.get("result", {}).get("gif")
@@ -67,10 +60,7 @@ def assemble_post_content(post: dict) -> tuple[str, Optional[str], Optional[str]
 
 
 def post_to_linkedin_if_possible(
-    post_text: str,
-    media_url: Optional[str],
-    media_type: Optional[str],
-    profile_id: str
+    post_text: str, media_url: Optional[str], media_type: Optional[str], profile_id: str
 ):
     if media_url and media_type:
         try:
@@ -115,7 +105,9 @@ def post_to_linkedin_if_possible(
 
 def main(rss_source: str) -> None:
     if TEST_MODE:
-        raise RuntimeError("❌ main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly.")
+        raise RuntimeError(
+            "❌ main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly."
+        )
     print("🚀 Starting main() with rss_source:", rss_source)
     try:
         is_new_blog = init_globals_if_needed()
@@ -126,9 +118,11 @@ def main(rss_source: str) -> None:
         init_globals_if_needed()
         print("✅ Global state initialized.")
 
-        linkedin_enabled = config['social_media_to_post_to']['linkedin'].get('enabled', False)
-        text_model = config['ai']['text']['generate_text']['LLM']
-        image_provider = config['ai']['creative']['generate_image']['LLM']
+        linkedin_enabled = config["social_media_to_post_to"]["linkedin"].get(
+            "enabled", False
+        )
+        text_model = config["ai"]["text"]["generate_text"]["LLM"]
+        image_provider = config["ai"]["creative"]["generate_image"]["LLM"]
 
         print(f"🧠 Config - Text Model: {text_model}, Image Provider: {image_provider}")
         print(f"📲 LinkedIn Posting Enabled: {linkedin_enabled}")
@@ -153,7 +147,10 @@ def main(rss_source: str) -> None:
 
         print("🧩 Checking for media asset...")
         if not image_url and not gif_asset:
-            print("⚠️ No media asset found — generating fallback image using:", image_provider)
+            print(
+                "⚠️ No media asset found — generating fallback image using:",
+                image_provider,
+            )
             image_data = asyncio.run(dispatch_image_pipeline(image_provider))
 
             print("📸 Fallback image data:", image_data)
@@ -163,10 +160,14 @@ def main(rss_source: str) -> None:
                     post["ImageAsset"] = image_data["ImageAsset"]
                     print("✅ ImageAsset added to post.")
                 elif "GifAsset" in image_data:
-                    post["GifAsset"] = extract_social_upload_metadata(image_data["GifAsset"])
+                    post["GifAsset"] = extract_social_upload_metadata(
+                        image_data["GifAsset"]
+                    )
                     print("✅ GifAsset extracted and added to post.")
                 else:
-                    print("❌ Fallback asset generation failed. No usable image or gif.")
+                    print(
+                        "❌ Fallback asset generation failed. No usable image or gif."
+                    )
             else:
                 print("❌ No image data returned from fallback pipeline.")
 
@@ -185,18 +186,23 @@ def main(rss_source: str) -> None:
         print("❌ An error occurred in main:")
         traceback.print_exc()
 
+
 if __name__ == "__main__":
-    medium_username = config['user_profile'].get('medium_username')
-    wix_url = config['user_profile'].get('wix_url')
-    wordpress_url = config['user_profile'].get('wordpress_url')
+    medium_username = config["user_profile"].get("medium_username")
+    wix_url = config["user_profile"].get("wix_url")
+    wordpress_url = config["user_profile"].get("wordpress_url")
 
     # Collect enabled sources
-    enabled_sources = [source for source in [medium_username, wix_url, wordpress_url] if source]
+    enabled_sources = [
+        source for source in [medium_username, wix_url, wordpress_url] if source
+    ]
 
     # Ensure only ONE source is enabled at a time
     if len(enabled_sources) > 1:
-        print("⚠️ Only one RSS source can be enabled at a time. Please check your config.")
+        print(
+            "⚠️ Only one RSS source can be enabled at a time. Please check your config!"
+        )
     elif enabled_sources:
         main(enabled_sources[0])  # Pass only the single enabled source
     else:
-        print("⚠️ RSS Feed URL or Username Not Given In Config")
+        print("⚠️ RSS Feed URL or Username Not Given In Config!")

@@ -2,10 +2,7 @@ import sys
 import os
 import pytest
 import warnings
-
-# Add src to PYTHONPATH for module resolution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from models.openai_generator import run_openai_pipeline
 from utils.prompt_builder import init_globals_for_test
 
@@ -20,10 +17,11 @@ async def test_run_openai_pipeline(initialized_prompt_state):
     result = run_openai_pipeline()
 
     assert isinstance(result, dict), "❌ Expected result to be a dictionary"
-    print("\n👁️ OpenAI Test Response:")
-    print("📊 Status:", result.get("status"))
-    print("📥 Response:", result.get("response"))
-    print("🔍 Status Code:", result.get("status_code"))
+    print("\n=== 👁️OpenAi Pipeline Test ===")
+    print("👁️OpenAi Status:", result.get("status"))
+    print("👁️OpenAi Response:", result.get("response"))
+    print("👁️OpenAi Status Code:", result.get("status_code"))
+    print(f"👁️OpenAi Details: {result.get('details')}")
 
     # Check if the pipeline completed successfully
     if result.get("status") == "success":

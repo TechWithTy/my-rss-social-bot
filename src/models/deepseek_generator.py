@@ -1,16 +1,12 @@
 import sys
-
 import os
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from typing import Optional, Dict, Any, List
+from typing import Optional
 import requests
 import os
 from dotenv import load_dotenv
 from utils.config_loader import config
 from utils.index import get_env_variable
-from utils import prompt_builder
 from utils.prompt_builder import  get_prompt_globals,init_globals_for_test# ✅ Load environment variables
 load_dotenv()
 

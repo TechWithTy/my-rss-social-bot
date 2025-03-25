@@ -1,13 +1,7 @@
 
 import sys
-"""
-    The function `test_run_huggingface_pipeline` is a pytest asynchronous test that checks the output of
-    a Hugging Face text generation pipeline for specific conditions and prints the results.
-"""
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
 import pytest
 from rss_feed.medium_bot import (
     get_medium_avatar,

@@ -28,12 +28,11 @@ async def test_send_message_to_claude():
     result = send_message_to_claude()
 
     assert isinstance(result, dict), "❌ Expected result to be a dictionary"
-
-    print("\n📬 Claude Test Response:")
-    print("📊 Status:", result.get("status"))
-    print("📥 Response:", result.get("response"))
-    print("📦 Message:", result.get("response").get("message"))  # Corrected line to extract message
-    print("🔍 Status Code:", result.get("status_code"))
+    print("\n===🎅 Claude Pipeline Test ===")
+    print("🎅 Claude  Status:", result.get("status"))
+    print("🎅 Claude  Response:", result.get("response"))
+    print("🎅 Claude 📦 Message:", result.get("response").get("message"))  # Corrected line to extract message
+    print("🎅 Claude  Status Code:", result.get("status_code"))
 
     # Check if the result indicates a successful response
     if result.get("status") == "success":

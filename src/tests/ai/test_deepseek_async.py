@@ -18,10 +18,11 @@ async def test_send_message_to_deepseek():
 
     assert isinstance(result, dict), "❌ Expected result to be a dictionary"
 
+    print("\n=== DeepSeek Pipeline Test ===")
     print("\n🦈 DeepSeek Result:")
-    print("📊 Status:", result.get("status"))
-    print("📥 Response:", result.get("response"))
-    print("🧾 Details:", result.get("details"))
+    print("🦈 DeepSeek Status:", result.get("status"))
+    print("🦈 DeepSeek Response:", result.get("response"))
+    print("🦈 DeepSeek Details:", result.get("details"))
 
     # Check if the request was successful
     if result.get("status") == "success":

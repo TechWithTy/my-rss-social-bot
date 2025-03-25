@@ -1,18 +1,12 @@
 import sys
-"""
-    The function `test_run_huggingface_pipeline` is a pytest asynchronous test that checks the output of
-    a Hugging Face text generation pipeline for specific conditions and prints the results.
-"""
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import pytest
-import asyncio
 from socials.linkedin_bot import (
     get_linkedin_profile_id,
     get_linkedin_profile,
     upload_linkedin_media,
-    post_to_linkedin
+    
 )
 
 @pytest.mark.asyncio
