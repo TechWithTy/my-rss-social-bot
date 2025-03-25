@@ -4,25 +4,18 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
-
 app = "python -m src.main"
-
 test = "pytest -s -v  src/tests/"
 test-html = "pytest -s -v src/tests/ --html=src/tests/_reports/html/_report.html"
 test-one-working-llm = "pytest -s -v src/tests/ -m one_working_llm --html=src/tests/_reports/html/_report.html"
-
 test-feeds ="pytest -s -v src/tests/feeds/ --html=src/tests/_reports/feeds/html/_report.html"
 test-socials ="pytest -s -v src/tests/socials/ --html=src/tests/_reports/socials/html/_report.html"
 test-ai ="pytest -s -v  src/tests/ai/ --html=src/tests/_reports/ai/html/_report.html"
-
-
 test-medium = "pytest -s -v src/tests/feeds/test_medium_async.py --html=src/tests/_reports/feeds/html/medium.html --log-cli-level=INFO"
 test-wix = "pytest -s -v src/tests/feeds/test_wix_async.py --html=src/tests/_reports/feeds/html/wix.html --log-cli-level=INFO"
 test-wordpress = "pytest -s -v src/tests/feeds/test_wordpress_async.py --html=src/tests/_reports/feeds/html/wordpress.html --log-cli-level=INFO"
-
 test-linkedin = "pytest -s -v src/tests/socials/test_linkedin_async.py --html=src/tests/_reports/html/linkedin.html --log-cli-level=INFO"
 test-giphy = "pytest -s -v src/tests/socials/test_giphy_async.py --html=src/tests/_reports/html/giphy.html --log-cli-level=INFO"
-
 test-pollinations = "pytest -s -v src/tests/ai/test_pollinations_async.py --html=src/tests/_reports/html/pollinations_report.html --log-cli-level=INFO"
 test-deepseek = "pytest -s -v src/tests/ai/test_deepseek_async.py --html=src/tests/_reports/html/deepseek_report.html --log-cli-level=INFO"
 test-claude = "pytest -s -v src/tests/ai/test_claude_async.py --html=src/tests/_reports/html/claude.html --log-cli-level=INFO"
@@ -59,6 +52,7 @@ tabulate = "==0.9.0"
 typing-extensions = "==4.12.2"
 urllib3 = "==2.3.0"
 pytest-html = "*"
+flask = "*"
 
 [dev-packages]
 pytest-html = "*"

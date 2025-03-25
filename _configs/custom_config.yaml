@@ -1,0 +1,10 @@
+user_profile:
+  medium_username: codingoni
+  wix_url: null
+  wordpress_url: null
+  target_audience: Non Technical People Looking For Tech Thought Leadership
+social_media_to_post_to:
+  linkedin:
+    enabled: true
+    post_format: Text
+    maximum_characters: 260

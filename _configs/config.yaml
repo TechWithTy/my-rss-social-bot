@@ -195,13 +195,13 @@ social_media_to_post_to:
     post_format: Text
     maximum_characters: 260
 ai:
-  default_response_format: 'Return EITHER a generated JSON image (Creative and\
+  default_response_instructions: "Return EITHER a generated JSON image (Creative and\
     \ ImageAsset) if a creative prompt is provided OR GifSearchTags if not\u2014never\
-    \ both. Example response: { "Text": "Your message here.", "Creative":
-    "[IMG] A relevant visual description.", "ImageAsset": "https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true",
-    "Hashtags": ["#Relevant", "#Contextual", "#GeneralTopic"] } or { "Text": "Message.",
-    "Hashtags": ["#tag", "#tag", "#tag"], "GifSearchTags": ["term one", "term two",
-    "term three"] }'
+    \ both. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"\
+    [IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true\"\
+    , \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"\
+    Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\"\
+    : [\"term one\", \"term two\", \"term three\"] }"
   custom_system_instructions: "Return EITHER a generated JSON image (Creative and\
     \ ImageAsset) if a creative prompt is provided OR GifSearchTags if not\u2014never\
     \ both."

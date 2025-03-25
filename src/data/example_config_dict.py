@@ -209,6 +209,7 @@ example_config_data = {
     },
     # AI Configuration & Content Generation
     "ai": {
+        "default_response_instructions": "Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\": [\"term one\", \"term two\", \"term three\"] }",
         "custom_system_instructions": "Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both.",
         "custom_user_instructions": 'Example response: { "Text": "Your message here.", "Creative": "[IMG] A relevant visual description.", "ImageAsset": "https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true", "Hashtags": ["#Relevant", "#Contextual", "#GeneralTopic"] } or { "Text": "Message.", "Hashtags": ["#tag", "#tag", "#tag"], "GifSearchTags": ["term one", "term two", "term three"] }',
         "text": {
