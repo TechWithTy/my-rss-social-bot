@@ -4,12 +4,6 @@ import pytest
 import asyncio
 from utils.prompt_builder import init_globals_for_test
 
-# Initialize the state
-init_globals_for_test()
-
-# Add src path for module resolution
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from models.pollinations_generator import (
     generate_image,
     list_image_models,
@@ -17,11 +11,16 @@ from models.pollinations_generator import (
     generate_text_advanced,
     generate_audio,
     list_text_models,
-    fetch_image_feed,
-    fetch_text_feed,
+
     call_openai_compatible_endpoint
 )
 
+
+# Initialize the state
+init_globals_for_test()
+
+# Add src path for module resolution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 
@@ -58,19 +57,6 @@ async def test_list_image_models():
     print(f"✅ list_image_models returned {len(models)} models")
 
 
-@pytest.mark.asyncio
-async def test_generate_text_advanced():
-    result = await generate_text_advanced(TEST_PAYLOAD)
-
-    print("🧪 generate_text_advanced raw result:", result)
-
-    assert isinstance(result, dict), "❌ Expected result to be a dictionary"
-
-    if "error" in result:
-        pytest.fail(f"❌ API error: {result['error']}")
-
-    assert "text" in result or "output" in result, "❌ Missing expected keys in response"
-    print("✅ generate_text_advanced passed.")
 
 
 @pytest.mark.asyncio
@@ -85,6 +71,20 @@ async def test_generate_text_advanced():
 
     print("✅ generate_text_advanced passed.")
 
+
+
+@pytest.mark.asyncio
+async def test_generate_text():
+    prompt = "What is the capital of France?"
+    result = await generate_text(prompt)
+
+    print("🧪 generate_text result:", result)
+
+    assert result is not None, "❌ Expected a non-null response"
+    assert isinstance(result, str), "❌ Expected result to be a string"
+    assert result.strip(), "❌ Response string should not be empty"
+
+    print("✅ generate_text passed.")
 
 
 @pytest.mark.asyncio
