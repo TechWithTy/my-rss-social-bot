@@ -19,7 +19,7 @@ jobs:
       LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
-      TEST_MODE: 'true'  # Hardcoded to 'true' for always running tests
+      TEST_MODE: true  # Hardcoded to 'true' for always running tests
 
     steps:
       - name: 🧾 Checkout Repository
@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: _temp/test_status.txt
-          key: test-status-${{ github.sha }}
+          key: test-status-${{ github.ref_name }}
           restore-keys: |
             test-status-
 

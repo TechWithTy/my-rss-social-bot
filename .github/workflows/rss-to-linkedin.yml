@@ -21,7 +21,7 @@ jobs:
       LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
-      TEST_MODE: 'false'
+      TEST_MODE: false
 
     steps:
       - name: 🧾 Checkout Repository
@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: _temp/test_status.txt
-          key: test-status-${{ github.sha }}
+          key: test-status-${{ github.ref_name }}
           restore-keys: |
             test-status-
 
@@ -63,7 +63,7 @@ jobs:
       - name: ❌ Fail Workflow If Tests Failed
         if: steps.read_test_status.outputs.TEST_STATUS == 'FALSE'
         run: |
-          echo "::error::WORKFLOW BLOCKED: Tests have failed in the Auto Test workflow."
+          echo "::error::WORKFLOW BLOCKED: Tests have failed in the Auto Test workflow!"
           echo "::error::Please fix the failing tests before the RSS-to-LinkedIn workflow can run."
           echo "::error::Check the Auto Test (CI) workflow logs for details on the test failures."
           exit 1
@@ -83,7 +83,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: _temp/blog_cache.json
-          key: blog-cache-${{ runner.os }}-${{ github.run_id }}
+          key: blog-cache-${{ runner.os }}-${{ github.ref_name }}
           restore-keys: |
             blog-cache-
 
@@ -96,4 +96,4 @@ jobs:
         uses: actions/cache@v3
         with:
           path: _temp/blog_cache.json
-          key: blog-cache-${{ runner.os }}-${{ github.run_id }}
+          key: blog-cache-${{ runner.os }}-${{ github.ref_name }}
