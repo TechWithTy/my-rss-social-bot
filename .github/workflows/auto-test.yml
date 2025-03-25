@@ -41,15 +41,37 @@ jobs:
           echo "HF token starts with: ${HUGGINGFACE_API_KEY:0:5}"
       
       - name: 🔬 Run Tests
+        id: run_tests
         run: |
           pipenv run pytest --maxfail=1 --disable-warnings -q
-          
-      - name: 🚫 Fail if tests fail
-        if: failure()
-        run: exit 1  # Will stop the workflow if tests fail
+        continue-on-error: true
+
+      - name: 📝 Set Test Status Cache
+        if: always()
+        id: test_status
+        uses: actions/cache@v3
+        with:
+          path: _temp/test_status.txt
+          key: test-status-${{ github.sha }}
+          restore-keys: |
+            test-status-
+
+      - name: 💾 Save Test Status - Success
+        if: steps.run_tests.outcome == 'success'
+        run: |
+          mkdir -p _temp
+          echo "TRUE" > _temp/test_status.txt
+          echo "Tests passed successfully!"
+
+      - name: 💾 Save Test Status - Failure
+        if: steps.run_tests.outcome != 'success'
+        run: |
+          mkdir -p _temp
+          echo "FALSE" > _temp/test_status.txt
+          echo "Tests failed! RSS-to-LinkedIn workflow will be blocked."
 
       - name: 🚀 Deploy Application
-        if: success()
+        if: steps.run_tests.outcome == 'success'
         run: |
           echo "Deploying the application to production!"
           # Add your actual deployment script here

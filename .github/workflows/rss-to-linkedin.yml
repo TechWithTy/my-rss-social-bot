@@ -8,11 +8,6 @@ on:
       - master
   workflow_dispatch:
 
-# on:
-#   workflow_run:
-#     workflows: ["Auto Test (CI)"]
-#     types:
-#       - completed
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -26,7 +21,7 @@ jobs:
       LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
       GIPHY_ASSET_TOKEN: ${{ secrets.GIPHY_ASSET_TOKEN }}
       MEDIUM_USERNAME: ${{ secrets.MEDIUM_USERNAME }}
-      TEST_MODE: false
+      TEST_MODE: 'false'
 
     steps:
       - name: 🧾 Checkout Repository
@@ -35,7 +30,7 @@ jobs:
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       - name: 📦 Install Pipenv
         run: pip install pipenv
@@ -43,10 +38,48 @@ jobs:
       - name: 📦 Install Dependencies with Pipenv
         run: pipenv install --deploy --ignore-pipfile
 
+      - name: ✔️ Check Test Status
+        id: check_test_status
+        uses: actions/cache@v3
+        with:
+          path: _temp/test_status.txt
+          key: test-status-${{ github.sha }}
+          restore-keys: |
+            test-status-
+
+      - name: 📝 Read Test Status
+        id: read_test_status
+        run: |
+          mkdir -p _temp
+          if [ -f _temp/test_status.txt ]; then
+            TEST_STATUS=$(cat _temp/test_status.txt)
+            echo "TEST_STATUS=$TEST_STATUS" >> $GITHUB_OUTPUT
+            echo "Test status is: $TEST_STATUS"
+          else
+            echo "TEST_STATUS=UNKNOWN" >> $GITHUB_OUTPUT
+            echo "No test status found, assuming tests were not run."
+          fi
+
+      - name: ❌ Fail Workflow If Tests Failed
+        if: steps.read_test_status.outputs.TEST_STATUS == 'FALSE'
+        run: |
+          echo "::error::WORKFLOW BLOCKED: Tests have failed in the Auto Test workflow."
+          echo "::error::Please fix the failing tests before the RSS-to-LinkedIn workflow can run."
+          echo "::error::Check the Auto Test (CI) workflow logs for details on the test failures."
+          exit 1
+
+      - name: ⚠️ Warning If Test Status Unknown
+        if: steps.read_test_status.outputs.TEST_STATUS == 'UNKNOWN'
+        run: |
+          echo "::warning::No test status found. Running without test verification."
+          echo "::warning::This may occur if the workflow is run manually or on schedule without a recent test run."
+
       - name: ♻️ Ensure Cache Path Exists
+        if: steps.read_test_status.outputs.TEST_STATUS != 'FALSE'
         run: mkdir -p _temp && touch _temp/blog_cache.json
 
       - name: ♻️ Restore Blog Cache
+        if: steps.read_test_status.outputs.TEST_STATUS != 'FALSE'
         uses: actions/cache@v3
         with:
           path: _temp/blog_cache.json
@@ -55,10 +88,11 @@ jobs:
             blog-cache-
 
       - name: 🚀 Run Main App Script
+        if: steps.read_test_status.outputs.TEST_STATUS != 'FALSE'
         run: pipenv run app
 
       - name: 💾 Save Blog Cache
-        if: always()
+        if: always() && steps.read_test_status.outputs.TEST_STATUS != 'FALSE'
         uses: actions/cache@v3
         with:
           path: _temp/blog_cache.json

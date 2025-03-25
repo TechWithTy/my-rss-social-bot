@@ -21,17 +21,17 @@ async def test_run_huggingface_pipeline():
     # Run the pipeline and get the result
     result = run_huggingface_pipeline()
 
+
+    # Check for subscription/balance issues
+    if "Check Model or Balance / HF Subscription" in result.get("response", ""):
+        pytest.skip("⚠️ Skipping test: HuggingFace API subscription or balance issue detected")
+    
     # Print debugging information
     print("\n=== Hugging Face Pipeline Test ===")
     print(f"🤗HF Status: {result.get('status')}")
     print(f"🤗HF Status Code: {result.get('status_code')}")
     print(f"🤗HF Response: {result.get('response')}")
     print(f"🤗HF Details: {result.get('details')}")
-
-    # Check for subscription/balance issues
-    if "Check Model or Balance / HF Subscription" in result.get("response", ""):
-        pytest.skip("⚠️ Skipping test: HuggingFace API subscription or balance issue detected")
-
     # Basic validations
     assert isinstance(result, dict), "Expected pipeline to return a dict"
     assert "status_code" in result, "Expected status_code in response"
