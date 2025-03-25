@@ -1,14 +1,9 @@
 import sys
-
 import os
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
 import httpx
 import asyncio
 from typing import Optional, Dict, Any
-from utils import prompt_builder
 from utils.prompt_builder import  get_prompt_globals
 import urllib.parse
 
@@ -16,6 +11,7 @@ import urllib.parse
 # Constants
 BASE_IMAGE_URL = "https://image.pollinations.ai"
 BASE_TEXT_URL = "https://text.pollinations.ai"
+BASE_AUDIO_URL = "https://text.pollinations.ai"
 OPENAI_ENDPOINT = f"{BASE_TEXT_URL}/openai"
 DEFAULT_VOICE = "nova"
 FALLBACK_VOICE = "echo"
@@ -50,11 +46,40 @@ async def fetch_with_retries(url: str, client: httpx.AsyncClient) -> Optional[ht
     return None
 
 
-async def generate_image(prompt: str) -> Optional[str]:
+async def generate_image(prompt: str, model: str = "stable-diffusion") -> Dict[str, Any]:
+    # The correct URL format for Pollinations image API is /prompt/ not /i/
     url = f"{BASE_IMAGE_URL}/prompt/{prompt}"
+    if model != "stable-diffusion":
+        url += f"?model={model}"
+
     async with httpx.AsyncClient() as client:
-        response = await fetch_with_retries(url, client)
-        return url if response else None
+        try:
+            response = await fetch_with_retries(url, client)
+            if response:
+                print(f"📸 Image Generation Status Code: {response.status_code}")
+                print(f"📸 Image URL: {url}")
+                
+                return {
+                    "status": "success",
+                    "status_code": response.status_code,
+                    "response": url,
+                    "details": url
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": 0,
+                    "response": "Failed to get response after retries",
+                    "details": "All retry attempts failed"
+                }
+        except Exception as e:
+            print(f"Error generating image: {e}")
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 
 async def generate_image_advanced(
@@ -101,110 +126,331 @@ async def generate_image_advanced(
 
 
 
-async def list_image_models() -> Optional[Dict[str, Any]]:
+async def list_image_models() -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{BASE_IMAGE_URL}/models")
-            return response.json()
+            print(f"🖼️ Image Models Status Code: {response.status_code}")
+            print(f"🖼️ Image Models Response: {response.text[:100]}...")
+            
+            if response.status_code == 200:
+                try:
+                    models_data = response.json()
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": models_data,
+                        "details": models_data
+                    }
+                except Exception as e:
+                    print(f"Error parsing image models JSON: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to fetch image models",
+                    "details": response.text
+                }
         except Exception as e:
             print(f"Error fetching image models: {e}")
-            return None
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 
-async def generate_text(prompt: str) -> Optional[str]:
+async def generate_text(prompt: str) -> Dict[str, Any]:
     url = f"{BASE_TEXT_URL}/{prompt}"
     async with httpx.AsyncClient() as client:
-        response = await fetch_with_retries(url, client)
-        return response.text if response else None
+        try:
+            response = await fetch_with_retries(url, client)
+            if response:
+                print(f"📝 Text Generation Status Code: {response.status_code}")
+                print(f"📝 Text Generation Response: {response.text[:100]}...")
+                
+                return {
+                    "status": "success",
+                    "status_code": response.status_code,
+                    "response": response.text,
+                    "details": response.text
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": 0,
+                    "response": "Failed to get response after retries",
+                    "details": "All retry attempts failed"
+                }
+        except Exception as e:
+            print(f"Error generating text: {e}")
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 
-async def generate_text_advanced(payload: dict) -> Optional[str]:
+async def generate_text_advanced(payload: dict) -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(BASE_TEXT_URL, json=payload)
             
-            print("📥 Status Code:", response.status_code)
-            print("📦 Raw Response Text:", response.text)
+            print(f"📥 Advanced Text Generation Status Code: {response.status_code}")
+            print(f"📦 Advanced Text Generation Response: {response.text[:100]}...")
 
             if response.status_code == 200:
-                print("🧠 Parsed JSON:", response.text)
-
-                generated_text = response.text
-
-                return generated_text
+                try:
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": response.text,
+                        "details": response.text
+                    }
+                except Exception as e:
+                    print(f"Error parsing advanced text response: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
             else:
-                print("❌ Non-200 Response:", response.text)
-                return None
-
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to generate advanced text",
+                    "details": response.text
+                }
         except Exception as e:
-            print(f"❌ Exception during advanced text generation: {e}")
-            return None
+            print(f"Exception during advanced text generation: {e}")
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 
-
-async def generate_audio(prompt: str, voice: str = DEFAULT_VOICE) -> Optional[str]:
-    url = f"{BASE_TEXT_URL}/{prompt}?model=openai-audio&voice={voice}"
+async def generate_audio(prompt: str, voice: str = DEFAULT_VOICE) -> Dict[str, Any]:
+    url = f"{BASE_AUDIO_URL}/{prompt}?model=openai-audio&voice={voice}"
+    
     async with httpx.AsyncClient() as client:
-        response = await fetch_with_retries(url, client)
-        if response:
-            return url
-        # Try fallback voice
-        print(f"⚠️ Trying fallback voice: {FALLBACK_VOICE}")
-        fallback_url = f"{BASE_TEXT_URL}/{prompt}?model=openai-audio&voice={FALLBACK_VOICE}"
-        response = await fetch_with_retries(fallback_url, client)
-        return fallback_url if response else None
+        try:
+            response = await fetch_with_retries(url, client)
+            if response and response.status_code == 200:
+                # Check if we got an audio file (Content-Type: audio/mpeg)
+                content_type = response.headers.get("Content-Type", "")
+                if "audio/mpeg" in content_type:
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": url,  # Return the URL for playback
+                        "details": f"Audio file generated successfully. Content-Type: {content_type}"
+                    }
+                else:
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Unexpected content type",
+                        "details": f"Expected audio/mpeg, got {content_type}"
+                    }
+            elif response:
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to generate audio",
+                    "details": response.text
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": 0,
+                    "response": "Failed to get response after retries",
+                    "details": "All retry attempts failed"
+                }
+        except Exception as e:
+            print(f"Error generating audio: {e}")
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 
-async def list_text_models() -> Optional[Dict[str, Any]]:
+async def list_text_models() -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{BASE_TEXT_URL}/models")
-            return response.json()
+            print(f"📝 Text Models Status Code: {response.status_code}")
+            print(f"📝 Text Models Response: {response.text[:100]}...")
+            
+            if response.status_code == 200:
+                try:
+                    models_data = response.json()
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": models_data,
+                        "details": models_data
+                    }
+                except Exception as e:
+                    print(f"Error parsing text models JSON: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to fetch text models",
+                    "details": response.text
+                }
         except Exception as e:
             print(f"Error fetching text models: {e}")
-            return None
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
 async def call_openai_compatible_endpoint(
     endpoint: str,
-    method: str = "POST",
-    payload: Optional[Dict[str, Any]] = None,
-    params: Optional[Dict[str, str]] = None
-) -> Optional[Any]:
-    url = f"{OPENAI_ENDPOINT}{endpoint}"
+    payload: Dict[str, Any],
+    api_key: Optional[str] = None
+) -> Dict[str, Any]:
+    headers = {}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
     async with httpx.AsyncClient() as client:
         try:
-            print(f"🔄 Calling {method} {url}")
-            response = await client.request(method, url, json=payload, params=params)
-            print(f"📥 Status: {response.status_code}")
+            response = await client.post(endpoint, json=payload, headers=headers)
+            print(f"🔄 OpenAI Compatible Endpoint Status Code: {response.status_code}")
+            print(f"📥 OpenAI Response: {response.text[:100]}...")
+            
             if response.status_code == 200:
                 try:
-                    print("Open AI Compatible Response",response.json)
-                    return response.json()
-                except Exception:
-                    return response.text
+                    response_data = response.json()
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": response_data,
+                        "details": response_data
+                    }
+                except Exception as e:
+                    print(f"Error parsing OpenAI compatible response JSON: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
             else:
-                print("⚠️ Error Response:", response.text)
-                return None
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to call OpenAI compatible endpoint",
+                    "details": response.text
+                }
         except Exception as e:
-            print(f"❌ Exception calling endpoint: {e}")
-            return None
+            print(f"Error calling OpenAI compatible endpoint: {e}")
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
-async def fetch_image_feed() -> Optional[Dict[str, Any]]:
+async def fetch_image_feed() -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{BASE_IMAGE_URL}/feed")
-            return response.json()
+            print(f"📸 Image Feed Status Code: {response.status_code}")
+            print(f"📸 Image Feed Response: {response.text[:100]}...")
+            
+            if response.status_code == 200:
+                try:
+                    feed_data = response.json()
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": feed_data,
+                        "details": feed_data
+                    }
+                except Exception as e:
+                    print(f"Error parsing image feed JSON: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to fetch image feed",
+                    "details": response.text
+                }
         except Exception as e:
             print(f"Error fetching image feed: {e}")
-            return None
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
 
-
-async def fetch_text_feed() -> Optional[Dict[str, Any]]:
+async def fetch_text_feed() -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{BASE_TEXT_URL}/feed")
-            return response.json()
+            print(f"📝 Text Feed Status Code: {response.status_code}")
+            print(f"📝 Text Feed Response: {response.text[:100]}...")
+            
+            if response.status_code == 200:
+                try:
+                    feed_data = response.json()
+                    return {
+                        "status": "success",
+                        "status_code": response.status_code,
+                        "response": feed_data,
+                        "details": feed_data
+                    }
+                except Exception as e:
+                    print(f"Error parsing text feed JSON: {e}")
+                    return {
+                        "status": "error",
+                        "status_code": response.status_code,
+                        "response": "Error parsing response",
+                        "details": str(e)
+                    }
+            else:
+                return {
+                    "status": "failed",
+                    "status_code": response.status_code,
+                    "response": "Failed to fetch text feed",
+                    "details": response.text
+                }
         except Exception as e:
             print(f"Error fetching text feed: {e}")
-            return None
-
+            return {
+                "status": "error",
+                "status_code": 500,
+                "response": "Exception during API call",
+                "details": str(e)
+            }
