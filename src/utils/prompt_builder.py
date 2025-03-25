@@ -79,12 +79,16 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         return None
 
     # Instructions
+    default_instructions = ai_config.get("default_response_instructions") or (
+        "Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\": [\"term one\", \"term two\", \"term three\"] }"
+    )
     system_instructions = ai_config.get("custom_system_instructions") or (
         "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
     )
     user_instructions = ai_config.get("custom_user_instructions") or (
         "Make the post concise, actionable, and emotionally resonant."
     )
+    
 
     linkedin_enabled = social_config.get("enabled", False)
     linkedin_max_chars = social_config.get("maximum_characters", "")
@@ -172,6 +176,8 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
 
     # Final Prompt
     content = (
+        f"{system_instructions}"
+        f"{default_instructions}"
         f"{user_instructions}"
         f"Summarize this blog post into an engaging "
         f"{'LinkedIn (' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
@@ -182,7 +188,7 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         f"Viral Methodologies To use:\n{viral_style_instructions}\n"
         f"{hashtag_instructions}\n"
         f"{creative_instruction}\n"
-        f"{user_instructions}"
+        f"{default_instructions}"
     )
 
     return {
@@ -191,6 +197,8 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         "gif_prompt": gif_prompt.strip(),
         "hashtags": hashtags,
         "system_instructions": system_instructions,
+        "user_instructions": user_instructions,
+        "default_instructions": default_instructions,
         "blog_content": blog_content,
     }
 
