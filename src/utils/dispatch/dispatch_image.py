@@ -2,7 +2,7 @@ from typing import Optional, Dict
 import httpx
 from utils.index import get_env_variable
 from utils.prompt_builder import init_globals_for_test, get_prompt_globals
-from utils.config_loader import config
+from utils.config.config_loader import config
 from models.pollinations_generator import (
     generate_image,
     generate_image_advanced,
@@ -35,7 +35,13 @@ blog_content = state.get("blog_content")
 
 
 async def generate_image_description() -> Optional[str]:
-    global prompt, creative_prompt, gif_prompt, hashtags, system_instructions, blog_content
+    global \
+        prompt, \
+        creative_prompt, \
+        gif_prompt, \
+        hashtags, \
+        system_instructions, \
+        blog_content
 
     # Debug output to help diagnose issues
     print(
@@ -47,7 +53,7 @@ async def generate_image_description() -> Optional[str]:
         system_instructions,
         blog_content,
     )
-    
+
     # If prompt is None, try to generate a fallback prompt from blog_content
     if not prompt or not isinstance(prompt, str):
         if blog_content:
@@ -57,7 +63,9 @@ async def generate_image_description() -> Optional[str]:
             prompt = fallback_prompt
         else:
             # If we don't have blog content either, use a generic prompt
-            fallback_prompt = "Create a professional business image with technology elements"
+            fallback_prompt = (
+                "Create a professional business image with technology elements"
+            )
             print(f"⚠️ Using generic fallback prompt: {fallback_prompt}")
             prompt = fallback_prompt
 
@@ -68,13 +76,13 @@ async def generate_image_description() -> Optional[str]:
     else:
         # Construct enriched prompt and sanitize
         final_prompt = f"{prompt}\n\n{blog_content[:500]}"
-    
+
     # Add creative prompt and hashtags if available
     if creative_prompt:
         final_prompt += f"\n\n{creative_prompt}"
     if hashtags:
         final_prompt += f"\n\n{hashtags}"
-        
+
     encoded_prompt = httpx.QueryParams({"prompt": final_prompt}).get("prompt")
 
     url = f"{FLUX_BASE_TEXT_URL}/{encoded_prompt}"
@@ -117,11 +125,13 @@ async def dispatch_image_pipeline(provider: str) -> Optional[Dict[str, str]]:
     try:
         creative_prompt_output = await generate_image_description()
         print("Creative Prompt Output", creative_prompt_output)
-        
+
         if not creative_prompt_output:
             print("⚠️ No creative prompt output generated, using fallback text")
-            creative_prompt_output = "Professional technology image with abstract elements"
-        
+            creative_prompt_output = (
+                "Professional technology image with abstract elements"
+            )
+
         match provider:
             case "Pollinations_Image":
                 print("🖼️ Pollinations_Image", creative_prompt_output)

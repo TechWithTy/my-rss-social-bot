@@ -1,10 +1,8 @@
-from utils.config_loader import config
-import os
+from utils.config.config_loader import config
 from models.pollinations_generator import (
     generate_text,
     generate_text_advanced,
-    generate_audio,
-    list_text_models,
+
     call_openai_compatible_endpoint,
 )
 import urllib.parse
@@ -14,7 +12,6 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
-import re
 from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.index import get_env_variable
 

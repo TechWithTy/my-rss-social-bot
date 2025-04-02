@@ -1,47 +1,48 @@
-from src.utils.config_loader import config
+from src.utils.config.config_loader import config
 from src.socials.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.utils.dispatch.dispatch_image import dispatch_image_pipeline
-from utils.blog_rss_helper import (
+from src.utils.helpers.blog_rss_helper import (
     load_blog_cache,
     save_blog_cache,
 )
-from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
+from src.utils.helpers.post_cache_helper import add_linkedin_post, is_blog_already_posted
+from src.utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
-from utils.index import get_env_variable
+from src.utils.index import get_env_variable
 from typing import Optional
 
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 
 
-def authenticate_linkedin() -> Optional[str]:
+def authenticate_linkedin() -> Optional[str]:   
     profile_id = get_linkedin_profile_id()
     if not profile_id:
-        raise ValueError("❌ Could not retrieve LinkedIn profile ID.")
-    print("✅ LinkedIn authenticated.")
+        raise ValueError("Could not retrieve LinkedIn profile ID.")
+    print("LinkedIn authenticated.")
     return profile_id
 
 
 def prepare_linkedin_post(text_model: str) -> dict:
-    print("🚀 Generating LinkedIn post...")
+    print("Generating LinkedIn post...")
     return dispatch_text_pipeline(text_model)
 
 
 def attach_gif_to_post(post: dict) -> dict:
     gif_tags = post.get("GifSearchTags", [])
-    print(f"🔍 GIF search tags: {gif_tags}")
+    print(f"GIF search tags: {gif_tags}")
 
     if gif_tags:
         gif_result = giphy_find_with_metadata(gif_tags)
         gif_obj = gif_result.get("result", {}).get("gif")
         if gif_obj:
-            print("🎞️ Found GIF result, attaching metadata...")
+            print("Found GIF result, attaching metadata...")
             post["GifAsset"] = extract_social_upload_metadata(gif_obj)
         else:
-            print("❌ No GIF found from Giphy.")
+            print("No GIF found from Giphy.")
     return post
 
 
@@ -64,18 +65,35 @@ def post_to_linkedin_if_possible(
 ):
     if media_url and media_type:
         try:
-            # post_to_linkedin(
+            # Get blog_id from global state for reference
+            state = get_prompt_globals()
+            raw_blog = state.get("raw_blog", {})
+            blog_id = raw_blog.get("id") if isinstance(raw_blog, dict) else None
+            
+            # Uncomment this line to actually post to LinkedIn
+            # linkedin_response = post_to_linkedin(
             #     post_text=post_text,
             #     profile_id=profile_id,
             #     media_url=media_url,
             #     media_type=media_type
             # )
+            # post_url = extract_post_url_from_response(linkedin_response) if linkedin_response else None
+            
+            # For development/testing purposes
+            post_url = None  # In production this would come from the LinkedIn API response
             print("✅ LinkedIn post submitted successfully.")
 
+            # Save the post to the LinkedIn post cache with media information
+            add_linkedin_post(
+                post_text=post_text, 
+                blog_id=blog_id, 
+                media_url=media_url,
+                media_type=media_type,
+                post_url=post_url
+            )
+            print("💾 LinkedIn post saved to cache.")
+            
             # ✅ After successful post, update the blog cache
-            state = get_prompt_globals()
-            raw_blog = state.get("raw_blog")
-
             if raw_blog:
                 cached = load_blog_cache()
 
@@ -103,6 +121,15 @@ def post_to_linkedin_if_possible(
         print("🚫 Skipping post — no valid media asset was available.")
 
 
+# Helper function to extract post URL from LinkedIn API response (placeholder)
+def extract_post_url_from_response(response):
+    """Extract post URL from LinkedIn API response if available."""
+    # In a real implementation, this would parse the API response
+    # LinkedIn API doesn't currently return the post URL directly
+    # This is a placeholder for future implementation
+    return None
+
+
 def main(rss_source: str) -> None:
     if TEST_MODE:
         raise RuntimeError(
@@ -115,6 +142,16 @@ def main(rss_source: str) -> None:
             print("🛑 No new blog detected — skipping generation and post.")
             return
         print("✅ Global state initialized.")
+        
+        # Get blog info from global state
+        state = get_prompt_globals()
+        raw_blog = state.get("raw_blog", {})
+        blog_id = raw_blog.get("id") if isinstance(raw_blog, dict) else None
+        
+        # Check if this blog has already been posted to LinkedIn
+        if blog_id and is_blog_already_posted(blog_id):
+            print(f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post.")
+            return
 
         linkedin_enabled = config["social_media_to_post_to"]["linkedin"].get(
             "enabled", False
@@ -204,9 +241,9 @@ if __name__ == "__main__":
     # Ensure only ONE source is enabled at a time
     if len(enabled_sources) > 1:
         print(
-            "⚠️ Only one RSS source can be enabled at a time. Please check your config!"
+            "Only one RSS source can be enabled at a time. Please check your config!"
         )
     elif enabled_sources:
         main(enabled_sources[0])  # Pass only the single enabled source
     else:
-        print("⚠️ RSS Feed URL or Username Not Given In Config!")
+        print("RSS Feed URL or Username Not Given In Config!")

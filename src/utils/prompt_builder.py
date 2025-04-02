@@ -5,14 +5,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import random
 from typing import Dict, Any, Optional
-from utils.config_loader import config
+from utils.config.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
 from rss_feed.wix_bot import fetch_latest_wix_blog
 from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
 from utils.index import get_env_variable
 
 from utils.index import parse_html_blog_content
-from utils.blog_rss_helper import load_blog_cache
+from utils.helpers.blog_rss_helper import load_blog_cache
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 _prompt_globals = {

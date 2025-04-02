@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 from utils.index import get_env_variable
 from utils.prompt_builder import get_prompt_globals, init_globals_for_test
-from utils.config_loader import config
+from utils.config.config_loader import config
 
 # ✅ Load environment variables
 load_dotenv()

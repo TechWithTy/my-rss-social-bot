@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 from tabulate import tabulate
-from utils.blog_rss_helper import (
+from utils.helpers.blog_rss_helper import (
     load_blog_cache,
 
     is_blog_cache_valid,
