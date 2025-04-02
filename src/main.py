@@ -134,7 +134,11 @@ def main(rss_source: str) -> None:
 
         print("🛠 Preparing post using model:", text_model)
         post = prepare_linkedin_post(text_model)
-        print("✏️ Generated post :", post.get("Text"))
+        
+        # Check if post text was successfully generated
+        if not post or not post.get("Text"):
+            raise ValueError("❌ Failed to generate text for the post. Aborting process.")
+            
         print("✏️ Generated post content:", post.get("Text"))
 
         post = attach_gif_to_post(post)
@@ -184,6 +188,7 @@ def main(rss_source: str) -> None:
     except Exception as e:
         print("❌ An error occurred in main:")
         traceback.print_exc()
+        raise  # Re-raise the exception to ensure the function fails completely
 
 
 if __name__ == "__main__":
