@@ -26,7 +26,7 @@ _prompt_globals = {
 
 ai_config = config.get("ai", {})
 user_config = config.get("user_profile", {})
-social_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
+linkedin_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
 
 medium_username = user_config.get("medium_username")
 wix_url = user_config.get("wix_url")
@@ -95,10 +95,11 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         "Make the post concise, actionable, and emotionally resonant."
     )
 
-    linkedin_enabled = social_config.get("enabled", False)
-    linkedin_max_chars = social_config.get("maximum_characters", "")
-    linkedin_min_chars = social_config.get("minimum_characters", "")
-
+    linkedin_enabled = linkedin_config.get("enabled", False)
+    linkedin_max_chars = linkedin_config.get("maximum_characters", "")
+    linkedin_min_chars = linkedin_config.get("minimum_characters", "")
+    formatting_instructions = linkedin_config.get("formatting_instructions", "")
+    print(f"Linked In formatting_instructions 5: {formatting_instructions}")
     # User Profile
     target_audience = user_config.get("target_audience", "")
     professional_summary = user_config.get("professional_summary", "")
@@ -150,15 +151,9 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
 
     # Creative Options
     creative = ai_config.get("creative", {})
-    config_test = ai_config.get("text", {})
     generate_image_cfg = creative.get("generate_image", {})
     post_gif_cfg = creative.get("fetch_gif", {})
-    formatting_instructions = config_test.get("generate_text", {}).get(
-        "formatting_instructions", ""
-    )
-    print(
-        f"formatting_instructions 5: {formatting_instructions}"
-    )
+
     generate_image = generate_image_cfg.get("enabled", False)
     fetch_gif = post_gif_cfg.get("enabled", False)
 

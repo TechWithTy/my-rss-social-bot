@@ -174,53 +174,7 @@ def clean_post_text(text: str) -> str:
     if not text:
         return ""
     print("Cleaning post text..." + " " + (text[:100] + "..." if len(text) > 100 else text))
-    
-    # Detect numbered lists and ensure proper formatting
-    # Handle regular numbered lists (1., 2., 1), 2), etc.)
-    # Find patterns like "1." "2." or "1)" "2)" that indicate lists and ensure they start on new lines
-    text = re.sub(r'([^\d\n])\s*(\d+[\s]*[\)\.:])([\s]+[\w])', r'\1\n\2\3', text)
-    
-    # Also handle lists that might start a paragraph
-    text = re.sub(r'^([\s]*)(\d+[\s]*[\)\.:])([\s]+[\w])', r'\1\2\3', text, flags=re.MULTILINE)
-    
-    # Check for emoji number patterns and add line breaks if needed
-    # This handles emojis like 1️⃣, 2️⃣, etc. more safely
-    for emoji in ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]:
-        # If this emoji exists in text and isn't preceded by a newline
-        pattern = r'([^\n])(' + re.escape(emoji) + r')'
-        text = re.sub(pattern, r'\1\n\2', text)
-    
-    # Fix broken words (words split across lines with hyphens)
-    text = re.sub(r'(\w+)-\s*-?(\w+)', r'\1\2', text)
-    
-    # Fix words that got split incorrectly (like "stability-         -first")
-    text = re.sub(r'(\w+)-\s+-(\w+)', r'\1-\2', text)
-    
-    # Add breaks between paragraphs for better readability
-    # Look for sentences ending with punctuation followed by a capital letter
-    text = re.sub(r'([.!?])\s+([A-Z])', r'\1\n\n\2', text)
-    
-    # Make sure hashtags are on a new line and properly grouped
-    text = re.sub(r'([^\s#])(#[\w]+)', r'\1\n\2', text)
-    
-    # Group hashtags together
-    text = re.sub(r'(#[\w]+)\s+(#[\w]+)', r'\1 \2', text)
-    
-    # Make sure 'Read more:' is on its own line with a blank line before it
-    text = re.sub(r'([^\n])\s*(Read more:)', r'\1\n\n\2', text)
-    
-    # Ensure the blog URL is properly formatted
-    text = re.sub(r'(https?://[^\s]+)[^\s\w\n\.].*$', r'\1', text, flags=re.MULTILINE)
-    
-    # Clean up multiple line breaks (more than 2)
-    text = re.sub(r'\n{3,}', '\n\n', text)
-    
-    # Ensure proper spacing around common emojis
-    # This uses a much safer range of emojis to avoid regex errors
-    emoji_pattern = r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF]'
-    text = re.sub(f'([A-Za-z.,!?])({emoji_pattern})([A-Za-z])', r'\1 \2 \3', text)
-    
-    print("\nCleaned text:\n" + (text[:200] + "..." if len(text) > 200 else text))
+  
     return text.strip()
 
 
