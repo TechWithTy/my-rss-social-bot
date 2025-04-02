@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add src to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from typing import Dict, List, Any, Optional
 import feedparser
 import requests
@@ -11,11 +11,11 @@ import os
 from tabulate import tabulate
 from utils.helpers.blog_rss_helper import (
     load_blog_cache,
-
     is_blog_cache_valid,
-    extract_blog_media
+    extract_blog_media,
 )
 import traceback
+
 TEMP_FOLDER = "_temp"
 LAST_BLOG_FILE = os.path.join(TEMP_FOLDER, "last_post.txt")
 
@@ -69,11 +69,17 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
     for entry in feed.entries:
         # ✅ Ensure `categories` is always a List[str]
         if hasattr(entry, "tags"):
-            categories = [tag["term"] for tag in entry.tags if isinstance(tag, dict) and "term" in tag]
+            categories = [
+                tag["term"]
+                for tag in entry.tags
+                if isinstance(tag, dict) and "term" in tag
+            ]
         else:
             categories = ["Uncategorized"]
 
-        content_html = entry.content[0].value if hasattr(entry, "content") else entry.summary
+        content_html = (
+            entry.content[0].value if hasattr(entry, "content") else entry.summary
+        )
 
         # Extract media (images, videos, embeds)
         image_url, video_url, embed_url = None, None, None
@@ -90,28 +96,31 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
 
             # Extract first embedded post (e.g., Twitter, Instagram, Medium embeds)
             embed_tag = soup.find("blockquote")
-            embed_url = embed_tag.find("a")["href"] if embed_tag and embed_tag.find("a") else None
+            embed_url = (
+                embed_tag.find("a")["href"]
+                if embed_tag and embed_tag.find("a")
+                else None
+            )
 
-        blogs.append({
-            "id": entry.id,
-            "title": entry.title,
-            "link": entry.link,
-            "categories": ", ".join(str(category) for category in categories) if categories else "Uncategorized",
-            "author": entry.author if hasattr(entry, "author") else username,
-            "published": entry.published,
-            "summary": entry.summary,
-            "content": content_html,
-            "image": image_url,  # First image found
-            "video": video_url,  # First video found (if any)
-            "embed": embed_url  # First embedded post (if any)
-        })
+        blogs.append(
+            {
+                "id": entry.id,
+                "title": entry.title,
+                "link": entry.link,
+                "categories": ", ".join(str(category) for category in categories)
+                if categories
+                else "Uncategorized",
+                "author": entry.author if hasattr(entry, "author") else username,
+                "published": entry.published,
+                "summary": entry.summary,
+                "content": content_html,
+                "image": image_url,  # First image found
+                "video": video_url,  # First video found (if any)
+                "embed": embed_url,  # First embedded post (if any)
+            }
+        )
 
-    return {
-        "user_avatar": user_avatar,
-        "blogs": blogs
-    }
-
-
+    return {"user_avatar": user_avatar, "blogs": blogs}
 
 
 def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:
@@ -133,53 +142,83 @@ def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:
     headers = ["#", "Title", "Categories", "Published", "Link"]
     print(tabulate(table_data, headers, tablefmt="grid"))
 
+
 def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
-    print("fetch_latest_medium_blog() called from:\n", "".join(traceback.format_stack()))
     try:
-        print("🔹 Checking blog cache validity...")
-        cached_data = load_blog_cache() if is_blog_cache_valid() else None
+        print(f"\n🔄 Starting Medium blog fetch for user: {username}")
+
+        # Check cache
+        print("🔍 Checking blog cache...")
+        cache_valid = is_blog_cache_valid()
+        print(f"🔍 Cache validity: {cache_valid}")
+
+        cached_data = load_blog_cache() if cache_valid else None
         cached_latest_id = (
             cached_data["blogs"][0]["id"]
             if cached_data and cached_data.get("blogs")
             else None
         )
+        print(f"🔍 Cached latest blog ID: {cached_latest_id}")
 
-        print("🔄 Fetching fresh Medium blogs...")
+        # Fetch fresh data
+        print("🌐 Fetching fresh Medium blogs...")
         fresh_data = get_medium_blogs(username)
+
+        if not fresh_data:
+            print("❌ Error: No data returned from get_medium_blogs")
+            return None
+
+        print(f"🌐 Received fresh data with keys: {fresh_data.keys()}")
+
         fresh_blogs = fresh_data.get("blogs", [])
+        print(f"🌐 Found {len(fresh_blogs)} blogs in feed")
+
         if not fresh_blogs:
             print("❌ No blogs found in the feed.")
             return None
 
         fresh_latest_id = fresh_blogs[0]["id"]
+        print(f"🆕 Fresh latest blog ID: {fresh_latest_id}")
 
-        # Debug logs to trace comparison
-        print(f"🧾 Cached blog ID: {cached_latest_id}")
-        print(f"🆕 Fresh blog ID: {fresh_latest_id}")
-
+        # Compare cached vs fresh
         if cached_latest_id == fresh_latest_id:
             print("🟢 Latest blog already cached. No new blog to parse.")
-            return None  # Exit here with a clear message
+            return None
 
-        # Otherwise, we have a new blog entry
-        print("🆕 New blog detected. Updating cache.")
-
-        # At this point, fresh_data should be our new blogs_data
+        print("🆕 New blog detected. Processing...")
         blogs_data = fresh_data
         latest_blog = blogs_data["blogs"][0]
-        print(f"Latest blog content link: {latest_blog['link']}")
+
+        print(f"📰 Latest blog title: {latest_blog.get('title')}")
+        print(f"🔗 Latest blog link: {latest_blog['link']}")
+        print(f"🔗 Latest blog Content: {latest_blog['content']}")
+
+        # Extract media
+        print("🖼️ Extracting blog media...")
         media = extract_blog_media(latest_blog["content"])
+        print(
+            f"🖼️ Found {len(media['links'])} links, {len(media['images'])} images, {len(media['videos'])} videos"
+        )
+
+        # Get user avatar
+        print("👤 Fetching user avatar...")
+        avatar_url = get_medium_avatar(username)
+        print(f"👤 Avatar URL: {avatar_url}")
 
         return {
-            "user_avatar": get_medium_avatar(username),
+            "user_avatar": avatar_url,
             "all_blogs": blogs_data["blogs"],
             "latest_blog": latest_blog,
             "latest_blog_direct_link": latest_blog["link"],
             "latest_blog_links": media["links"],
             "latest_blog_images": media["images"],
-            "latest_blog_embeds": media["embeds"],
+            "latest_blog_videos": media["videos"],
         }
 
     except Exception as e:
-        print(f"❌ Error fetching Medium blogs: {e}")
+        print(f"\n❌ Error fetching Medium blog:")
+        print(f"❌ Exception type: {type(e).__name__}")
+        print(f"❌ Exception message: {str(e)}")
+        print("❌ Stack trace:")
+        print(traceback.format_exc())
         return None

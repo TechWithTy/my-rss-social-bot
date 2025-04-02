@@ -12,7 +12,7 @@ from models.deepseek_generator import send_message_to_deepseek
 from models.claude_generator import send_message_to_claude
 import asyncio
 import json
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals, _prompt_globals
 from utils.index import get_env_variable
 
 
@@ -178,10 +178,11 @@ def clean_post_text(text: str) -> str:
 def dispatch_text_pipeline(
     provider: str,
 ):
-    print("Dispatch Text State", state["prompt"])
+    print("Dispatch Text State - Prompt:", state["prompt"])
+    print("Dispatch Text State - Raw Blog:", state.get("raw_blog"))
+    print("Dispatch Text State - Blog Content:", state.get("blog_content"))
     match provider:
         case "Pollinations_Text":
-            print("Pollinations_Text", prompt)
             print("Pollinations_Text_Extracted", state["prompt"])
             safe_prompt = urllib.parse.quote(state["prompt"])
             llm_response = asyncio.run(generate_text(prompt=safe_prompt))
@@ -196,7 +197,6 @@ def dispatch_text_pipeline(
 
         case "Pollinations_Text_Advanced":
             # POST / with messages + model
-            print("advanced_pollinations_cfg", state["prompt"])
             print("Pollinations_Text_Extracted", state["prompt"])
             advanced_cfg = config["user_profile"]["llm"]["Pollinations"]["native_post"]
             messages = advanced_cfg.get("messages", [])
@@ -261,6 +261,7 @@ def dispatch_text_pipeline(
                 "temperature": openai_cfg["temperature"],
                 "top_p": openai_cfg["top_p"],
             }
+            _prompt_globals["prompt"] = payload["messages"][0]["content"]
             return asyncio.run(run_openai_pipeline())
 
         case "HuggingFace":

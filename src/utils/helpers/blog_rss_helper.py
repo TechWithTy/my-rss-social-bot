@@ -75,13 +75,34 @@ def is_blog_cache_valid() -> bool:
         return False
 
 def extract_blog_media(content_html: str) -> Dict[str, List[str]]:
-    """Extracts links, images, and embeds from the blog content."""
+    """Extracts links, images, videos, and embeds from the blog content."""
     soup = BeautifulSoup(content_html, "html.parser")
+    
+    # Extract standard media
     links = [a['href'] for a in soup.find_all('a', href=True)]
     images = [img['src'] for img in soup.find_all('img', src=True)]
     embeds = [script['src'] for script in soup.find_all('script', src=True)]
+    
+    # Extract videos from iframe and video tags
+    videos = []
+    for video_tag in soup.find_all(['iframe', 'video']):
+        if video_tag.name == 'iframe':
+            src = video_tag.get('src')
+            if src:
+                videos.append(src)
+        elif video_tag.name == 'video':
+            src = video_tag.get('src')
+            if src:
+                videos.append(src)
+            # Also check for source tags within video elements
+            for source in video_tag.find_all('source'):
+                src = source.get('src')
+                if src:
+                    videos.append(src)
+    
     return {
         "links": links,
         "images": images,
-        "embeds": embeds
+        "embeds": embeds,
+        "videos": videos
     }

@@ -12,7 +12,7 @@ from src.utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
 from src.utils.index import get_env_variable
-from typing import Optional
+from typing import Optional, Dict, Any
 
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
@@ -28,6 +28,7 @@ def authenticate_linkedin() -> Optional[str]:
 
 def prepare_linkedin_post(text_model: str) -> dict:
     print("Generating LinkedIn post...")
+    init_globals_if_needed()  # Ensure init_globals_if_needed is called before dispatch_text_pipeline
     return dispatch_text_pipeline(text_model)
 
 
@@ -81,7 +82,7 @@ def post_to_linkedin_if_possible(
             
             # For development/testing purposes
             post_url = None  # In production this would come from the LinkedIn API response
-            print("✅ LinkedIn post submitted successfully.")
+            print("LinkedIn post submitted successfully.")
 
             # Save the post to the LinkedIn post cache with media information
             add_linkedin_post(
@@ -91,34 +92,34 @@ def post_to_linkedin_if_possible(
                 media_type=media_type,
                 post_url=post_url
             )
-            print("💾 LinkedIn post saved to cache.")
+            print("LinkedIn post saved to cache.")
             
-            # ✅ After successful post, update the blog cache
+            # After successful post, update the blog cache
             if raw_blog:
                 cached = load_blog_cache()
 
-                # 🧠 Normalize the cache structure to always support cached["blogs"]
+                # Normalize the cache structure to always support cached["blogs"]
                 if isinstance(cached, list):
-                    print("⚠️ Cache is a list — converting to dict with blogs key.")
+                    print("Cache is a list — converting to dict with blogs key.")
                     cached = {"blogs": cached}
                 elif not isinstance(cached, dict):
-                    print("⚠️ Invalid cache structure — resetting.")
+                    print("Invalid cache structure — resetting.")
                     cached = {"blogs": []}
                 elif "blogs" not in cached:
                     cached["blogs"] = []
 
-                print("🧠 Updating blog cache with new post ID...", raw_blog)
+                print("Updating blog cache with new post ID...", raw_blog)
                 cached["blogs"].insert(0, raw_blog)  # Prepend newest blog
                 save_blog_cache(cached)
-                print("💾 Blog successfully saved to cache.")
+                print("Blog successfully saved to cache.")
 
             else:
-                print("⚠️ raw_blog missing from state — cache not updated.")
+                print("raw_blog missing from state — cache not updated.")
 
         except Exception as e:
-            print("❌ Failed to post to LinkedIn:", e)
+            print("Failed to post to LinkedIn:", e)
     else:
-        print("🚫 Skipping post — no valid media asset was available.")
+        print("Skipping post — no valid media asset was available.")
 
 
 # Helper function to extract post URL from LinkedIn API response (placeholder)
@@ -130,100 +131,113 @@ def extract_post_url_from_response(response):
     return None
 
 
-def main(rss_source: str) -> None:
+def main(rss_source: str, override_config: Optional[Dict[str, Any]] = None) -> None:
+    # Apply configuration override if provided
+    effective_config = config
+    if override_config:
+        from utils.api.config_handler import merge_configs
+        effective_config = merge_configs(config, override_config)
+        print("Using configuration override from API request")
+
     if TEST_MODE:
         raise RuntimeError(
-            "❌ main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly."
+            "main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly."
         )
-    print("🚀 Starting main() with rss_source:", rss_source)
+    print("Starting main() with rss_source:", rss_source)
     try:
+        init_globals_if_needed()
         is_new_blog = init_globals_if_needed()
         if not is_new_blog:
-            print("🛑 No new blog detected — skipping generation and post.")
+            print("No new blog detected — skipping generation and post.")
             return
-        print("✅ Global state initialized.")
+        print("Global state initialized.")
         
         # Get blog info from global state
         state = get_prompt_globals()
+        print("Main State - Prompt:", state["prompt"])
+        print("Main State - Raw Blog:", state.get("raw_blog"))
+        print("Main State - Blog Content:", state.get("blog_content"))
+        
         raw_blog = state.get("raw_blog", {})
         blog_id = raw_blog.get("id") if isinstance(raw_blog, dict) else None
         
         # Check if this blog has already been posted to LinkedIn
         if blog_id and is_blog_already_posted(blog_id):
-            print(f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post.")
+            print(f"Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post.")
             return
 
-        linkedin_enabled = config["social_media_to_post_to"]["linkedin"].get(
+        # Use effective_config instead of global config
+        linkedin_enabled = effective_config["social_media_to_post_to"]["linkedin"].get(
             "enabled", False
         )
-        text_model = config["ai"]["text"]["generate_text"]["LLM"]
-        image_provider = config["ai"]["creative"]["generate_image"]["LLM"]
+        text_model = effective_config["ai"]["text"]["generate_text"]["LLM"]
+        image_provider = effective_config["ai"]["creative"]["generate_image"]["LLM"]
 
-        print(f"🧠 Config - Text Model: {text_model}, Image Provider: {image_provider}")
-        print(f"📲 LinkedIn Posting Enabled: {linkedin_enabled}")
+        print(f"Config - Text Model: {text_model}, Image Provider: {image_provider}")
+        print(f"LinkedIn Posting Enabled: {linkedin_enabled}")
 
         if not linkedin_enabled:
-            print("🔕 LinkedIn post generation complete (posting disabled in config).")
+            print("LinkedIn post generation complete (posting disabled in config).")
             return
 
-        print("🔐 Authenticating LinkedIn profile...")
+        print("Authenticating LinkedIn profile...")
         profile_id = authenticate_linkedin()
 
-        print("🛠 Preparing post using model:", text_model)
+        print("Preparing post using model:", text_model)
         post = prepare_linkedin_post(text_model)
         
         # Check if post text was successfully generated
         if not post or not post.get("Text"):
-            raise ValueError("❌ Failed to generate text for the post. Aborting process.")
+            raise ValueError("Failed to generate text for the post. Aborting process.")
             
-        print("✏️ Generated post content:", post.get("Text"))
+        print("Generated post content:", post.get("Text"))
 
         post = attach_gif_to_post(post)
-        print("🎞 GIF tags attached (if any):", post.get("GifSearchTags"))
+        print("GIF tags attached (if any):", post.get("GifSearchTags"))
 
         # Check for existing media before generating fallback
         image_url = post.get("ImageAsset")
         gif_asset = post.get("GifSearchTags")
 
-        print("🧩 Checking for media asset...")
+        print("Checking for media asset...")
         if not image_url and not gif_asset:
             print(
-                "⚠️ No media asset found — generating fallback image using:",
+                "No media asset found — generating fallback image using:",
                 image_provider,
             )
             image_data = asyncio.run(dispatch_image_pipeline(image_provider))
 
-            print("📸 Fallback image data:", image_data)
+            print("Fallback image data:", image_data)
 
             if image_data:
                 if "ImageAsset" in image_data:
                     post["ImageAsset"] = image_data["ImageAsset"]
-                    print("✅ ImageAsset added to post.")
+                    print("ImageAsset added to post.")
                 elif "GifAsset" in image_data:
                     post["GifAsset"] = extract_social_upload_metadata(
                         image_data["GifAsset"]
                     )
-                    print("✅ GifAsset extracted and added to post.")
+                    print("GifAsset extracted and added to post.")
                 else:
                     print(
-                        "❌ Fallback asset generation failed. No usable image or gif."
+                        "Fallback asset generation failed. No usable image or gif."
                     )
             else:
-                print("❌ No image data returned from fallback pipeline.")
+                print("No image data returned from fallback pipeline.")
 
         # Re-assemble content with new media
         post_text, media_url, media_type = assemble_post_content(post)
 
-        print("📝 Final LinkedIn post content:")
+        print("Final LinkedIn post content:")
         print("------------------------------------------------------")
         print(post_text)
         print("------------------------------------------------------")
-        print(f"📦 Media: {media_type} -> {media_url}")
+        print(f"Media: {media_type} -> {media_url}")
 
         post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
 
     except Exception as e:
-        print("❌ An error occurred in main:")
+        print("An error occurred in main:")
         traceback.print_exc()
         raise  # Re-raise the exception to ensure the function fails completely
 

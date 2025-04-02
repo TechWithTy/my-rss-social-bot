@@ -47,6 +47,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
         "WordPress": (wordpress_url, fetch_latest_wordpress_blog),
     }
 
+    print("Fetching blog from Medium, Wix, or WordPress...")
     response = None  # Initialize response to avoid undefined variable error
 
     for platform, (identifier, fetch_function) in sources.items():
@@ -54,6 +55,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
             print(f"Fetching from {platform}...")
             response = fetch_function(identifier)
             if response:
+                print(f"Successfully fetched blog from {platform}")
                 break  # Stop at the first valid response
 
     if response is None:
@@ -206,8 +208,7 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         f"{formatting_instructions}\n"
         f"{default_instructions}"
     )
-
-    return {
+    prompt_build_payload =   {
         "content": content.strip(),
         "creative_prompt": image_prompt.strip(),
         "gif_prompt": gif_prompt.strip(),
@@ -218,6 +219,9 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         "blog_content": blog_content,
     }
 
+    print("Final Prompt build_prompt_payload:", prompt_build_payload)
+    return prompt_build_payload
+
 
 def get_prompt_globals():
     return _prompt_globals
@@ -226,13 +230,22 @@ def get_prompt_globals():
 def init_globals_if_needed() -> bool:
     global _prompt_globals
 
+    print("Initializing global state...")
+    print("Current global state before update:", _prompt_globals)
+
     blog_data = fetch_and_parse_blog()
     if not blog_data:
+        print("No blog data returned from fetch_and_parse_blog")
         return False
+
+    print("Blog data fetched successfully:")
+    print("Blog ID:", blog_data["id"])
+    print("Blog Content Length:", len(blog_data["content"]))
 
     blog_id = blog_data["id"]
     cached = load_blog_cache()
 
+    print("Global Cache Check:", cached)
     # Normalize cached structure
     if isinstance(cached, list):  # legacy or empty structure
         cached = {"blogs": cached}
@@ -256,6 +269,8 @@ def init_globals_if_needed() -> bool:
         print("No prompt payload returned.")
         return False
 
+    print("Updating _prompt_globals with prompt:", prompt_payload)
+    print("Global state before update:", _prompt_globals)
     _prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
@@ -268,6 +283,7 @@ def init_globals_if_needed() -> bool:
             "blog_url": blog_data.get("direct_link", ""),  # Original blog URL
         }
     )
+    print("Global state after update:", _prompt_globals)
 
     return True
 
@@ -293,7 +309,7 @@ def init_globals_for_test():
             raise RuntimeError("Cached blog has no 'content' key.")
 
     _prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
-
+    print("Parsed HTML Text Prompt Builder:", _prompt_globals["blog_content"])
     prompt_payload = build_prompt_payload(blog_content_raw)
     if not prompt_payload:
         raise RuntimeError("No prompt payload could be generated.")

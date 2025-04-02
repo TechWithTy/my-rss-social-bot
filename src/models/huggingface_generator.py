@@ -46,8 +46,7 @@ gif_prompt = state["gif_prompt"]
 hashtags = state["hashtags"]
 system_instructions = state["system_instructions"]
 blog_content = state["blog_content"]
-print(f" Sending prompt to Hugging Face model: {hf_text_model}")
-print(f" Prompt:\n{state['prompt']}\n")
+
 
 
 def send_message_to_huggingface(prompt_text: str) -> dict:
