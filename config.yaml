@@ -242,6 +242,7 @@ ai:
       enabled: true
       user_description: "If true, generates a tailored AI Social Media Post and An Image Or Gif"
       prompt: "Create a high-quality AI-generated image relevant to the blog content."
+      formatting_instructions: "\n\nIMPORTANT: Format the post with proper line breaks for readability. Put each list item on a new line, and ensure paragraph breaks where appropriate. Add line breaks before and after lists."
       LLM: "Pollinations_Text_Advanced"
       # Available models: 'Pollinations', 'OpenAi', 'HuggingFace', 'DeepSeek', 'Claude'
   creative:

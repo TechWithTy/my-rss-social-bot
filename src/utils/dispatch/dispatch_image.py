@@ -1,8 +1,5 @@
 from typing import Optional, Dict
-import os
 import httpx
-import asyncio
-import json
 from utils.index import get_env_variable
 from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.config_loader import config
@@ -13,8 +10,6 @@ from models.pollinations_generator import (
 )
 from models.openai_generator import generate_openai_image
 from models.huggingface_generator import generate_image_with_huggingface
-from models.deepseek_generator import send_message_to_deepseek
-from models.claude_generator import send_message_to_claude
 from socials.giphy import giphy_find_with_metadata  # ensure this is available
 
 FLUX_BASE_TEXT_URL = "https://text.pollinations.ai"

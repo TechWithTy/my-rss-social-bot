@@ -114,8 +114,6 @@ def main(rss_source: str) -> None:
         if not is_new_blog:
             print("🛑 No new blog detected — skipping generation and post.")
             return
-        print("🔧 Initializing global state...")
-        init_globals_if_needed()
         print("✅ Global state initialized.")
 
         linkedin_enabled = config["social_media_to_post_to"]["linkedin"].get(

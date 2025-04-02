@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import random
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, Optional
 from utils.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
 from rss_feed.wix_bot import fetch_latest_wix_blog
@@ -71,7 +71,12 @@ def fetch_and_parse_blog() -> Optional[dict]:
 
     cleaned_blog_content = parse_html_blog_content(blog_content)
 
-    return {"id": blog_id, "content": cleaned_blog_content, "raw": blog_json, "direct_link": blog_direct_link}
+    return {
+        "id": blog_id,
+        "content": cleaned_blog_content,
+        "raw": blog_json,
+        "direct_link": blog_direct_link,
+    }
 
 
 def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
@@ -81,7 +86,7 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
 
     # Instructions
     default_instructions = ai_config.get("default_response_instructions") or (
-        "Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"[IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true\", \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\": [\"term one\", \"term two\", \"term three\"] }"
+        'Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. Example response: { "Text": "Your message here.", "Creative": "[IMG] A relevant visual description.", "ImageAsset": "https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true", "Hashtags": ["#Relevant", "#Contextual", "#GeneralTopic"] } or { "Text": "Message.", "Hashtags": ["#tag", "#tag", "#tag"], "GifSearchTags": ["term one", "term two", "term three"] }'
     )
     system_instructions = ai_config.get("custom_system_instructions") or (
         "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
@@ -89,7 +94,6 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
     user_instructions = ai_config.get("custom_user_instructions") or (
         "Make the post concise, actionable, and emotionally resonant."
     )
-    
 
     linkedin_enabled = social_config.get("enabled", False)
     linkedin_max_chars = social_config.get("maximum_characters", "")
@@ -146,9 +150,15 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
 
     # Creative Options
     creative = ai_config.get("creative", {})
+    config_test = ai_config.get("text", {})
     generate_image_cfg = creative.get("generate_image", {})
     post_gif_cfg = creative.get("fetch_gif", {})
-
+    formatting_instructions = config_test.get("generate_text", {}).get(
+        "formatting_instructions", ""
+    )
+    print(
+        f"formatting_instructions 5: {formatting_instructions}"
+    )
     generate_image = generate_image_cfg.get("enabled", False)
     fetch_gif = post_gif_cfg.get("enabled", False)
 
@@ -178,7 +188,11 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
 
     # Final Prompt
     blog_url = kwargs.get("blog_url", "")
-    blog_url_instruction = f"\n\nInclude the original blog URL in the post: {blog_url}" if blog_url else ""
+    blog_url_instruction = (
+        f"\n\nInclude the original blog URL in the post: {blog_url}" if blog_url else ""
+    )
+
+    # Add formatting instructions
 
     content = (
         f"{system_instructions}"
@@ -193,7 +207,8 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         f"Viral Methodologies To use:\n{viral_style_instructions}\n"
         f"{hashtag_instructions}\n"
         f"{creative_instruction}"
-        f"{blog_url_instruction}\n"
+        f"{blog_url_instruction}"
+        f"{formatting_instructions}\n"
         f"{default_instructions}"
     )
 
@@ -239,7 +254,9 @@ def init_globals_if_needed() -> bool:
         print(f"Blog with ID {blog_id} already processed.")
         return False
 
-    prompt_payload = build_prompt_payload(blog_data["content"], blog_url=blog_data.get("direct_link", ""))
+    prompt_payload = build_prompt_payload(
+        blog_data["content"], blog_url=blog_data.get("direct_link", "")
+    )
     if not prompt_payload:
         print("No prompt payload returned.")
         return False
@@ -253,7 +270,7 @@ def init_globals_if_needed() -> bool:
             "system_instructions": prompt_payload.get("system_instructions"),
             "blog_content": prompt_payload.get("blog_content"),
             "raw_blog": blog_data["raw"],  # Needed for saving later
-            "blog_url": blog_data.get("direct_link", "")  # Original blog URL
+            "blog_url": blog_data.get("direct_link", ""),  # Original blog URL
         }
     )
 
