@@ -164,17 +164,21 @@ def build_pollinations_payload():
 
 def clean_post_text(text: str) -> str:
     """Clean and format the post text for better readability.
-    
+
     Args:
         text: The raw text from the AI response
-        
+
     Returns:
         Cleaned and properly formatted text
     """
     if not text:
         return ""
-    print("Cleaning post text..." + " " + (text[:100] + "..." if len(text) > 100 else text))
-  
+    print(
+        "Cleaning post text..."
+        + " "
+        + (text[:100] + "..." if len(text) > 100 else text)
+    )
+
     return text.strip()
 
 
@@ -202,6 +206,7 @@ def dispatch_text_pipeline(
             print("advanced_pollinations_cfg", state["prompt"])
             print("Pollinations_Text_Extracted", state["prompt"])
             advanced_cfg = config["user_profile"]["llm"]["Pollinations"]["native_post"]
+            print("Pollinations_Text_Advanced: advanced_cfg", advanced_cfg)
             messages = advanced_cfg.get("messages", [])
             for msg in messages:
                 if msg["role"] == "user":
@@ -210,9 +215,14 @@ def dispatch_text_pipeline(
                 "messages": messages,
                 "model": advanced_cfg.get("model", "mistral"),
                 "seed": advanced_cfg.get("seed", 42),
-                "jsonMode": advanced_cfg.get("jsonMode", True),
+                "system": advanced_cfg.get("system", "You're a helpful assistant."),
+                "json": advanced_cfg.get("json", True),
+                "stream": advanced_cfg.get("stream", False),
                 "private": advanced_cfg.get("private", True),
                 "reasoning_effort": advanced_cfg.get("reasoning_effort", "medium"),
+                # "referer": advanced_cfg.get(
+                #     "referer", "https://www.cybershoptech.com/"
+                # ),
             }
 
             llm_response = asyncio.run(generate_text_advanced(payload=payload))
@@ -222,33 +232,44 @@ def dispatch_text_pipeline(
             else:
                 parsed = json.loads(llm_response)
             print("Pollinations_Text_Advanced LLM Parsed", parsed)
-            
+
             # The actual content is nested in the 'response' field as a JSON string
-            if parsed.get('status') == 'success' and 'response' in parsed:
+            if parsed.get("status") == "success" and "response" in parsed:
                 try:
+                    # Check if the response is surrounded by a "json" string
+                    if parsed["response"].startswith("json ") and parsed[
+                        "response"
+                    ].endswith('"'):
+                        print('Removing "json" string from response')
+                        parsed["response"] = parsed["response"][5:-1]
                     # Extract and parse the inner JSON from the 'response' field
-                    content_json = json.loads(parsed['response'])
+                    content_json = json.loads(parsed["response"])
                     print("✅ Successfully parsed inner JSON content:", content_json)
-                    
+
                     # If blog URL exists in state, append it to the Text field
                     if state.get("blog_url") and content_json.get("Text"):
                         # Add the blog URL to the post text if it doesn't already contain a URL
-                        if not any(url in content_json["Text"] for url in ["http://", "https://"]):
+                        if not any(
+                            url in content_json["Text"]
+                            for url in ["http://", "https://"]
+                        ):
                             blog_url = state["blog_url"]
-                            content_json["Text"] = f"{content_json['Text']}\n\nRead more: {blog_url}"
+                            content_json["Text"] = (
+                                f"{content_json['Text']}\n\nRead more: {blog_url}"
+                            )
                             print(f"✅ Added blog URL to post: {blog_url}")
-                    
+
                     # Clean and format the post text
                     if content_json.get("Text"):
                         content_json["Text"] = clean_post_text(content_json["Text"])
                         print("Cleaned and formatted post text")
-                    
+
                     return content_json
                 except json.JSONDecodeError as e:
                     print(f"❌ Error parsing inner response JSON: {e}")
                     # Return raw response as fallback
-                    return {"Text": parsed.get('response', ''), "error": str(e)}
-            
+                    return {"Text": parsed.get("response", ""), "error": str(e)}
+
             # Fallback if the expected structure isn't found
             return parsed
 

@@ -200,7 +200,8 @@ async def generate_text(prompt: str) -> Dict[str, Any]:
 
 
 async def generate_text_advanced(payload: dict) -> Dict[str, Any]:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as client:  
+        print(f"📥 Advanced Text Generation Payload Model: {payload['model']}") 
         try:
             response = await client.post(BASE_TEXT_URL, json=payload)
             

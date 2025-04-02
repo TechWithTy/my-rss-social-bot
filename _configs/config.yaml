@@ -3,7 +3,8 @@ user_profile:
   wix_url: null
   wordpress_url: null
   target_audience: Non Technical People Looking For Tech Thought Leadership
-  professional_summary: I'm a Software Engineer with a passion for creating innovative
+  professional_summary:
+    I'm a Software Engineer with a passion for creating innovative
     solutions and sharing my knowledge with the world. I'm always looking for new
     ways to improve my skills and help others do the same.
   resume_url: https://www.linkedin.com/in/your-linkedin-url
@@ -34,17 +35,17 @@ user_profile:
         temperature: 0.7
         top_p: 1.0
         messages:
-        - role: system
-          content: You are a helpful assistant.
-        - role: user
-          content: What is artificial intelligence?
+          - role: system
+            content: You are a helpful assistant.
+          - role: user
+            content: What is artificial intelligence?
         audio: null
         function_call: null
         functions: []
         max_completion_tokens: 256
         metadata: {}
         modalities:
-        - text
+          - text
         parallel_tool_calls: true
         prediction: null
         reasoning_effort: medium
@@ -62,11 +63,15 @@ user_profile:
         endpoint: https://text.pollinations.ai/
         model: mistral
         messages:
-        - role: system
-          content: You're a helpful assistant.
-        - role: user
-          content: Your User Prompt
+          - role: system
+            content: You're a helpful assistant.
+          - role: user
+            content: Your User Prompt
         reasoning_effort: medium
+        seed: 42
+        json: true
+        private: true
+        referer: https://www.cybershoptech.com/
       native_get:
         endpoint: https://text.pollinations.ai/{prompt}
         model: mistral
@@ -92,28 +97,28 @@ user_profile:
       response_format: json
       tool: null
       available_models:
-      - gpt-4o
-      - gpt-4o-mini
-      - o1
-      - o3-mini
-      - gpt-4.5-preview
-      - o3-mini-2025-01-31
-      - o1-2024-12-17
-      - gpt-4o-mini-2024-07-18
-      - gpt-4o-2024-11-20
-      - gpt-4o-2024-08-06
-      - gpt-4.5-preview-2025-02-27
-      - gpt-4-turbo-preview
-      - gpt-4-turbo-2024-04-09
-      - gpt-4-turbo
-      - gpt-4-1106-preview
-      - gpt-4-0613
-      - gpt-4-0125-preview
-      - gpt-4
-      - gpt-3.5-turbo-16k
-      - gpt-3.5-turbo-1106
-      - gpt-3.5-turbo-0125
-      - gpt-3.5-turbo
+        - gpt-4o
+        - gpt-4o-mini
+        - o1
+        - o3-mini
+        - gpt-4.5-preview
+        - o3-mini-2025-01-31
+        - o1-2024-12-17
+        - gpt-4o-mini-2024-07-18
+        - gpt-4o-2024-11-20
+        - gpt-4o-2024-08-06
+        - gpt-4.5-preview-2025-02-27
+        - gpt-4-turbo-preview
+        - gpt-4-turbo-2024-04-09
+        - gpt-4-turbo
+        - gpt-4-1106-preview
+        - gpt-4-0613
+        - gpt-4-0125-preview
+        - gpt-4
+        - gpt-3.5-turbo-16k
+        - gpt-3.5-turbo-1106
+        - gpt-3.5-turbo-0125
+        - gpt-3.5-turbo
     DeepSeek:
       text_model: deepseek-chat
       presence_penalty: 0.0
@@ -127,8 +132,8 @@ user_profile:
       logprobs: false
       top_logprobs: 5
       available_models:
-      - deepseek-chat
-      - deepseek-reasoner
+        - deepseek-chat
+        - deepseek-reasoner
     Anthropic:
       text_model: claude-3-sonnet-20240229
       temperature: 0.7
@@ -137,19 +142,20 @@ user_profile:
       frequency_penalty: 0.0
       presence_penalty: 0.0
       stop_sequences: []
-      system: You're a professional copywriter helping turn blog posts into viral
+      system:
+        You're a professional copywriter helping turn blog posts into viral
         LinkedIn content.
       available_models:
-      - claude-3-7-sonnet-20250219
-      - claude-3-5-haiku-20241022
-      - claude-3-5-sonnet-20241022
-      - claude-3-5-sonnet-20240620
-      - claude-3-opus-20240229
-      - claude-3-sonnet-20240229
-      - claude-3-haiku-20240307
+        - claude-3-7-sonnet-20250219
+        - claude-3-5-haiku-20241022
+        - claude-3-5-sonnet-20241022
+        - claude-3-5-sonnet-20240620
+        - claude-3-opus-20240229
+        - claude-3-sonnet-20240229
+        - claude-3-haiku-20240307
       message_format:
-      - role: user
-        content: Hello, world
+        - role: user
+          content: Hello, world
     HuggingFace:
       text_model: mistralai/Mistral-7B-Instruct-v0.1
       image_model: runwayml/stable-diffusion-v1-5
@@ -157,29 +163,29 @@ user_profile:
       temperature: 0.7
       max_tokens: 500
       available_models:
-      - meta-llama/Meta-Llama-3-8B
-      - mistralai/Mistral-7B-Instruct-v0.1
-      - tiiuae/falcon-7b-instruct
+        - meta-llama/Meta-Llama-3-8B
+        - mistralai/Mistral-7B-Instruct-v0.1
+        - tiiuae/falcon-7b-instruct
       available_tools:
-      - Audio Classification
-      - Automatic Speech Recognition
-      - Chat Completion
-      - Feature Extraction
-      - Fill Mask
-      - Image Classification
-      - Image Segmentation
-      - Image to Image
-      - Image-Text to Text
-      - Object Detection
-      - Question Answering
-      - Summarization
-      - Table Question Answering
-      - Text Classification
-      - Text Generation
-      - Text to Image
-      - Token Classification
-      - Translation
-      - Zero Shot Classification
+        - Audio Classification
+        - Automatic Speech Recognition
+        - Chat Completion
+        - Feature Extraction
+        - Fill Mask
+        - Image Classification
+        - Image Segmentation
+        - Image to Image
+        - Image-Text to Text
+        - Object Detection
+        - Question Answering
+        - Summarization
+        - Table Question Answering
+        - Text Classification
+        - Text Generation
+        - Text to Image
+        - Token Classification
+        - Translation
+        - Zero Shot Classification
     Custom:
       enabled: false
       text_model: your-custom-text_model
@@ -195,17 +201,20 @@ social_media_to_post_to:
     post_format: Text
     maximum_characters: 260
 ai:
-  default_response_instructions: "Return EITHER a generated JSON image (Creative and\
+  default_response_instructions:
+    "Return EITHER a generated valid parsable JSON object the JSON object must be str, bytes or bytearray, not dict (Creative and\
     \ ImageAsset) if a creative prompt is provided OR GifSearchTags if not\u2014never\
     \ both. Example response: { \"Text\": \"Your message here.\", \"Creative\": \"\
     [IMG] A relevant visual description.\", \"ImageAsset\": \"https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true\"\
     , \"Hashtags\": [\"#Relevant\", \"#Contextual\", \"#GeneralTopic\"] } or { \"\
     Text\": \"Message.\", \"Hashtags\": [\"#tag\", \"#tag\", \"#tag\"], \"GifSearchTags\"\
     : [\"term one\", \"term two\", \"term three\"] }"
-  custom_system_instructions: "Return EITHER a generated JSON image (Creative and\
+  custom_system_instructions:
+    "Return EITHER a generated JSON image (Creative and\
     \ ImageAsset) if a creative prompt is provided OR GifSearchTags if not\u2014never\
     \ both."
-  custom_user_instructions: 'Example response: { "Text": "Your message here.", "Creative":
+  custom_user_instructions:
+    'Example response: { "Text": "Your message here.", "Creative":
     "[IMG] A relevant visual description.", "ImageAsset": "https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true",
     "Hashtags": ["#Relevant", "#Contextual", "#GeneralTopic"] } or { "Text": "Message.",
     "Hashtags": ["#tag", "#tag", "#tag"], "GifSearchTags": ["term one", "term two",
@@ -213,14 +222,16 @@ ai:
   text:
     generate_text:
       enabled: true
-      user_description: If true, generates a tailored AI Social Media Post and An
+      user_description:
+        If true, generates a tailored AI Social Media Post and An
         Image Or Gif
       prompt: Create a high-quality AI-generated image relevant to the blog content.
       LLM: Pollinations_Text_Advanced
   creative:
     generate_image:
       enabled: true
-      user_description: If true, generates a fallback image if the prompt fails to
+      user_description:
+        If true, generates a fallback image if the prompt fails to
         create one
       width: 1024
       height: 1024
@@ -228,7 +239,8 @@ ai:
       LLM: Pollinations_Image_Get
     fetch_gif:
       enabled: true
-      user_description: If true, ai suggests tags from giphy then pick the giph with
+      user_description:
+        If true, ai suggests tags from giphy then pick the giph with
         the most relevant title
       prompt: return atleast 3 giphy search terms in the returned object in an array
     generate_video:
@@ -258,29 +270,32 @@ ai:
       enabled: true
       description: Uses real data & examples to establish credibility and trust.
   viral_posts_i_liked:
-  - text: "I was rejected by 30 companies before landing my dream job. Now, I mentor\
-      \ others to never give up. \U0001F4AA #Resilience #CareerGrowth"
-    engagement: 50K+ likes, 10K+ shares
-    creative: '[GIF] of a person overcoming obstacles'
-    creative_asset: https://example.com/obstacle-overcome.gif
-    reason: Personal story of failure & success, highly relatable
-  - text: "AI won't replace you. But a person using AI will. Are you adapting? \U0001F680\
-      \ #ArtificialIntelligence #FutureOfWork"
-    engagement: 50K+ likes, 10K+ shares
-    creative: '[IMG] Person Using AI'
-    creative_asset: https://example.com/obstacle-overcome.gif
-    reason: Bold statement, sparks debate & FOMO
-  - text: "Quit my 6-figure job to chase my passion. Scariest but best decision ever.\
-      \ If you're stuck, this is your sign. \U0001F525 #CareerChange"
-    engagement: 75K+ likes, 15K+ shares
-    creative: UGC Candid Video
-    reason: Emotional + inspirational, triggers engagement
-    creative_asset: https://example.com/obstacle-overcome.gif
+    - text:
+        "I was rejected by 30 companies before landing my dream job. Now, I mentor\
+        \ others to never give up. \U0001F4AA #Resilience #CareerGrowth"
+      engagement: 50K+ likes, 10K+ shares
+      creative: "[GIF] of a person overcoming obstacles"
+      creative_asset: https://example.com/obstacle-overcome.gif
+      reason: Personal story of failure & success, highly relatable
+    - text:
+        "AI won't replace you. But a person using AI will. Are you adapting? \U0001F680\
+        \ #ArtificialIntelligence #FutureOfWork"
+      engagement: 50K+ likes, 10K+ shares
+      creative: "[IMG] Person Using AI"
+      creative_asset: https://example.com/obstacle-overcome.gif
+      reason: Bold statement, sparks debate & FOMO
+    - text:
+        "Quit my 6-figure job to chase my passion. Scariest but best decision ever.\
+        \ If you're stuck, this is your sign. \U0001F525 #CareerChange"
+      engagement: 75K+ likes, 15K+ shares
+      creative: UGC Candid Video
+      reason: Emotional + inspirational, triggers engagement
+      creative_asset: https://example.com/obstacle-overcome.gif
 hashtags:
   default_tags:
-  - '#AI'
-  - '#MachineLearning'
-  - '#DataScience'
-  - '#Automation'
-  - '#Technology'
+    - "#AI"
+    - "#MachineLearning"
+    - "#DataScience"
+    - "#Automation"
+    - "#Technology"
   custom_tags: []
