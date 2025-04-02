@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import os
 from tabulate import tabulate
 import traceback
-from utils.blog_rss_helper import extract_blog_media  # reuse your media utility
+from utils.helpers.blog_rss_helper import extract_blog_media  # reuse your media utility
 
 # You can adapt this if your WordPress site structure is different
 def get_wordpress_avatar(base_url: str) -> str:

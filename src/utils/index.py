@@ -50,8 +50,10 @@ def parse_html_blog_content(html_content: str) -> str:
     links_section = "\n\nLinks:\n" + "\n".join(links) if links else ""
     image_section = "\n\nImages:\n" + "\n".join(images) if images else ""
     media_section = "\n\nEmbedded Media:\n" + "\n".join(media) if media else ""
+    parsed_html_section = f"\n\nParsed HTML:\n\n {text}\n\n {links_section}\n\n {image_section}\n\n {media_section}"
+    print("Parsed HTML Text:", text)
     print(f"{links_section}{image_section}{media_section}")
-    return f"Parse Html Blog Output:\n\n {text}\n\n {links_section}\n\n {image_section}\n\n {media_section}"
+    return parsed_html_section
 
 def get_env_variable(key: str) -> Optional[str]:
     """

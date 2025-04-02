@@ -8,7 +8,7 @@ from typing import Optional
 import requests
 import os
 from dotenv import load_dotenv
-from utils.config_loader import config
+from utils.config.config_loader import config
 from utils.index import get_env_variable
 from utils.prompt_builder import get_prompt_globals, init_globals_for_test
 
@@ -46,8 +46,7 @@ gif_prompt = state["gif_prompt"]
 hashtags = state["hashtags"]
 system_instructions = state["system_instructions"]
 blog_content = state["blog_content"]
-print(f" Sending prompt to Hugging Face model: {hf_text_model}")
-print(f" Prompt:\n{state['prompt']}\n")
+
 
 
 def send_message_to_huggingface(prompt_text: str) -> dict:

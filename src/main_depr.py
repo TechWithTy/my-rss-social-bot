@@ -7,10 +7,6 @@ from src.utils.helpers.blog_rss_helper import (
     load_blog_cache,
     save_blog_cache,
 )
-from src.utils.helpers.post_cache_helper import (
-    add_linkedin_post,
-    is_blog_already_posted,
-)
 from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
 import asyncio
 import traceback
@@ -68,37 +64,18 @@ def post_to_linkedin_if_possible(
 ):
     if media_url and media_type:
         try:
-            # Get blog_id from global state for reference
-            state = get_prompt_globals()
-            raw_blog = state.get("raw_blog", {})
-            blog_id = raw_blog.get("id") if isinstance(raw_blog, dict) else None
-
-            # Uncomment this line to actually post to LinkedIn
-            # linkedin_response = post_to_linkedin(
+            # post_to_linkedin(
             #     post_text=post_text,
             #     profile_id=profile_id,
             #     media_url=media_url,
             #     media_type=media_type
             # )
-            # post_url = extract_post_url_from_response(linkedin_response) if linkedin_response else None
-
-            # For development/testing purposes
-            post_url = (
-                None  # In production this would come from the LinkedIn API response
-            )
             print("✅ LinkedIn post submitted successfully.")
 
-            # Save the post to the LinkedIn post cache with media information
-            add_linkedin_post(
-                post_text=post_text,
-                blog_id=blog_id,
-                media_url=media_url,
-                media_type=media_type,
-                post_url=post_url,
-            )
-            print("💾 LinkedIn post saved to cache.")
-
             # ✅ After successful post, update the blog cache
+            state = get_prompt_globals()
+            raw_blog = state.get("raw_blog")
+
             if raw_blog:
                 cached = load_blog_cache()
 
@@ -115,7 +92,7 @@ def post_to_linkedin_if_possible(
                 print("🧠 Updating blog cache with new post ID...", raw_blog)
                 cached["blogs"].insert(0, raw_blog)  # Prepend newest blog
                 save_blog_cache(cached)
-                print("💾 Blog and Post successfully saved to cache.")
+                print("💾 Blog successfully saved to cache.")
 
             else:
                 print("⚠️ raw_blog missing from state — cache not updated.")
@@ -135,8 +112,9 @@ def main(rss_source: str) -> None:
     try:
         is_new_blog = init_globals_if_needed()
         if not is_new_blog:
-            print("⛔No new blog detected — skipping generation and post.")
+            print("🛑 No new blog detected — skipping generation and post.")
             return
+        print("✅ Global state initialized.")
 
         linkedin_enabled = config["social_media_to_post_to"]["linkedin"].get(
             "enabled", False

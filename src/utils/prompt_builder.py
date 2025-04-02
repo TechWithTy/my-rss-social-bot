@@ -5,14 +5,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import random
 from typing import Dict, Any, Optional
-from utils.config_loader import config
+from utils.config.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
 from rss_feed.wix_bot import fetch_latest_wix_blog
 from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
 from utils.index import get_env_variable
-
+from src.utils.helpers.post_cache_helper import (
+    add_linkedin_post,
+    is_blog_already_posted,
+)
 from utils.index import parse_html_blog_content
-from utils.blog_rss_helper import load_blog_cache
+from utils.helpers.blog_rss_helper import load_blog_cache
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 _prompt_globals = {
@@ -47,6 +50,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
         "WordPress": (wordpress_url, fetch_latest_wordpress_blog),
     }
 
+    print("Fetching blog from Medium, Wix, or WordPress...")
     response = None  # Initialize response to avoid undefined variable error
 
     for platform, (identifier, fetch_function) in sources.items():
@@ -54,6 +58,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
             print(f"Fetching from {platform}...")
             response = fetch_function(identifier)
             if response:
+                print(f"Successfully fetched blog from {platform}")
                 break  # Stop at the first valid response
 
     if response is None:
@@ -206,8 +211,7 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         f"{formatting_instructions}\n"
         f"{default_instructions}"
     )
-
-    return {
+    prompt_build_payload = {
         "content": content.strip(),
         "creative_prompt": image_prompt.strip(),
         "gif_prompt": gif_prompt.strip(),
@@ -218,6 +222,9 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         "blog_content": blog_content,
     }
 
+    print("Final Prompt build_prompt_payload:", prompt_build_payload)
+    return prompt_build_payload
+
 
 def get_prompt_globals():
     return _prompt_globals
@@ -226,13 +233,22 @@ def get_prompt_globals():
 def init_globals_if_needed() -> bool:
     global _prompt_globals
 
+    print("Initializing global state...")
+    print("Current global state before update:", _prompt_globals)
+
     blog_data = fetch_and_parse_blog()
     if not blog_data:
+        print("No blog data returned from fetch_and_parse_blog")
         return False
+
+    print("Blog data fetched successfully:")
+    print("Blog ID:", blog_data["id"])
+    print("Blog Content Length:", len(blog_data["content"]))
 
     blog_id = blog_data["id"]
     cached = load_blog_cache()
 
+    print("Global Cache Check:", cached)
     # Normalize cached structure
     if isinstance(cached, list):  # legacy or empty structure
         cached = {"blogs": cached}
@@ -240,15 +256,16 @@ def init_globals_if_needed() -> bool:
         print("Cache is invalid. Resetting.")
         cached = {"blogs": []}
 
-    print("Global Cache Check:", cached)
-
-    # Now this is safe
     cached_blog_ids = [b["id"] for b in cached.get("blogs", [])]
 
-    if blog_id in cached_blog_ids:
-        print(f"Blog with ID {blog_id} already processed.")
-        return False
+    # 🛑 **Check if this blog has already been posted to LinkedIn**
+    if is_blog_already_posted(blog_id):
+        print(
+            f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post."
+        )
+        return False  # Exit early if already posted
 
+    # ✅ **Proceed with processing if blog is new**
     prompt_payload = build_prompt_payload(
         blog_data["content"], blog_url=blog_data.get("direct_link", "")
     )
@@ -256,6 +273,7 @@ def init_globals_if_needed() -> bool:
         print("No prompt payload returned.")
         return False
 
+    print("Updating _prompt_globals with prompt:", prompt_payload)
     _prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
@@ -268,6 +286,10 @@ def init_globals_if_needed() -> bool:
             "blog_url": blog_data.get("direct_link", ""),  # Original blog URL
         }
     )
+    print("Global state after update:", _prompt_globals)
+
+   
+    print(f"✅ Successfully stored blog ID {blog_id} in LinkedIn post cache.")
 
     return True
 
@@ -293,7 +315,7 @@ def init_globals_for_test():
             raise RuntimeError("Cached blog has no 'content' key.")
 
     _prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
-
+    print("Parsed HTML Text Prompt Builder:", _prompt_globals["blog_content"])
     prompt_payload = build_prompt_payload(blog_content_raw)
     if not prompt_payload:
         raise RuntimeError("No prompt payload could be generated.")
