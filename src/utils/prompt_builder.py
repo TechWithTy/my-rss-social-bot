@@ -74,7 +74,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
     return {"id": blog_id, "content": cleaned_blog_content, "raw": blog_json, "direct_link": blog_direct_link}
 
 
-def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
+def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
     if not blog_content:
         print("Blog Content Empty", blog_content)
         return None
@@ -177,6 +177,9 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         creative_instruction = ""
 
     # Final Prompt
+    blog_url = kwargs.get("blog_url", "")
+    blog_url_instruction = f"\n\nInclude the original blog URL in the post: {blog_url}" if blog_url else ""
+
     content = (
         f"{system_instructions}"
         f"{default_instructions}"
@@ -189,7 +192,8 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         f"{viral_examples_instruction}\n"
         f"Viral Methodologies To use:\n{viral_style_instructions}\n"
         f"{hashtag_instructions}\n"
-        f"{creative_instruction}\n"
+        f"{creative_instruction}"
+        f"{blog_url_instruction}\n"
         f"{default_instructions}"
     )
 
@@ -235,7 +239,7 @@ def init_globals_if_needed() -> bool:
         print(f"Blog with ID {blog_id} already processed.")
         return False
 
-    prompt_payload = build_prompt_payload(blog_data["content"])
+    prompt_payload = build_prompt_payload(blog_data["content"], blog_url=blog_data.get("direct_link", ""))
     if not prompt_payload:
         print("No prompt payload returned.")
         return False
