@@ -228,7 +228,8 @@ social_media_to_post_to:
   linkedin:
     enabled: true
     post_format: "Text"  # Options: Markdown, HTML, or None
-    maximum_characters: 260  # Maximum number of characters allowed
+    maximum_characters: 1300  # Maximum number of characters allowed
+    maximum_characters: 2000  # Maximum number of characters allowed
 
 # ✅ OpenAI Configuration & Content Generation
 ai:
@@ -294,25 +295,23 @@ ai:
       description: "Uses real data & examples to establish credibility and trust."
 
   viral_posts_i_liked:
-    - text: "I was rejected by 30 companies before landing my dream job. Now, I mentor others to never give up. 💪 #Resilience #CareerGrowth"
-      engagement: "50K+ likes, 10K+ shares"
-      creative: "[GIF] of a person overcoming obstacles"
-      creative_asset: "https://example.com/obstacle-overcome.gif"
-      reason: "Personal story of failure & success, highly relatable"
+    - text: "I've never seen so many Trust and Safety leaders speaking out on LinkedIn.\n\nThis has traditionally been such a quiet, discreet industry. The work is heavy, the challenges are immense, and the stakes couldn't be higher. For years, much of what happens in Trust and Safety has taken place behind the scenes, out of sight but vital to the safety of billions of users around the world.\n\nBut now, something has shifted. \n\nThese leaders are speaking out. It's not just because of what's happening with Meta, TikTok, or the latest headlines. It's because these issues are bigger than any one platform. This is about a fundamental shift in how Trust and Safety is being addressed, how platforms are held accountable, and how we protect people online.\n\nWhen these leaders take to LinkedIn to share their insights, their frustrations, or their hope, it's because they know the moment we're in matters. Their voices reflect the urgency of the challenges we're facing and the determination to find solutions that work, not just for platforms, but for society at large.\n\nIf you're seeing these conversations too, pay attention. \nWhen Trust and Safety leaders speak out, it's not just noise, it's a call to action."
+      engagement: "314 likes 15 comments 13 reposts"
+      creative: "None"
+      creative_asset: ""
+      reason: "This post is very human no excesive emojis  and connnecting tot he user directly"
     
-    - text: "AI won’t replace you. But a person using AI will. Are you adapting? 🚀 #ArtificialIntelligence #FutureOfWork"
-      engagement: "50K+ likes, 10K+ shares"
-      creative: "[IMG] Person Using AI"
-      creative_asset: "https://example.com/obstacle-overcome.gif"
+    - text: "Facebook was built on PHP.\n\nAirbnb used Ruby on Rails. \n\nWhatsApp scaled to billions on Erlang.\n\nTech stack debates are the biggest time-wasters for early-stage founders.\n\nThe brutal truth:\n- 9 out of 10 startups fail before technical scaling is ever an issue \n- No customer has ever said:\n\"I would have used your product if it was built on [trendy framework]\"\n- The famous 2011 \"MongoDB is web scale\" parody video is STILL relevant today\n\nYC partner Gustaf Alströmer puts it perfectly: \n\"Your tech stack should be the most boring decision you make.\"\n\nFor early-stage validation: \n- Use languages your team already knows \n- Leverage existing tools/templates/libraries\n- Build for weeks, not months \n- Optimize for iteration speed, not scalability\n\nCraigslist is still running on Perl and makes $1B+ in annual revenue.\n\nWhen you have 1M users, hire a specialist. \n"
+      engagement: "491 likes, 44 comments 19 reposts"
+      creative: "None"
+      creative_asset: ""
+      reason: "Gives factual bases to start a conversation gives examples of other companies and why you should ship fast"
 
-      reason: "Bold statement, sparks debate & FOMO"
-
-    - text: "Quit my 6-figure job to chase my passion. Scariest but best decision ever. If you're stuck, this is your sign. 🔥 #CareerChange"
-      engagement: 75K+ likes, 15K+ shares
-      creative: "UGC Candid Video"
-      reason: "Emotional + inspirational, triggers engagement"
-      creative_asset: "https://example.com/obstacle-overcome.gif"
-
+    - text: "People always say, \"Showing up is half the battle.\"\n\nBut in reality, it's more like 80%.\n\nIf you can consistently show up, you’ve already overcome the biggest obstacle to success.\n\nSo how do we make it feel automatic?\n\nThere are basically two levers we can pull:\n1. Make starting easier (duh).\n2. Make skipping harder.\n\nTo make starting easier, it all comes down to lowering the activation energy of whatever task you're trying to do.\n\nHere are 3 of my favorite ways to achieve this:\n\n○ The \"next tiny move\":\n   When you're stuck or overwhelmed, ask: What's my next tiny move? Not the whole project. Just the next step.\n\n○ Remove friction in advance:\n   Lay out your gym clothes the night before. Prep your meals on Sunday. Eliminate excuses before they show up.\n\n   Commit to your calendar:\n\n   What gets scheduled gets done. Block time for the things that matter—and honor it like any other appointment.\n\nTo make skipping harder, you need to make the discomfort of avoidance so high that going through with your commitment actually feels like the easier option.\n\nHere are 3 strategies I use:\n\n○ Commit financially:\n   Pay for a class, a course, or a coach in advance. Money is the ultimate motivator, use it to your advantage.\n\n○ Get an accountability buddy:\n   Find someone with a similar goal. Check in regularly. You’re less likely to ghost your goals if someone’s expecting you.\n\n○ Anti-rewards:\n   Set a consequence for skipping. If you miss your workout, you owe your friend $20…or worse, you donate to a cause you hate. Nothing lights a fire like a little pain.\n\nMake it easy to start.\nMake it hard to skip.\n\nDo that, and showing up becomes your default setting. ♻️ Repost this if you found it helpful."
+      engagement: "5,991 likes, 583 comments 437 reposts"
+      creative: "Image of twitter post about yoga class comparing it to starting being the hardest part"
+      creative_asset: "https://media.licdn.com/dms/image/v2/D5622AQHbdQ2vMhAHIQ/feedshare-shrink_800/B56ZXXeT2BGQAg-/0/1743076804369?e=1746662400&v=beta&t=2g8qD07mbsyeCWJOCUhCyPgQGR3x1XBMbcQXYsX9CeY"
+      reason: "Gives factual bases to start a conversation gives examples of other companies and why you should ship fast"
 # ✅ Hashtags for Engagement
 hashtags:
   default_tags:

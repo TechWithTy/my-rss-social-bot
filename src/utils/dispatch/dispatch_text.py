@@ -199,9 +199,26 @@ def dispatch_text_pipeline(
             }
 
             llm_response = asyncio.run(generate_text_advanced(payload=payload))
-            parsed = json.loads(llm_response)
+            # Check if llm_response is already a dictionary to avoid parsing error
+            if isinstance(llm_response, dict):
+                parsed = llm_response
+            else:
+                parsed = json.loads(llm_response)
             print("Pollinations_Text_Advanced LLM Parsed", parsed)
-
+            
+            # The actual content is nested in the 'response' field as a JSON string
+            if parsed.get('status') == 'success' and 'response' in parsed:
+                try:
+                    # Extract and parse the inner JSON from the 'response' field
+                    content_json = json.loads(parsed['response'])
+                    print("✅ Successfully parsed inner JSON content:", content_json)
+                    return content_json
+                except json.JSONDecodeError as e:
+                    print(f"❌ Error parsing inner response JSON: {e}")
+                    # Return raw response as fallback
+                    return {"Text": parsed.get('response', ''), "error": str(e)}
+            
+            # Fallback if the expected structure isn't found
             return parsed
 
         case "Pollinations_Text_Completion":

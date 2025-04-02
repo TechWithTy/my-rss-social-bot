@@ -136,6 +136,7 @@ def main(rss_source: str) -> None:
 
         print("🛠 Preparing post using model:", text_model)
         post = prepare_linkedin_post(text_model)
+        print("✏️ Generated post :", post.get("Text"))
         print("✏️ Generated post content:", post.get("Text"))
 
         post = attach_gif_to_post(post)

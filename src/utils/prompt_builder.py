@@ -92,6 +92,7 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
 
     linkedin_enabled = social_config.get("enabled", False)
     linkedin_max_chars = social_config.get("maximum_characters", "")
+    linkedin_min_chars = social_config.get("minimum_characters", "")
 
     # User Profile
     target_audience = user_config.get("target_audience", "")
@@ -180,7 +181,7 @@ def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
         f"{default_instructions}"
         f"{user_instructions}"
         f"Summarize this blog post into an engaging "
-        f"{'LinkedIn (' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
+        f"{'LinkedIn (' + str(linkedin_min_chars) + ' MINIMUM chars, ' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
         f"{blog_content}\n\n"
         f"For target audience: {target_audience}\n"
         f"About the writer: {professional_summary}\n"
