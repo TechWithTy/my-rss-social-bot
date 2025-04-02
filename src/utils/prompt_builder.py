@@ -10,7 +10,10 @@ from rss_feed.medium_bot import fetch_latest_medium_blog
 from rss_feed.wix_bot import fetch_latest_wix_blog
 from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
 from utils.index import get_env_variable
-
+from src.utils.helpers.post_cache_helper import (
+    add_linkedin_post,
+    is_blog_already_posted,
+)
 from utils.index import parse_html_blog_content
 from utils.helpers.blog_rss_helper import load_blog_cache
 
@@ -208,7 +211,7 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         f"{formatting_instructions}\n"
         f"{default_instructions}"
     )
-    prompt_build_payload =   {
+    prompt_build_payload = {
         "content": content.strip(),
         "creative_prompt": image_prompt.strip(),
         "gif_prompt": gif_prompt.strip(),
@@ -253,15 +256,16 @@ def init_globals_if_needed() -> bool:
         print("Cache is invalid. Resetting.")
         cached = {"blogs": []}
 
-    print("Global Cache Check:", cached)
-
-    # Now this is safe
     cached_blog_ids = [b["id"] for b in cached.get("blogs", [])]
 
-    if blog_id in cached_blog_ids:
-        print(f"Blog with ID {blog_id} already processed.")
-        return False
+    # 🛑 **Check if this blog has already been posted to LinkedIn**
+    if is_blog_already_posted(blog_id):
+        print(
+            f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post."
+        )
+        return False  # Exit early if already posted
 
+    # ✅ **Proceed with processing if blog is new**
     prompt_payload = build_prompt_payload(
         blog_data["content"], blog_url=blog_data.get("direct_link", "")
     )
@@ -270,7 +274,6 @@ def init_globals_if_needed() -> bool:
         return False
 
     print("Updating _prompt_globals with prompt:", prompt_payload)
-    print("Global state before update:", _prompt_globals)
     _prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
@@ -284,6 +287,9 @@ def init_globals_if_needed() -> bool:
         }
     )
     print("Global state after update:", _prompt_globals)
+
+   
+    print(f"✅ Successfully stored blog ID {blog_id} in LinkedIn post cache.")
 
     return True
 
