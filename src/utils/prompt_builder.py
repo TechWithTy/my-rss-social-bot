@@ -208,7 +208,7 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         f"{hashtag_instructions}\n"
         f"{creative_instruction}"
         f"{blog_url_instruction}"
-        f"{formatting_instructions}\n"
+        f"Formatting Instructions:\n{formatting_instructions}\n"
         f"{default_instructions}"
     )
     prompt_build_payload = {
