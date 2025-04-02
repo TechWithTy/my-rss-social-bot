@@ -46,9 +46,10 @@ def get_medium_avatar(username: str) -> str:
     # Return default avatar if not found
     return "https://cdn-images-1.medium.com/fit/c/64/64/1*2Y7paYtPz5-Nj0zTLOzSwg.png"
 
+
 def get_medium_blogs(username: str) -> Dict[str, Any]:
     """
-    Fetches blog posts from a Medium user's RSS feed along with their profile avatar.
+    Fetches blog posts from a Medium user's RSS feed, including their profile avatar, images, videos, and embeds.
 
     Args:
         username (str): Medium username (without '@')
@@ -61,8 +62,10 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
 
     # Fetch user avatar
     user_avatar = get_medium_avatar(username)
-    print("User AVatar",  user_avatar,username)
+    print("User Avatar:", user_avatar)
+
     blogs: List[Dict[str, Any]] = []
+
     for entry in feed.entries:
         # ✅ Ensure `categories` is always a List[str]
         if hasattr(entry, "tags"):
@@ -71,6 +74,23 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
             categories = ["Uncategorized"]
 
         content_html = entry.content[0].value if hasattr(entry, "content") else entry.summary
+
+        # Extract media (images, videos, embeds)
+        image_url, video_url, embed_url = None, None, None
+        if content_html:
+            soup = BeautifulSoup(content_html, "html.parser")
+
+            # Extract first image
+            img_tag = soup.find("img")
+            image_url = img_tag["src"] if img_tag else None
+
+            # Extract first video (iframe embeds)
+            iframe_tag = soup.find("iframe")
+            video_url = iframe_tag["src"] if iframe_tag else None
+
+            # Extract first embedded post (e.g., Twitter, Instagram, Medium embeds)
+            embed_tag = soup.find("blockquote")
+            embed_url = embed_tag.find("a")["href"] if embed_tag and embed_tag.find("a") else None
 
         blogs.append({
             "id": entry.id,
@@ -81,12 +101,17 @@ def get_medium_blogs(username: str) -> Dict[str, Any]:
             "published": entry.published,
             "summary": entry.summary,
             "content": content_html,
+            "image": image_url,  # First image found
+            "video": video_url,  # First video found (if any)
+            "embed": embed_url  # First embedded post (if any)
         })
 
     return {
         "user_avatar": user_avatar,
         "blogs": blogs
     }
+
+
 
 
 def display_blogs_table(blogs: List[Dict[str, Any]]) -> None:

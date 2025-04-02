@@ -9,18 +9,18 @@ example_wix_returned_blog_response = {
   "content": "If you\u2019re visiting Bryce Canyon National Park, don\u2019t limit yourself to staying within the park boundaries. Though Bryce is an incredible pla"
 }
 
-example_wix_full_blog_response = 
+example_wix_full_blog_response = {
   "title": "Fun Family Things to Do Near Bryce Canyon (Plus the Best Place to Stay!)",
   "title_detail": {
     "type": "text/plain",
-    "language": null,
+    "language": None,
     "base": "",
     "value": "Fun Family Things to Do Near Bryce Canyon (Plus the Best Place to Stay!)"
   },
   "summary": "If you\u2019re visiting Bryce Canyon National Park, don\u2019t limit yourself to staying within the park boundaries. Though Bryce is an incredible pla",
   "summary_detail": {
     "type": "text/html",
-    "language": null,
+    "language": None,
     "base": "",
     "value": "If you\u2019re visiting Bryce Canyon National Park, don\u2019t limit yourself to staying within the park boundaries. Though Bryce is an incredible pla"
   },
@@ -39,27 +39,27 @@ example_wix_full_blog_response =
   ],
   "link": "https://www.zionadventurephotog.com/single-post/things-to-do-near-bryce-canyon",
   "id": "67e1720a89f652c76e80ad8f",
-  "guidislink": false,
+  "guidislink": False,
   "tags": [
     {
       "term": "Adventures",
-      "scheme": null,
-      "label": null
+      "scheme": None,
+      "label": None
     },
     {
       "term": "Things To Do",
-      "scheme": null,
-      "label": null
+      "scheme": None,
+      "label": None
     },
     {
       "term": "Trip Itineraries",
-      "scheme": null,
-      "label": null
+      "scheme": None,
+      "label": None
     },
     {
       "term": "Lodging for Zion + Southern Utah",
-      "scheme": null,
-      "label": null
+      "scheme": None,
+      "label": None
     }
   ],
   "published": "Mon, 24 Mar 2025 20:05:09 GMT",

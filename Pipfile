@@ -21,6 +21,7 @@ test-deepseek = "pytest -s -v src/tests/ai/test_deepseek_async.py --html=src/tes
 test-claude = "pytest -s -v src/tests/ai/test_claude_async.py --html=src/tests/_reports/html/claude.html --log-cli-level=INFO"
 test-huggingface = "pytest -s -v src/tests/ai/test_huggingface_async.py --html=src/tests/_reports/html/huggingface.html --log-cli-level=INFO"
 test-openai = "pytest -s -v src/tests/ai/test_openai_async.py --html=src/tests/_reports/html/openai.html --log-cli-level=INFO"
+test-twitter = "pytest -s -v src/tests/socials/test_twitter_async.py --html=src/tests/_reports/html/twitter.html --log-cli-level=INFO"
 
 [packages]
 anyio = "==4.9.0"
@@ -53,6 +54,7 @@ typing-extensions = "==4.12.2"
 urllib3 = "==2.3.0"
 pytest-html = "*"
 flask = "*"
+requests-oauthlib = "*"
 
 [dev-packages]
 pytest-html = "*"
