@@ -63,6 +63,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
     blog_json = response.get("latest_blog", {})
     blog_content = blog_json.get("content")
     blog_id = blog_json.get("id")
+    blog_direct_link = response.get("latest_blog_direct_link")
 
     if not blog_content:
         print("No blog content found in the latest blog.")
@@ -70,7 +71,7 @@ def fetch_and_parse_blog() -> Optional[dict]:
 
     cleaned_blog_content = parse_html_blog_content(blog_content)
 
-    return {"id": blog_id, "content": cleaned_blog_content, "raw": blog_json}
+    return {"id": blog_id, "content": cleaned_blog_content, "raw": blog_json, "direct_link": blog_direct_link}
 
 
 def build_prompt_payload(blog_content: str) -> Dict[str, Any]:
@@ -248,6 +249,7 @@ def init_globals_if_needed() -> bool:
             "system_instructions": prompt_payload.get("system_instructions"),
             "blog_content": prompt_payload.get("blog_content"),
             "raw_blog": blog_data["raw"],  # Needed for saving later
+            "blog_url": blog_data.get("direct_link", "")  # Original blog URL
         }
     )
 

@@ -51,7 +51,7 @@ def parse_html_blog_content(html_content: str) -> str:
     image_section = "\n\nImages:\n" + "\n".join(images) if images else ""
     media_section = "\n\nEmbedded Media:\n" + "\n".join(media) if media else ""
     print(f"{links_section}{image_section}{media_section}")
-    return f"{text}\n\n {links_section}\n\n  + {media_section}\n\n + {media_section}"
+    return f"Parse Html Blog Output:\n\n {text}\n\n {links_section}\n\n {image_section}\n\n {media_section}"
 
 def get_env_variable(key: str) -> Optional[str]:
     """

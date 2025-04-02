@@ -167,13 +167,14 @@ def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
         # At this point, fresh_data should be our new blogs_data
         blogs_data = fresh_data
         latest_blog = blogs_data["blogs"][0]
-
+        print(f"Latest blog content link: {latest_blog['link']}")
         media = extract_blog_media(latest_blog["content"])
 
         return {
             "user_avatar": get_medium_avatar(username),
             "all_blogs": blogs_data["blogs"],
             "latest_blog": latest_blog,
+            "latest_blog_direct_link": latest_blog["link"],
             "latest_blog_links": media["links"],
             "latest_blog_images": media["images"],
             "latest_blog_embeds": media["embeds"],

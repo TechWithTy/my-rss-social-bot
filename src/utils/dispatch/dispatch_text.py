@@ -212,6 +212,15 @@ def dispatch_text_pipeline(
                     # Extract and parse the inner JSON from the 'response' field
                     content_json = json.loads(parsed['response'])
                     print("✅ Successfully parsed inner JSON content:", content_json)
+                    
+                    # If blog URL exists in state, append it to the Text field
+                    if state.get("blog_url") and content_json.get("Text"):
+                        # Add the blog URL to the post text if it doesn't already contain a URL
+                        if not any(url in content_json["Text"] for url in ["http://", "https://"]):
+                            blog_url = state["blog_url"]
+                            content_json["Text"] = f"{content_json['Text']}\n\nRead more: {blog_url}"
+                            print(f"✅ Added blog URL to post: {blog_url}")
+                    
                     return content_json
                 except json.JSONDecodeError as e:
                     print(f"❌ Error parsing inner response JSON: {e}")
