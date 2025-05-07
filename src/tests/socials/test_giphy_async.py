@@ -5,7 +5,7 @@ import pytest
 # Add src to PYTHONPATH for module resolution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata  # adjust path as needed
+from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata  # adjust path as needed
 
 @pytest.mark.asyncio
 async def test_giphy_find_with_metadata_success():

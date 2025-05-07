@@ -2,7 +2,7 @@ import sys
 import os
 import pytest
 import warnings
-from ml_models.huggingface_generator import run_huggingface_pipeline
+from src.ml_models.huggingface_generator import run_huggingface_pipeline
 from utils.prompt_builder import init_globals_for_test
 
 """

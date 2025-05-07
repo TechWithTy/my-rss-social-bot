@@ -1,6 +1,6 @@
 from typing import Dict, Any
-from utils.index import get_env_variable
-from utils.config.config_provider import YamlConfigProvider, ApiConfigProvider, HybridConfigProvider
+from src.utils.index import get_env_variable
+from src.utils.config.config_provider import YamlConfigProvider, ApiConfigProvider, HybridConfigProvider
 
 def load_config() -> Dict[str, Any]:
     """

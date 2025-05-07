@@ -2,7 +2,7 @@
 post_utils.py
 - Post preparation, GIF/image handling, and content assembly utilities.
 """
-from utils.dispatch.dispatch_text import dispatch_text_pipeline
+from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from asset_fetch.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from typing import Optional
 

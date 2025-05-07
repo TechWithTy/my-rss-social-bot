@@ -4,7 +4,7 @@ linkedin_utils.py
 """
 from src.socials.linkedin_bot import get_linkedin_profile_id, post_to_linkedin
 from src.utils.helpers.post_cache_helper import add_linkedin_post
-from utils.prompt_builder import get_prompt_globals
+from src.utils.prompt_builder import get_prompt_globals
 from typing import Optional
 
 def authenticate_linkedin() -> Optional[str]:

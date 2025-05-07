@@ -1,5 +1,5 @@
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals
-from utils.dispatch.text.text_pipeline_utils import (
+from src.utils.prompt_builder import init_globals_for_test, get_prompt_globals
+from src.utils.dispatch.text.text_pipeline_utils import (
     handle_pollinations_text,
     handle_pollinations_text_advanced,
     handle_pollinations_text_completion,
@@ -9,7 +9,7 @@ from utils.dispatch.text.text_pipeline_utils import (
     handle_claude_text,
     fallback_error_text,
 )
-from utils.index import get_env_variable
+from src.utils.index import get_env_variable
 
 # * Initialize state and test mode
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"

@@ -2,7 +2,7 @@
 main.py
 Entrypoint for the RSS-to-social bot. Selects the enabled blog source and runs the workflow.
 """
-from src.utils.config.config_loader import config
+from src.utils.config.config_provider import load_modular_config
 from src.utils.workflow import run_rss_to_social_workflow
 from src.utils.index import get_env_variable
 
@@ -13,6 +13,7 @@ def main() -> None:
     """
     CLI Entrypoint for the bot. Selects the single enabled blog source and runs the workflow.
     """
+    config = load_modular_config()  # * Load merged config from all YAML files
     if test_mode:
         raise RuntimeError(
             "! main() should not run when TEST_MODE is enabled. Turn off TEST_MODE or run tests directly."

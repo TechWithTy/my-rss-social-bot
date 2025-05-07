@@ -3,7 +3,7 @@ prompt_globals.py
 - Global state management for prompt building and workflow.
 """
 from typing import Any, Dict, Optional
-from utils.index import get_env_variable
+from src.utils.index import get_env_variable
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 _prompt_globals: Dict[str, Any] = {

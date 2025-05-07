@@ -3,7 +3,7 @@ text_pipeline_utils.py
 Utility functions for the text dispatch pipeline logic, including provider routing and error handling.
 """
 from typing import  Dict, Any
-from utils.config.config_loader import config
+from src.utils.config.config_loader import config
 from ml_models.pollinations_generator import generate_text, generate_text_advanced, call_openai_compatible_endpoint
 from ml_models.openai_generator import OpenAIGenerator
 from ml_models.huggingface.utils.huggingface_generator_utils import HuggingFaceGenerator

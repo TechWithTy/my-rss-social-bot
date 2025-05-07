@@ -3,7 +3,7 @@ prompt_instructions.py
 - Handles retrieval and assembly of system, user, and default instructions for prompts.
 """
 from typing import Dict, Any
-from utils.config.config_loader import config
+from src.utils.config.config_loader import config
 
 def get_default_instructions() -> str:
     ai_config = config.get("ai", {})

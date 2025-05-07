@@ -1,6 +1,7 @@
 import os
 import json
-from typing import Optional, List, Dict
+from src.utils.index import parse_html_blog_content
+from typing import List, Dict
 from bs4 import BeautifulSoup
 
 # Define the directory and ensure it exists

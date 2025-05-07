@@ -3,11 +3,11 @@ prompt_sources.py
 - Handles fetching and parsing blog content from Medium, Wix, and WordPress.
 """
 from typing import Optional, Dict, Any
-from utils.config.config_loader import config
+from src.utils.config.config_loader import config
 from rss_feed.medium_bot import fetch_latest_medium_blog
 from rss_feed.wix_bot import fetch_latest_wix_blog
 from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
-from utils.index import parse_html_blog_content
+from src.utils.index import parse_html_blog_content
 
 user_config = config.get("user_profile", {})
 medium_username = user_config.get("medium_username")

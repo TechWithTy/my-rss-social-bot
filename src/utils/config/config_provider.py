@@ -42,6 +42,41 @@ class YamlConfigProvider(ConfigProvider):
         print(f"\u26a0\ufe0f Warning: Config file '{self.file_path}' not found. Using default empty config for testing.")
         return {}
 
+class ModularYamlConfigProvider(ConfigProvider):
+    """
+    Loads and deeply merges all YAML config files in the config/ directory for modular configuration.
+    """
+    def __init__(self, config_dir: Optional[str] = None):
+        if config_dir is None:
+            config_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config')
+        self.config_dir = config_dir
+
+    def get_config(self) -> Dict[str, Any]:
+        config = {}
+        for fname in sorted(os.listdir(self.config_dir)):
+            if fname.endswith('.yaml') or fname.endswith('.yml'):
+                with open(os.path.join(self.config_dir, fname), 'r', encoding='utf-8') as f:
+                    part = yaml.safe_load(f) or {}
+                    config = self.deep_merge_dicts(config, part)
+        return config
+
+    @staticmethod
+    def deep_merge_dicts(a: dict, b: dict) -> dict:
+        result = a.copy()
+        for k, v in b.items():
+            if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+                result[k] = ModularYamlConfigProvider.deep_merge_dicts(result[k], v)
+            else:
+                result[k] = v
+        return result
+
+def load_modular_config() -> Dict[str, Any]:
+    """
+    Utility function to load merged config from all YAML files in config/ directory.
+    """
+    return ModularYamlConfigProvider().get_config()
+
+
 class ApiConfigProvider(ConfigProvider):
     """
     Loads configuration from an API endpoint.

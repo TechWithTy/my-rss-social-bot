@@ -6,7 +6,7 @@ import warnings  # Import the warnings module
 # Add src to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from ml_models.claude_generator import send_message_to_claude
+from src.ml_models.claude_generator import send_message_to_claude
 from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 
 # Initialize the state
