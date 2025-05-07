@@ -1,0 +1,187 @@
+llm:
+  Pollinations:
+    default_model: openai
+    seed: 42
+    temperature: 0.7
+    jsonMode: true
+    private: true
+    openai_compatible:
+      endpoint: /v1/chat/completions
+      model: text-davinci-003
+      prompt: Your custom prompt
+      suffix: null
+      best_of: 1
+      echo: false
+      frequency_penalty: 0.0
+      presence_penalty: 0.0
+      logit_bias: {}
+      logprobs: null
+      max_tokens: 256
+      n: 1
+      seed: 42
+      stop: null
+      stream: false
+      stream_options: null
+      temperature: 0.7
+      top_p: 1.0
+      messages:
+        - role: system
+          content: You are a helpful assistant.
+        - role: user
+          content: What is artificial intelligence?
+      audio: null
+      function_call: null
+      functions: []
+      max_completion_tokens: 256
+      metadata: {}
+      modalities:
+        - text
+      parallel_tool_calls: true
+      prediction: null
+      reasoning_effort: medium
+      response_format: json_object
+      service_tier: auto
+      store: false
+      tool_choice: auto
+      tools: []
+      top_logprobs: null
+      web_search_options: null
+      search_context_size: medium
+      user_location: null
+      user: user_id_here
+    native_post:
+      endpoint: https://text.pollinations.ai/
+      model: mistral
+      messages:
+        - role: system
+          content: When responding in json make sure not to surrround it with ```json it should be a valid json object
+        - role: user
+          content: Your User Prompt
+      reasoning_effort: medium
+      seed: 42
+      json: true
+      private: true
+      referer: https://www.cybershoptech.com/
+    native_get:
+      endpoint: https://text.pollinations.ai/{prompt}
+      model: mistral
+      system: You're a helpful assistant.
+      json: true
+    pollinations_image_get:
+      endpoint: https://image.pollinations.ai/prompt/{prompt}
+      model: flux
+      seed: 42
+      width: 1024
+      height: 1024
+      nologo: true
+      private: true
+      enhance: false
+      safe: true
+  OpenAI:
+    name: gpt-4
+    text_model: gpt-4o-mini
+    image_model: dall-e-3
+    image_size: 1024x1024
+    temperature: 0.7
+    top_p: 0.95
+    response_format: json
+    tool: null
+    available_models:
+      - gpt-4o
+      - gpt-4o-mini
+      - o1
+      - o3-mini
+      - gpt-4.5-preview
+      - o3-mini-2025-01-31
+      - o1-2024-12-17
+      - gpt-4o-mini-2024-07-18
+      - gpt-4o-2024-11-20
+      - gpt-4o-2024-08-06
+      - gpt-4.5-preview-2025-02-27
+      - gpt-4-turbo-preview
+      - gpt-4-turbo-2024-04-09
+      - gpt-4-turbo
+      - gpt-4-1106-preview
+      - gpt-4-0613
+      - gpt-4-0125-preview
+      - gpt-4
+      - gpt-3.5-turbo-16k
+      - gpt-3.5-turbo-1106
+      - gpt-3.5-turbo-0125
+      - gpt-3.5-turbo
+  DeepSeek:
+    text_model: deepseek-chat
+    presence_penalty: 0.0
+    frequency_penalty: 0.0
+    response_format: json_object
+    temperature: 0.7
+    max_tokens: 500
+    tools: function
+    tool_choice: auto
+    top_p: 0.95
+    logprobs: false
+    top_logprobs: 5
+    available_models:
+      - deepseek-chat
+      - deepseek-reasoner
+  Anthropic:
+    text_model: claude-3-sonnet-20240229
+    temperature: 0.7
+    max_tokens: 500
+    top_p: 0.9
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    stop_sequences: []
+    system: |
+      You're a professional copywriter helping turn blog posts into viral
+      LinkedIn content.
+    available_models:
+      - claude-3-7-sonnet-20250219
+      - claude-3-5-haiku-20241022
+      - claude-3-5-sonnet-20241022
+      - claude-3-5-sonnet-20240620
+      - claude-3-opus-20240229
+      - claude-3-sonnet-20240229
+      - claude-3-haiku-20240307
+    message_format:
+      - role: user
+        content: Hello, world
+  HuggingFace:
+    text_model: mistralai/Mistral-7B-Instruct-v0.1
+    image_model: runwayml/stable-diffusion-v1-5
+    video_model: runwayml/stable-diffusion-v1-5
+    temperature: 0.7
+    max_tokens: 500
+    available_models:
+      - meta-llama/Meta-Llama-3-8B
+      - mistralai/Mistral-7B-Instruct-v0.1
+      - tiiuae/falcon-7b-instruct
+    available_tools:
+      - Audio Classification
+      - Automatic Speech Recognition
+      - Chat Completion
+      - Feature Extraction
+      - Fill Mask
+      - Image Classification
+      - Image Segmentation
+      - Image to Image
+      - Image-Text to Text
+      - Object Detection
+      - Question Answering
+      - Summarization
+      - Table Question Answering
+      - Text Classification
+      - Text Generation
+      - Text to Image
+      - Token Classification
+      - Translation
+      - Zero Shot Classification
+  Custom:
+    enabled: false
+    text_model: your-custom-text_model
+    temperature: 0.7
+    max_tokens: 500
+    url: https://your-custom-api.com/v1/completions
+    headers:
+      Authorization: Bearer your_api_key
+      Content-Type: application/json

@@ -158,7 +158,7 @@ def test_candid_api_style_metadata_and_matching():
     notfound = get_candid_media_by_filename('does_not_exist.png', media=media)
     assert notfound is None
 
-def test_get_candid_images_metadata_real_dir():
+def test_get_candid_media_metadata_real_dir():
     """
     Test using the real src/data/candids directory if it exists and is non-empty.
     """

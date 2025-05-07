@@ -1,0 +1,8 @@
+social_media_to_post_to:
+  linkedin:
+    enabled: true
+    post_format: Text
+    minimum_characters: 1500
+    maximum_characters: 2000
+    formatting_instructions: |
+      IMPORTANT: Format the post with proper line breaks for readability. Put each list item on a new line, and ensure paragraph breaks where appropriate. Add line breaks before and after lists.
