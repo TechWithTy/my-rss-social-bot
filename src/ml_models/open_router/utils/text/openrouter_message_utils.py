@@ -1,4 +1,4 @@
-from .openrouter_client_utils import get_openrouter_client
+from ..openrouter_client_utils import get_openrouter_client
 
 def send_chat_completion(model: str, messages: list, **kwargs):
     client = get_openrouter_client()
