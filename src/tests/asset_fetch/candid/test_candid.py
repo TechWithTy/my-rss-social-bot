@@ -84,6 +84,52 @@ def test_find_best_candid_image():
     assert meta_none is None
     shutil.rmtree(test_dir)
 
+def test_candid_api_style_metadata_and_matching():
+    """
+    Test API-style usage: pass a list of image dicts instead of scanning a directory.
+    """
+    images = [
+        {
+            'filename': 'ai_robot.jpg',
+            'relative_path': 'ai_robot.jpg',
+            'size_bytes': 1024,
+            'created': 1234567890,
+            'modified': 1234567890,
+        },
+        {
+            'filename': 'beach_sunset.png',
+            'relative_path': 'beach_sunset.png',
+            'size_bytes': 2048,
+            'created': 1234567891,
+            'modified': 1234567891,
+        },
+        {
+            'filename': 'mountain_view.jpeg',
+            'relative_path': 'mountain_view.jpeg',
+            'size_bytes': 4096,
+            'created': 1234567892,
+            'modified': 1234567892,
+        },
+    ]
+    # get_candid_images_metadata returns the same list
+    meta = get_candid_images_metadata(images=images)
+    assert meta == images
+    # find_best_candid_image finds the right image
+    best = find_best_candid_image('beach sunset', images=images)
+    assert best is not None
+    assert best['filename'] == 'beach_sunset.png'
+    best2 = find_best_candid_image('robot', images=images)
+    assert best2 is not None
+    assert 'robot' in best2['filename']
+    none_result = find_best_candid_image('notfound', images=images)
+    assert none_result is None
+    # get_candid_image_by_filename finds by exact name
+    found = get_candid_image_by_filename('ai_robot.jpg', images=images)
+    assert found is not None
+    assert found['filename'] == 'ai_robot.jpg'
+    notfound = get_candid_image_by_filename('does_not_exist.png', images=images)
+    assert notfound is None
+
 def test_get_candid_images_metadata_real_dir():
     """
     Test using the real src/data/candids directory if it exists and is non-empty.
