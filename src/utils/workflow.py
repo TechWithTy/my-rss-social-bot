@@ -6,7 +6,7 @@ workflow.py
 from src.socials.utils.linkedin_utils import authenticate_linkedin, post_to_linkedin_if_possible
 from src.utils.post_utils import prepare_linkedin_post, attach_gif_to_post, assemble_post_content
 from src.utils.config.config_loader import config
-from utils.prompt_builder import init_globals_if_needed
+from src.utils.prompt_builder import init_globals_if_needed
 
 
 from typing import Optional, Dict

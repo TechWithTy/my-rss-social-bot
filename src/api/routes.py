@@ -1,11 +1,11 @@
 from flask import request, jsonify, Blueprint
 import json
 from typing import Dict, Any, Optional
-from src.utils.config.config_loader import config as base_config
-from src.main import main as run_bot
-from src.socials.linkedin_bot import get_linkedin_profile_id
-from src.utils.prompt_builder import init_globals_if_needed, get_prompt_globals
-from src.utils.helpers.post_cache_helper import is_blog_already_posted
+from utils.config.config_loader import config as base_config
+from main import main as run_bot
+from socials.linkedin_bot import get_linkedin_profile_id
+from utils.prompt_builder import init_globals_if_needed, get_prompt_globals
+from utils.helpers.post_cache_helper import is_blog_already_posted
 from data.user_model import UserPreferences
 
 # Create blueprint for API routes

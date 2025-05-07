@@ -1,6 +1,6 @@
 import yaml
 import os
-from src.data.examples.example_config_dict import example_config_data
+from data.examples.example_config_dict import example_config_data
 
 def save_to_yaml(data: dict, filename: str = "config.yaml"):
     """

@@ -1,10 +1,10 @@
 from typing import Dict, Any, Optional
-from src.utils.helpers.prompt.prompt_sources import fetch_and_parse_blog
-from src.utils.helpers.prompt.prompt_instructions import get_default_instructions, get_system_instructions, get_user_instructions
-from src.utils.helpers.prompt.prompt_globals import get_prompt_globals
+from utils.helpers.prompt.prompt_sources import fetch_and_parse_blog
+from utils.helpers.prompt.prompt_instructions import get_default_instructions, get_system_instructions, get_user_instructions
+from utils.helpers.prompt.prompt_globals import get_prompt_globals
 from utils.config.config_loader import config
 from utils.helpers.blog_rss_helper import load_blog_cache
-from src.utils.helpers.post_cache_helper import is_blog_already_posted
+from utils.helpers.post_cache_helper import is_blog_already_posted
 from utils.index import get_env_variable
 from utils.index import parse_html_blog_content
 import random

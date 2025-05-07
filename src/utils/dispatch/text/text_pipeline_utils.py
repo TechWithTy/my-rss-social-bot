@@ -12,8 +12,10 @@ from ml_models.claude.utils.claude_generator_utils import ClaudeGenerator
 import asyncio
 import json
 from utils.dispatch.text.text_utils import clean_post_text
+from circuitbreaker import circuit
 
 # * Provider handler: Pollinations_Text
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_pollinations_text(state: Dict[str, Any]) -> Dict[str, Any]:
     safe_prompt = state["prompt"]
     llm_response = await generate_text(prompt=safe_prompt)
@@ -24,6 +26,7 @@ async def handle_pollinations_text(state: Dict[str, Any]) -> Dict[str, Any]:
         return {"Text": llm_response}
 
 # * Provider handler: Pollinations_Text_Advanced
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_pollinations_text_advanced(state: Dict[str, Any]) -> Dict[str, Any]:
     advanced_cfg = config["user_profile"]["llm"]["Pollinations"]["native_post"]
     messages = advanced_cfg.get("messages", [])
@@ -58,6 +61,7 @@ async def handle_pollinations_text_advanced(state: Dict[str, Any]) -> Dict[str, 
     return parsed
 
 # * Provider handler: Pollinations_Text_Completion
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_pollinations_text_completion(state: Dict[str, Any]) -> Dict[str, Any]:
     payload = build_pollinations_payload(state)
     endpoint = config["user_profile"]["llm"]["Pollinations"]["openai_compatible"]["endpoint"]
@@ -96,22 +100,26 @@ async def handle_pollinations_text_completion(state: Dict[str, Any]) -> Dict[str
     return {"Text": post_text, "Hashtags": post_hashtags}
 
 # * Provider handler: OpenAI
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_openai_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)  # placeholder for async consistency
     return await OpenAIGenerator.send_message(state["prompt"])
 
 # * Provider handler: HuggingFace
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_huggingface_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
     result = HuggingFaceGenerator.send_message(state["prompt"])
     return result.get("response", {})
 
 # * Provider handler: DeepSeek
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_deepseek_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
     return await DeepSeekGenerator.send_message(state["prompt"])
 
 # * Provider handler: Claude
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_claude_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
     return await ClaudeGenerator.send_message(state["prompt"])

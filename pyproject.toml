@@ -1,0 +1,68 @@
+[tool.poetry]
+name = "my-rss-social-bot"
+version = "0.1.0"
+description = "RSS to Social Bot"
+authors = ["Tyriq <your-email@example.com>"]
+readme = "README.md"
+packages = [
+  { include = "my_rss_social_bot", from = "src" }
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+anyio = "4.9.0"
+beautifulsoup4 = "4.13.3"
+bs4 = "0.0.2"
+certifi = "2025.1.31"
+charset-normalizer = "3.4.1"
+colorama = "0.4.6"
+dotenv = "0.9.9"
+feedparser = "6.0.11"
+h11 = "0.14.0"
+httpcore = "1.0.7"
+httpx = "0.28.1"
+idna = "3.10"
+iniconfig = "2.1.0"
+nodeenv = "1.9.1"
+packaging = "24.2"
+pluggy = "1.5.0"
+pyright = "1.1.397"
+pytest = "8.3.5"
+pytest-asyncio = "0.25.3"
+python-dotenv = "1.0.1"
+pyyaml = "6.0.2"
+requests = "2.32.3"
+sgmllib3k = "1.0.0"
+sniffio = "1.3.1"
+soupsieve = "2.6"
+tabulate = "0.9.0"
+typing-extensions = "4.12.2"
+urllib3 = "2.3.0"
+pytest-html = "*"
+flask = "*"
+requests-oauthlib = "*"
+circuitbreaker = "^2.1.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest-html = "*"
+
+[tool.poetry.scripts]
+app = "my_rss_social_bot.main:main"
+test = "pytest -s -v src/tests/"
+test-html = "pytest -s -v src/tests/ --html=src/tests/_reports/html/_report.html"
+test-one-working-llm = "pytest -s -v src/tests/ -m one_working_llm --html=src/tests/_reports/html/_report.html"
+test-feeds = "pytest -s -v src/tests/feeds/ --html=src/tests/_reports/feeds/html/_report.html"
+test-socials = "pytest -s -v src/tests/socials/ --html=src/tests/_reports/socials/html/_report.html"
+test-ai = "pytest -s -v src/tests/ai/ --html=src/tests/_reports/ai/html/_report.html"
+test-medium = "pytest -s -v src/tests/feeds/test_medium_async.py --html=src/tests/_reports/feeds/html/medium.html --log-cli-level=INFO"
+test-wix = "pytest -s -v src/tests/feeds/test_wix_async.py --html=src/tests/_reports/feeds/html/wix.html --log-cli-level=INFO"
+test-wordpress = "pytest -s -v src/tests/feeds/test_wordpress_async.py --html=src/tests/_reports/feeds/html/wordpress.html --log-cli-level=INFO"
+test-linkedin = "pytest -s -v src/tests/socials/test_linkedin_async.py --html=src/tests/_reports/html/linkedin.html --log-cli-level=INFO"
+test-giphy = "pytest -s -v src/tests/socials/test_giphy_async.py --html=src/tests/_reports/html/giphy.html --log-cli-level=INFO"
+test-pollinations = "pytest -s -v src/tests/ai/test_pollinations_async.py --html=src/tests/_reports/html/pollinations_report.html --log-cli-level=INFO"
+test-deepseek = "pytest -s -v src/tests/ai/test_deepseek_async.py --html=src/tests/_reports/html/deepseek_report.html --log-cli-level=INFO"
+test-claude = "pytest -s -v src/tests/ai/test_claude_async.py --html=src/tests/_reports/html/claude.html --log-cli-level=INFO"
+test-huggingface = "pytest -s -v src/tests/ai/test_huggingface_async.py --html=src/tests/_reports/html/huggingface.html --log-cli-level=INFO"
+test-openai = "pytest -s -v src/tests/ai/test_openai_async.py --html=src/tests/_reports/html/openai.html --log-cli-level=INFO"
+test-twitter = "pytest -s -v src/tests/socials/test_twitter_async.py --html=src/tests/_reports/html/twitter.html --log-cli-level=INFO"

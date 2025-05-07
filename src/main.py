@@ -4,7 +4,7 @@ Entrypoint for the RSS-to-social bot. Selects the enabled blog source and runs t
 """
 from src.utils.config.config_loader import config
 from src.utils.workflow import run_rss_to_social_workflow
-from utils.index import get_env_variable
+from src.utils.index import get_env_variable
 
 # ! TEST_MODE disables main workflow execution for test environments
 test_mode = get_env_variable("TEST_MODE").lower() == "true"

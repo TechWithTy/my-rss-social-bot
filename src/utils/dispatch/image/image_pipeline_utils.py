@@ -4,11 +4,13 @@ Utility functions for the image dispatch pipeline logic, including provider rout
 """
 from typing import Optional, Dict
 from utils.config.config_loader import config
-from ml_models.pollinations_generator import generate_image, generate_image_advanced, fetch_with_retries
-from ml_models.openai_generator import generate_openai_image
-from ml_models.huggingface_generator import generate_image_with_huggingface
+from ml_models.pollinations_generator import generate_image, generate_image_advanced
+from ml_models.openai_generator import OpenAIGenerator
+from ml_models.huggingface.utils.huggingface_generator_utils import HuggingFaceGenerator
 from socials.giphy import giphy_find_with_metadata
+from circuitbreaker import circuit
 
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_pollinations_image_get(creative_prompt_output: str) -> Dict[str, str]:
     cfg = config["user_profile"]["llm"]["Pollinations"]["pollinations_image_get"]
     image_url = await generate_image_advanced(
@@ -24,19 +26,23 @@ async def handle_pollinations_image_get(creative_prompt_output: str) -> Dict[str
     )
     return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
 
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_pollinations_image(creative_prompt_output: str) -> Dict[str, str]:
     image_url = await generate_image(prompt=creative_prompt_output)
     return {"ImageAsset": image_url} if image_url else {"error": "Image generation failed"}
 
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_openai_image(creative_prompt_output: str) -> Dict[str, str]:
-    image_url = generate_openai_image(prompt=creative_prompt_output)
+    image_url = OpenAIGenerator.generate_image(prompt=creative_prompt_output)
     return {"ImageAsset": image_url} if image_url else {"error": "OpenAI image generation failed"}
 
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_huggingface_image(creative_prompt_output: str) -> Dict[str, str]:
-    result = generate_image_with_huggingface(prompt=creative_prompt_output)
+    result = HuggingFaceGenerator.generate_image(prompt=creative_prompt_output)
     url = result.get("response")
     return {"ImageAsset": url} if url else {"error": "HuggingFace image generation failed"}
 
+@circuit(failure_threshold=3, recovery_timeout=60)
 async def handle_giphy_image(gif_tags: Optional[Dict]) -> Dict[str, str]:
     if gif_tags:
         giphy_response = giphy_find_with_metadata(gif_tags.get("GifSearchTags", []))

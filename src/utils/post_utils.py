@@ -2,8 +2,8 @@
 post_utils.py
 - Post preparation, GIF/image handling, and content assembly utilities.
 """
-from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
-from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
+from utils.dispatch.dispatch_text import dispatch_text_pipeline
+from socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from typing import Optional
 
 async def prepare_linkedin_post(text_model: str) -> dict:
