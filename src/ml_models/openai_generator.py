@@ -244,7 +244,16 @@ def generate_openai_image(scoped_prompt: str) -> Optional[str]:
     return None
 
 
-def run_openai_pipeline() -> dict:
+from src.ml_models.openai.openai_generator import OpenAIGenerator
+
+def send_message_to_openai(prompt_text: str = None) -> dict:
+    """
+    Sends a prompt to OpenAI using the refactored OpenAIGenerator class.
+    Returns a structured result dictionary.
+    """
+    generator = OpenAIGenerator()
+    return generator.send_message(prompt_text)
+
     try:
         thread_id = create_openai_thread()
         if not thread_id:

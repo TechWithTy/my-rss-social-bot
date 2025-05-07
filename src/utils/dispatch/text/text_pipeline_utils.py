@@ -2,13 +2,13 @@
 text_pipeline_utils.py
 Utility functions for the text dispatch pipeline logic, including provider routing and error handling.
 """
-from typing import Optional, Dict, Any
+from typing import  Dict, Any
 from utils.config.config_loader import config
 from ml_models.pollinations_generator import generate_text, generate_text_advanced, call_openai_compatible_endpoint
-from ml_models.openai_generator import run_openai_pipeline
-from ml_models.huggingface_generator import run_huggingface_pipeline
-from ml_models.deepseek_generator import send_message_to_deepseek
-from ml_models.claude_generator import send_message_to_claude
+from ml_models.openai_generator import OpenAIGenerator
+from ml_models.huggingface.utils.huggingface_generator_utils import HuggingFaceGenerator
+from ml_models.deepseek.utils.deepseek_generator_utils import DeepSeekGenerator
+from ml_models.claude.utils.claude_generator_utils import ClaudeGenerator
 import asyncio
 import json
 from utils.dispatch.text.text_utils import clean_post_text
@@ -98,23 +98,23 @@ async def handle_pollinations_text_completion(state: Dict[str, Any]) -> Dict[str
 # * Provider handler: OpenAI
 async def handle_openai_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)  # placeholder for async consistency
-    return await run_openai_pipeline()
+    return await OpenAIGenerator.send_message(state["prompt"])
 
 # * Provider handler: HuggingFace
 async def handle_huggingface_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
-    result = run_huggingface_pipeline()
+    result = HuggingFaceGenerator.send_message(state["prompt"])
     return result.get("response", {})
 
 # * Provider handler: DeepSeek
 async def handle_deepseek_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
-    return await send_message_to_deepseek(state["prompt"])
+    return await DeepSeekGenerator.send_message(state["prompt"])
 
 # * Provider handler: Claude
 async def handle_claude_text(state: Dict[str, Any]) -> Dict[str, Any]:
     await asyncio.sleep(0)
-    return await send_message_to_claude(state["prompt"])
+    return await ClaudeGenerator.send_message(state["prompt"])
 
 # * Fallback for unhandled providers or errors
 def fallback_error_text(e: Exception) -> Dict[str, Any]:
