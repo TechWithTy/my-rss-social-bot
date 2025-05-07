@@ -3,13 +3,13 @@ import httpx
 from utils.index import get_env_variable
 from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.config.config_loader import config
-from models.pollinations_generator import (
+from ml_models.pollinations_generator import (
     generate_image,
     generate_image_advanced,
     fetch_with_retries,
 )
-from models.openai_generator import generate_openai_image
-from models.huggingface_generator import generate_image_with_huggingface
+from ml_models.openai_generator import generate_openai_image
+from ml_models.huggingface_generator import generate_image_with_huggingface
 from socials.giphy import giphy_find_with_metadata  # ensure this is available
 
 FLUX_BASE_TEXT_URL = "https://text.pollinations.ai"

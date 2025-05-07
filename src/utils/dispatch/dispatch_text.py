@@ -1,18 +1,18 @@
 from utils.config.config_loader import config
-from models.pollinations_generator import (
+from ml_models.pollinations_generator import (
     generate_text,
     generate_text_advanced,
 
     call_openai_compatible_endpoint,
 )
 import urllib.parse
-from models.openai_generator import run_openai_pipeline
-from models.huggingface_generator import run_huggingface_pipeline
-from models.deepseek_generator import send_message_to_deepseek
-from models.claude_generator import send_message_to_claude
+from ml_models.openai_generator import run_openai_pipeline
+from ml_models.huggingface_generator import run_huggingface_pipeline
+from ml_models.deepseek_generator import send_message_to_deepseek
+from ml_models.claude_generator import send_message_to_claude
 import asyncio
 import json
-from utils.prompt_builder import init_globals_for_test, get_prompt_globals, _prompt_globals
+from utils.prompt_builder import init_globals_for_test, get_prompt_globals
 from utils.index import get_env_variable
 
 
@@ -282,7 +282,7 @@ def dispatch_text_pipeline(
                 "temperature": openai_cfg["temperature"],
                 "top_p": openai_cfg["top_p"],
             }
-            _prompt_globals["prompt"] = payload["messages"][0]["content"]
+            state["prompt"] = payload["messages"][0]["content"]
             return asyncio.run(run_openai_pipeline())
 
         case "HuggingFace":

@@ -3,7 +3,7 @@ import os
 import pytest
 import warnings
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from models.openai_generator import run_openai_pipeline
+from ml_models.openai_generator import run_openai_pipeline
 from utils.prompt_builder import init_globals_for_test
 
 # Initialize the state

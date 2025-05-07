@@ -3,7 +3,7 @@ import os
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from models.pollinations_generator import (
+from ml_models.pollinations_generator import (
     list_image_models,
     generate_image,
     generate_text_advanced,

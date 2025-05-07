@@ -4,7 +4,7 @@ Here's the documentation for your `config.yaml` configuration, explaining each s
 
 ### **🛠️ Configure (`config.yaml`)**
 
-This configuration file allows you to customize how your posts are generated, including social media settings, creative content preferences, and integration with different AI models.
+This configuration file allows you to customize how your posts are generated, including social media settings, creative content preferences, and integration with different AI ml_models.
 
 ---
 

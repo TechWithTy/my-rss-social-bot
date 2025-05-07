@@ -1,126 +1,50 @@
-import sys
-import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-import random
 from typing import Dict, Any, Optional
+from src.utils.prompt_sources import fetch_and_parse_blog
+from src.utils.prompt_instructions import get_default_instructions, get_system_instructions, get_user_instructions
+from src.utils.prompt_globals import get_prompt_globals
 from utils.config.config_loader import config
-from rss_feed.medium_bot import fetch_latest_medium_blog
-from rss_feed.wix_bot import fetch_latest_wix_blog
-from rss_feed.wordpress_bot import fetch_latest_wordpress_blog
-from utils.index import get_env_variable
-from src.utils.helpers.post_cache_helper import (
-    add_linkedin_post,
-    is_blog_already_posted,
-)
-from utils.index import parse_html_blog_content
 from utils.helpers.blog_rss_helper import load_blog_cache
+from src.utils.helpers.post_cache_helper import is_blog_already_posted
+from utils.index import get_env_variable
+from utils.index import parse_html_blog_content
+import random
 
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
-_prompt_globals = {
-    "prompt": None,
-    "creative_prompt": None,
-    "gif_prompt": None,
-    "hashtags": [],
-    "system_instructions": None,
-    "blog_content": None,
-}
 
-ai_config = config.get("ai", {})
-user_config = config.get("user_profile", {})
-linkedin_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
-
-medium_username = user_config.get("medium_username")
-wix_url = user_config.get("wix_url")
-wordpress_url = user_config.get("wordpress_url")
-
-
-def fetch_and_parse_blog() -> Optional[dict]:
+def build_prompt_payload(blog_content: str, blog_url: str = "", **kwargs) -> Optional[Dict[str, Any]]:
     """
-    Fetch the latest blog from the first available source in order of priority:
-    Medium → Wix → WordPress.
-
-    Returns:
-        Optional[dict]: Latest blog data if found, otherwise None.
+    Build the prompt payload for the AI model using blog content, system/user instructions, and config.
     """
-    sources = {
-        "Medium": (medium_username, fetch_latest_medium_blog),
-        "Wix": (wix_url, fetch_latest_wix_blog),
-        "WordPress": (wordpress_url, fetch_latest_wordpress_blog),
-    }
-
-    print("Fetching blog from Medium, Wix, or WordPress...")
-    response = None  # Initialize response to avoid undefined variable error
-
-    for platform, (identifier, fetch_function) in sources.items():
-        if identifier:
-            print(f"Fetching from {platform}...")
-            response = fetch_function(identifier)
-            if response:
-                print(f"Successfully fetched blog from {platform}")
-                break  # Stop at the first valid response
-
-    if response is None:
-        print("No new blogs to parse — already up to date.")
-        return None
-
-    blog_json = response.get("latest_blog", {})
-    blog_content = blog_json.get("content")
-    blog_id = blog_json.get("id")
-    blog_direct_link = response.get("latest_blog_direct_link")
-
-    if not blog_content:
-        print("No blog content found in the latest blog.")
-        return None
-
-    cleaned_blog_content = parse_html_blog_content(blog_content)
-
-    return {
-        "id": blog_id,
-        "content": cleaned_blog_content,
-        "raw": blog_json,
-        "direct_link": blog_direct_link,
-    }
-
-
-def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
     if not blog_content:
         print("Blog Content Empty", blog_content)
         return None
 
     # Instructions
-    default_instructions = ai_config.get("default_response_instructions") or (
-        'Return EITHER a generated JSON image (Creative and ImageAsset) if a creative prompt is provided OR GifSearchTags if not—never both. Example response: { "Text": "Your message here.", "Creative": "[IMG] A relevant visual description.", "ImageAsset": "https://image.pollinations.ai/prompt/{description}?width={width}&height={height}&seed={seed}&model=flux-realistic&nologo=true", "Hashtags": ["#Relevant", "#Contextual", "#GeneralTopic"] } or { "Text": "Message.", "Hashtags": ["#tag", "#tag", "#tag"], "GifSearchTags": ["term one", "term two", "term three"] }'
-    )
-    system_instructions = ai_config.get("custom_system_instructions") or (
-        "You're a professional copywriter helping turn blog posts into viral LinkedIn content."
-    )
-    user_instructions = ai_config.get("custom_user_instructions") or (
-        "Make the post concise, actionable, and emotionally resonant."
-    )
+    default_instructions = get_default_instructions()
+    system_instructions = get_system_instructions()
+    user_instructions = get_user_instructions()
+
+    linkedin_config = config.get("social_media_to_post_to", {}).get("linkedin", {})
+    user_config = config.get("user_profile", {})
+    ai_config = config.get("ai", {})
 
     linkedin_enabled = linkedin_config.get("enabled", False)
     linkedin_max_chars = linkedin_config.get("maximum_characters", "")
     linkedin_min_chars = linkedin_config.get("minimum_characters", "")
     formatting_instructions = linkedin_config.get("formatting_instructions", "")
-    print(f"Linked In formatting_instructions 5: {formatting_instructions}")
-    # User Profile
     target_audience = user_config.get("target_audience", "")
     professional_summary = user_config.get("professional_summary", "")
 
     # Viral Methodologies
     viral = ai_config.get("viral_posting", {})
-    viral_style_instructions = "\n".join(
-        [
-            viral.get("attention_grabbing_intro", {}).get("description", ""),
-            viral.get("emotional_storytelling", {}).get("description", ""),
-            viral.get("relatable_experiences", {}).get("description", ""),
-            viral.get("actionable_takeaways", {}).get("description", ""),
-            viral.get("data-backed_claims", {}).get("description", ""),
-            viral.get("extreme_statements", {}).get("description", ""),
-        ]
-    ).strip()
+    viral_style_instructions = "\n".join([
+        viral.get("attention_grabbing_intro", {}).get("description", ""),
+        viral.get("emotional_storytelling", {}).get("description", ""),
+        viral.get("relatable_experiences", {}).get("description", ""),
+        viral.get("actionable_takeaways", {}).get("description", ""),
+        viral.get("data-backed_claims", {}).get("description", ""),
+        viral.get("extreme_statements", {}).get("description", ""),
+    ]).strip()
 
     # Viral Examples
     viral_examples = ai_config.get("viral_posts_i_liked", [])
@@ -134,11 +58,9 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
             f"Asset: {post.get('creative_asset')}\n"
             f"Why it worked: {post.get('reason')}\n"
         )
-
     viral_examples_instruction = (
         f"\n\nHere are some viral post examples for inspiration:\n{formatted_viral_examples}"
-        if formatted_viral_examples
-        else ""
+        if formatted_viral_examples else ""
     )
 
     # Hashtags
@@ -146,29 +68,23 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
     default_hashtags = hashtags_config.get("default_tags", [])
     custom_hashtags = hashtags_config.get("custom_tags", [])
     hashtags = default_hashtags + custom_hashtags
-
     hashtag_instructions = (
         f"\n\nInclude these default hashtags:\n{default_hashtags}\n"
         f"Custom tags (optional):\n{custom_hashtags}"
-        if hashtags
-        else ""
+        if hashtags else ""
     )
 
     # Creative Options
     creative = ai_config.get("creative", {})
     generate_image_cfg = creative.get("generate_image", {})
     post_gif_cfg = creative.get("fetch_gif", {})
-
     generate_image = generate_image_cfg.get("enabled", False)
     fetch_gif = post_gif_cfg.get("enabled", False)
-
     image_prompt = generate_image_cfg.get("prompt", "")
     dimensions_width = generate_image_cfg.get("width", "")
     dimensions_height = generate_image_cfg.get("height", "")
     image_model = generate_image_cfg.get("model", "")
-
     gif_prompt = post_gif_cfg.get("prompt", "")
-
     if generate_image and fetch_gif:
         creative_instruction = (
             f"\n\nGenerate an AI image using prompt: ({image_prompt})\n"
@@ -186,14 +102,9 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
     else:
         creative_instruction = ""
 
-    # Final Prompt
-    blog_url = kwargs.get("blog_url", "")
     blog_url_instruction = (
         f"\n\nInclude the original blog URL in the post: {blog_url}" if blog_url else ""
     )
-
-    # Add formatting instructions
-
     content = (
         f"{system_instructions}"
         f"{default_instructions}"
@@ -221,60 +132,47 @@ def build_prompt_payload(blog_content: str, **kwargs) -> Dict[str, Any]:
         "default_instructions": default_instructions,
         "blog_content": blog_content,
     }
-
     print("Final Prompt build_prompt_payload:", prompt_build_payload)
     return prompt_build_payload
 
 
-def get_prompt_globals():
-    return _prompt_globals
-
-
 def init_globals_if_needed() -> bool:
-    global _prompt_globals
-
+    """
+    Initialize global state for the prompt pipeline if new blog is found.
+    Returns True if new blog is ready, False if already posted or no new blog.
+    """
     print("Initializing global state...")
-    print("Current global state before update:", _prompt_globals)
-
+    prompt_globals = get_prompt_globals()
+    print("Current global state before update:", prompt_globals)
     blog_data = fetch_and_parse_blog()
     if not blog_data:
         print("No blog data returned from fetch_and_parse_blog")
         return False
-
     print("Blog data fetched successfully:")
     print("Blog ID:", blog_data["id"])
     print("Blog Content Length:", len(blog_data["content"]))
-
     blog_id = blog_data["id"]
     cached = load_blog_cache()
-
     print("Global Cache Check:", cached)
     # Normalize cached structure
-    if isinstance(cached, list):  # legacy or empty structure
+    if isinstance(cached, list):
         cached = {"blogs": cached}
     elif not isinstance(cached, dict):
         print("Cache is invalid. Resetting.")
         cached = {"blogs": []}
-
-    cached_blog_ids = [b["id"] for b in cached.get("blogs", [])]
-
-    # 🛑 **Check if this blog has already been posted to LinkedIn**
+    # 🛑 Check if this blog has already been posted
     if is_blog_already_posted(blog_id):
-        print(
-            f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post."
-        )
-        return False  # Exit early if already posted
-
-    # ✅ **Proceed with processing if blog is new**
+        print(f"🔄 Blog ID {blog_id} has already been posted to LinkedIn. Skipping duplicate post.")
+        return False
+    # ✅ Proceed with processing if blog is new
     prompt_payload = build_prompt_payload(
         blog_data["content"], blog_url=blog_data.get("direct_link", "")
     )
     if not prompt_payload:
         print("No prompt payload returned.")
         return False
-
-    print("Updating _prompt_globals with prompt:", prompt_payload)
-    _prompt_globals.update(
+    print("Updating prompt_globals with prompt:", prompt_payload)
+    prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
             "creative_prompt": prompt_payload.get("creative_prompt"),
@@ -282,29 +180,27 @@ def init_globals_if_needed() -> bool:
             "hashtags": prompt_payload.get("hashtags", []),
             "system_instructions": prompt_payload.get("system_instructions"),
             "blog_content": prompt_payload.get("blog_content"),
-            "raw_blog": blog_data["raw"],  # Needed for saving later
-            "blog_url": blog_data.get("direct_link", ""),  # Original blog URL
+            "raw_blog": blog_data["raw"],
+            "blog_url": blog_data.get("direct_link", ""),
         }
     )
-    print("Global state after update:", _prompt_globals)
-
-   
+    print("Global state after update:", prompt_globals)
     print(f"✅ Successfully stored blog ID {blog_id} in LinkedIn post cache.")
-
     return True
 
 
-def init_globals_for_test():
-    global _prompt_globals
+def init_globals_for_test() -> None:
+    """
+    Initialize global state for prompt building in test mode.
+    """
     if not TEST_MODE:
-        raise RuntimeError(
-            "init_globals_for_test() should only be used in TEST_MODE (.env boolean)"
-        )
-
+        raise RuntimeError("init_globals_for_test() should only be used in TEST_MODE (.env boolean)")
     cached = load_blog_cache()
-
     if not cached:
         print("No cached blog found. Fetching fresh one for test.")
+        from rss_feed.medium_bot import fetch_latest_medium_blog
+        from utils.config.config_loader import config as test_config
+        medium_username = test_config.get("user_profile", {}).get("medium_username")
         fresh = fetch_latest_medium_blog(medium_username)
         if not fresh or not fresh["latest_blog"]["content"]:
             raise RuntimeError("Could not fetch fresh blog content for tests.")
@@ -313,14 +209,13 @@ def init_globals_for_test():
         blog_content_raw = cached["blogs"][0]["content"]
         if not blog_content_raw:
             raise RuntimeError("Cached blog has no 'content' key.")
-
-    _prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
-    print("Parsed HTML Text Prompt Builder:", _prompt_globals["blog_content"])
+    prompt_globals = get_prompt_globals()
+    prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
+    print("Parsed HTML Text Prompt Builder:", prompt_globals["blog_content"])
     prompt_payload = build_prompt_payload(blog_content_raw)
     if not prompt_payload:
         raise RuntimeError("No prompt payload could be generated.")
-
-    _prompt_globals.update(
+    prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
             "creative_prompt": prompt_payload.get("creative_prompt"),
@@ -329,5 +224,4 @@ def init_globals_for_test():
             "system_instructions": prompt_payload.get("system_instructions"),
         }
     )
-
-    print("PromptBuilder Test Ran ", _prompt_globals["prompt"])
+    print("PromptBuilder Test Ran ", prompt_globals["prompt"])

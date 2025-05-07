@@ -12,7 +12,7 @@ load_dotenv()
 def parse_html_blog_content(html_content: str) -> str:
     """
     Strips HTML and returns plain text, links, images, and embedded media from blog content.
-    Ideal for feeding into AI models.
+    Ideal for feeding into AI ml_models.
     """
     soup = BeautifulSoup(html_content, "html.parser")
 
