@@ -46,6 +46,7 @@ circuitbreaker = "^2.1.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest-html = "*"
+iniconfig = "^2.1.0"
 
 [tool.poetry.scripts]
 app = "my_rss_social_bot.main:main"
