@@ -6,16 +6,17 @@ from src.utils.dispatch.dispatch_text import dispatch_text_pipeline
 from src.socials.giphy import giphy_find_with_metadata, extract_social_upload_metadata
 from typing import Optional
 
-def prepare_linkedin_post(text_model: str) -> dict:
+async def prepare_linkedin_post(text_model: str) -> dict:
     print("🚀 Generating LinkedIn post...")
-    return dispatch_text_pipeline(text_model)
+    return await dispatch_text_pipeline(text_model)
 
 
-def attach_gif_to_post(post: dict) -> dict:
+async def attach_gif_to_post(post: dict) -> dict:
     gif_tags = post.get("GifSearchTags", [])
     print(f"🔍 GIF search tags: {gif_tags}")
 
     if gif_tags:
+        # If giphy_find_with_metadata ever becomes async, update this call
         gif_result = giphy_find_with_metadata(gif_tags)
         gif_obj = gif_result.get("result", {}).get("gif")
         if gif_obj:

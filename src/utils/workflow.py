@@ -34,11 +34,11 @@ def get_linkedin_profile_id_or_fail() -> str:
 
 # * Step 3: Generate the post (text)
 
-def generate_post_or_fail(text_model: str) -> Dict:
+async def generate_post_or_fail(text_model: str) -> Dict:
     """
     Generates a social post using the configured text model. Fails if no text is generated.
     """
-    post = prepare_linkedin_post(text_model=text_model)
+    post = await prepare_linkedin_post(text_model=text_model)
     if not post or not post.get("Text"):
         print("❌ Text generation failed: No post content was generated.")
         raise RuntimeError("Text generation failed: No post content was generated.")
@@ -46,15 +46,15 @@ def generate_post_or_fail(text_model: str) -> Dict:
 
 # * Step 4: Attach media (GIF/image) assets
 
-def attach_media_assets(post: Dict) -> Dict:
+async def attach_media_assets(post: Dict) -> Dict:
     """
     Attaches GIF or image assets to the post if available.
     """
-    return attach_gif_to_post(post)
+    return await attach_gif_to_post(post)
 
 # * Step 5: Assemble post content for publishing
 
-def assemble_post_for_publishing(post: Dict) -> tuple[str, Optional[str], Optional[str]]:
+async def assemble_post_for_publishing(post: Dict) -> tuple[str, Optional[str], Optional[str]]:
     """
     Assembles the final post content, media URL, and media type.
     """
@@ -69,7 +69,7 @@ def post_to_linkedin_pipeline(post_text: str, media_url: Optional[str], media_ty
     post_to_linkedin_if_possible(post_text, media_url, media_type, profile_id)
 
 # * Main orchestrator (pipeline)
-def run_rss_to_social_workflow(rss_source: str = None) -> None:
+async def run_rss_to_social_workflow(rss_source: str = None) -> None:
     """
     Main workflow for fetching blog content, generating a social post, attaching media, and posting to LinkedIn.
     Args:
@@ -79,9 +79,9 @@ def run_rss_to_social_workflow(rss_source: str = None) -> None:
         initialize_global_state()
         profile_id = get_linkedin_profile_id_or_fail()
         text_model = config["ai"]["text"]["generate_text"]["LLM"]
-        post = generate_post_or_fail(text_model)
-        post = attach_media_assets(post)
-        post_text, media_url, media_type = assemble_post_for_publishing(post)
+        post = await generate_post_or_fail(text_model)
+        post = await attach_media_assets(post)
+        post_text, media_url, media_type = await assemble_post_for_publishing(post)
         post_to_linkedin_pipeline(post_text, media_url, media_type, profile_id)
         print("✅ Workflow completed.")
     except Exception as e:

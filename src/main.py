@@ -34,7 +34,8 @@ def main() -> None:
 
     rss_source = enabled_sources[0]
     print(f"* Running workflow for source: {rss_source}")
-    run_rss_to_social_workflow(rss_source)
+    import asyncio
+    asyncio.run(run_rss_to_social_workflow(rss_source))
 
 
 if __name__ == "__main__":
