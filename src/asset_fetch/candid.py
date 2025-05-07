@@ -1,29 +1,30 @@
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 # ! Untested: Needs integration and test coverage.
 from typing import List, Dict, Any, Optional
 import os
 
-def get_candid_images_metadata(
+def get_candid_media_metadata(
     candid_dir: Optional[str] = None,
     supported_exts: Optional[set] = None,
-    images: Optional[List[Dict[str, Any]]] = None
+    media: Optional[List[Dict[str, Any]]] = None
 ) -> List[Dict[str, Any]]:
     """
-    Returns metadata for candid images. If 'images' is provided, returns it directly (API-style usage).
-    Otherwise, scans candid_dir for image files and returns their metadata.
+    Returns metadata for candid media assets (images, videos, audio). If 'media' is provided, returns it directly (API-style usage).
+    Otherwise, scans candid_dir for media files and returns their metadata.
     Args:
-        candid_dir: Directory to scan for images.
-        supported_exts: Set of file extensions to include (e.g., {'.jpg', '.png'}). Defaults to common image types.
-        images: Optional list of image metadata dicts (API payload).
+        candid_dir: Directory to scan for media files.
+        supported_exts: Set of file extensions to include. Defaults to common image, video, and audio types.
+        media: Optional list of media metadata dicts (API payload).
     Returns:
-        List of metadata dicts for each image found or provided.
+        List of metadata dicts for each media file found or provided, with media_type.
     """
-    if images is not None:
-        return images
+    if media is not None:
+        return media
     if supported_exts is None:
-        supported_exts = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
+        supported_exts = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp',
+                          '.mp4', '.mov', '.avi', '.webm', '.mkv', '.mp3', '.wav', '.m4a'}
     meta_list = []
     if candid_dir is None:
         return meta_list
@@ -33,52 +34,58 @@ def get_candid_images_metadata(
             if ext in supported_exts:
                 fpath = os.path.join(root, fname)
                 stat = os.stat(fpath)
+                media_type = (
+                    'image' if ext in {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'} else
+                    'video' if ext in {'.mp4', '.mov', '.avi', '.webm', '.mkv'} else
+                    'audio' if ext in {'.mp3', '.wav', '.m4a'} else
+                    'other'
+                )
                 meta = {
                     'filename': fname,
                     'relative_path': os.path.relpath(fpath, candid_dir),
                     'size_bytes': stat.st_size,
                     'created': stat.st_ctime,
                     'modified': stat.st_mtime,
+                    'media_type': media_type
                 }
                 meta_list.append(meta)
     return meta_list
 
-def find_best_candid_image(query: str, candid_dir: Optional[str] = None, images: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
+def find_best_candid_media(query: str, candid_dir: Optional[str] = None, media: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
     """
-    Returns metadata for the image whose filename best matches the query.
-    If 'images' is provided, uses it (API-style); otherwise, loads from candid_dir.
+    Returns metadata for the media file whose filename best matches the query.
+    If 'media' is provided, uses it (API-style); otherwise, loads from candid_dir.
     Uses fuzzy string matching if rapidfuzz is available, else falls back to substring search.
     Returns None if no match is found.
     """
-    images_list = get_candid_images_metadata(candid_dir=candid_dir, images=images)
-    if not images_list:
+    media_list = get_candid_media_metadata(candid_dir=candid_dir, media=media)
+    if not media_list:
         return None
     try:
         from rapidfuzz import process
-        choices = [img['filename'] for img in images_list]
+        choices = [m['filename'] for m in media_list]
         best, score, idx = process.extractOne(query, choices)
         if score > 60:
-            return images_list[idx]
+            return media_list[idx]
     except ImportError:
         # Fallback: normalized substring match
         def normalize(s):
             s = os.path.splitext(s)[0]  # remove extension
             return s.replace('_', ' ').replace('-', ' ').lower()
         norm_query = normalize(query)
-        for img in images_list:
-            if norm_query in normalize(img['filename']):
-                return img
+        for m in media_list:
+            if norm_query in normalize(m['filename']):
+                return m
     return None
 
-def get_candid_image_by_filename(filename: str, candid_dir: Optional[str] = None, images: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
+def get_candid_media_by_filename(filename: str, candid_dir: Optional[str] = None, media: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
     """
-    Returns metadata for the image with the given filename in candid_dir or images list, or None if not found.
+    Returns metadata for the media file with the given filename in candid_dir or media list, or None if not found.
     """
-    images_list = get_candid_images_metadata(candid_dir=candid_dir, images=images)
-    for img in images_list:
-        if img['filename'] == filename:
-            return img
-    return None
+    media_list = get_candid_media_metadata(candid_dir=candid_dir, media=media)
+    for m in media_list:
+        if m['filename'] == filename:
+            return m
     return None
 
 # todo: Add blob storage integration if needed (e.g., upload to S3/Cloudinary and return blob URLs/metadata)
