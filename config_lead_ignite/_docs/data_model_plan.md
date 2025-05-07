@@ -5,6 +5,8 @@
 - **Modular, extensible, DRY**
 - **CQRS & Clean Architecture ready**
 - **All timestamps, soft delete, and audit fields included**
+- **Explicit entity relations and event flow**
+- **Global models for analytics, campaign, AI, team, and settings**
 
 ---
 
@@ -17,12 +19,105 @@
 - `is_deleted: bool`
 - `created_at: datetime`
 - `updated_at: datetime`
+- `profile: UserProfile`
+- `company: CompanyInfo`
+- `marketing: MarketingProfile`
+- `socials: SocialLinks`
+- `teams: List[GlobalTeam]`
+- `campaigns: GlobalCampaign`
+- `blogs: GlobalBlog`
+- `kanban: GlobalKanban`
+- `analytics: GlobalAnalytics`
+- `research: List[GlobalResearchStats]`
+- `ai_context: GlobalAIContext`
+- `ai_config: GlobalAIConfig`
+- `user_settings: GlobalUserSettings`
+- `billing: GlobalBilling`
+- `saved_searches: List[SavedSearch]`
+- `feature_flags: dict`
+- `archived_at: Optional[datetime]`
 
 ### 1.1 UserProfile (One-to-One)
 - `user_id: UUID`
 - `first_name: str`
 - `last_name: str`
 - `contact_info: ContactInfo`
+
+---
+
+## 2. Team & Org Structure
+- **GlobalTeam**: Aggregates members, invitations, roles/permissions
+- **Invitation**: Pending or historical invites
+- **TeamMember**: Role, status, join date
+- **Relation:**
+    - User ⟶ [n] GlobalTeam
+    - GlobalTeam ⟶ [n] TeamMember
+    - GlobalTeam ⟶ [n] Invitation
+
+---
+
+## 3. Campaign Flow & Relations
+- **GlobalCampaign**: Root for all campaign types (call, social, text, email, etc.)
+- **CampaignBase**: Common fields (owner, recipients, platform, leads, audit, segmentation, integrations)
+- **CallCampaign, SocialCampaign, TextCampaign**: Inherit from CampaignBase
+- **Lead Integration:**
+    - CampaignBase ⟶ [n] Lead (polymorphic, e.g., MLSRealEstateLead)
+    - MLSRealEstateLead: Real estate-specific fields
+- **Event Sourcing:**
+    - Campaign ⟶ [n] Event (CallEvent, SocialEvent, TextEvent)
+    - Each event links to campaign_id, user_id, lead_id
+
+---
+
+## 4. Lead Models & Relations
+- **MLSRealEstateLead**: For real estate campaigns
+- **LeadBase**: (future) for polymorphic lead types
+- **Relation:**
+    - Campaign ⟶ [n] Lead
+    - Lead ⟶ [n] Event (touchpoints, calls, messages)
+
+---
+
+## 5. Analytics, Research, and AI
+- **GlobalAnalytics**: Aggregates analytics for all platforms
+- **GlobalResearchStats**: Aggregates topic research
+- **GlobalAIContext/Config**: All AI/LLM settings and context
+
+---
+
+## 6. Kanban & Blog Flows
+- **GlobalKanban**: Aggregates states and tasks
+- **GlobalBlog**: Aggregates planned, posted, and content blogs
+
+---
+
+## 7. CQRS/Event Sourcing & Clean Architecture
+- **Write models**: CampaignBase, Lead, Event, TeamMember, etc.
+- **Read models**: GlobalCampaign, GlobalAnalytics, GlobalTeam, etc.
+- **Events**: All changes (created, updated, deleted, status) are event-sourced
+- **Audit log**: In every aggregate root
+
+---
+
+## 8. Extensibility & Integration
+- **External Integrations**: Tracked at campaign and user level
+- **Segmentation**: Tags, segmentation fields on all major models
+- **Soft delete/archival**: `is_deleted`, `archived_at` everywhere
+- **Timestamps**: `created_at`, `updated_at` everywhere
+
+---
+
+---
+
+## 10. Future: Multi-Tenant, API, and Security
+- **Tenant/Org IDs** on all aggregate roots
+- **JWT/session** for user auth
+- **Audit, permission, and role models**
+- **API-Ready**: All models serializable, versioned, and documented
+
+---
+
+> *This plan is a living document. Update as new features, flows, or relations are added.*
 - `location: LocationInfo`
 - `preferences: UserSettings`
 - `socials: SocialLinks`
