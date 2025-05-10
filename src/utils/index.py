@@ -49,7 +49,8 @@ def parse_html_blog_content(html_content: str) -> str:
     image_section = "\n\nImages:\n" + "\n".join(images) if images else ""
     media_section = "\n\nEmbedded Media:\n" + "\n".join(media) if media else ""
     parsed_html_section = f"\n\nParsed HTML:\n\n {text}\n\n {links_section}\n\n {image_section}\n\n {media_section}"
-    print("Parsed HTML Text:", text)
+    preview = text[:300] + ("..." if len(text) > 300 else "")
+    print("Parsed HTML Text (truncated):", preview)
     print(f"{links_section}{image_section}{media_section}")
     return parsed_html_section
 

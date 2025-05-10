@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 from src.utils.helpers.prompt.prompt_sources import fetch_and_parse_blog
 from src.utils.helpers.prompt.prompt_instructions import get_default_instructions, get_system_instructions, get_user_instructions
 from src.utils.helpers.prompt.prompt_globals import get_prompt_globals
-from src.utils.config.config_provider import load_modular_config
+from src.utils.config.config_loader import config
 from src.utils.helpers.blog_rss_helper import load_blog_cache
 from src.utils.helpers.post_cache_helper import is_blog_already_posted
 from src.utils.index import get_env_variable
@@ -12,7 +12,7 @@ import random
 TEST_MODE = get_env_variable("TEST_MODE").lower() == "true"
 
 def build_prompt_payload(blog_content: str, blog_url: str = "", **kwargs) -> Optional[Dict[str, Any]]:
-    config = load_modular_config()  # * Dynamically load merged config from all YAML files
+    # * Use config loaded from main config.yaml
     """
     Build the prompt payload for the AI model using blog content, system/user instructions, and config.
     """
@@ -108,8 +108,8 @@ def build_prompt_payload(blog_content: str, blog_url: str = "", **kwargs) -> Opt
     )
     content = (
         f"{system_instructions}"
-        f"{default_instructions}"
         f"{user_instructions}"
+        f"{default_instructions}"
         f"Summarize this blog post into an engaging "
         f"{'LinkedIn (' + str(linkedin_min_chars) + ' MINIMUM chars, ' + str(linkedin_max_chars) + ' MAXIMUM chars) ' if linkedin_enabled else ''}post:\n\n"
         f"{blog_content}\n\n"
@@ -121,7 +121,6 @@ def build_prompt_payload(blog_content: str, blog_url: str = "", **kwargs) -> Opt
         f"{creative_instruction}"
         f"{blog_url_instruction}"
         f"Formatting Instructions:\n{formatting_instructions}\n"
-        f"{default_instructions}"
     )
     prompt_build_payload = {
         "content": content.strip(),
@@ -133,7 +132,10 @@ def build_prompt_payload(blog_content: str, blog_url: str = "", **kwargs) -> Opt
         "default_instructions": default_instructions,
         "blog_content": blog_content,
     }
-    print("Final Prompt build_prompt_payload:", prompt_build_payload)
+    print("\n========== Final Prompt build_prompt_payload ==========")
+    for i, line in enumerate(prompt_build_payload["content"].splitlines(), 1):
+        print(f"{i:03}: {line}")
+    print("========== END PROMPT build_prompt_payload ==    ========")
     return prompt_build_payload
 
 
@@ -154,7 +156,7 @@ def init_globals_if_needed() -> bool:
     print("Blog Content Length:", len(blog_data["content"]))
     blog_id = blog_data["id"]
     cached = load_blog_cache()
-    print("Global Cache Check:", cached)
+    print("Global Cache Check:", {k: v for k, v in cached.items() if k != "blogs"})
     # Normalize cached structure
     if isinstance(cached, list):
         cached = {"blogs": cached}
@@ -172,7 +174,6 @@ def init_globals_if_needed() -> bool:
     if not prompt_payload:
         print("No prompt payload returned.")
         return False
-    print("Updating prompt_globals with prompt:", prompt_payload)
     prompt_globals.update(
         {
             "prompt": prompt_payload.get("content"),
@@ -185,7 +186,7 @@ def init_globals_if_needed() -> bool:
             "blog_url": blog_data.get("direct_link", ""),
         }
     )
-    print("Global state after update:", prompt_globals)
+    # print("Global state after update:", prompt_globals)
     print(f"✅ Successfully stored blog ID {blog_id} in LinkedIn post cache.")
     return True
 
@@ -212,7 +213,8 @@ def init_globals_for_test() -> None:
             raise RuntimeError("Cached blog has no 'content' key.")
     prompt_globals = get_prompt_globals()
     prompt_globals["blog_content"] = parse_html_blog_content(blog_content_raw)
-    print("Parsed HTML Text Prompt Builder:", prompt_globals["blog_content"])
+    preview = blog_content_raw[:300] + "..." if blog_content_raw and len(blog_content_raw) > 300 else blog_content_raw
+    print("Parsed HTML Text Prompt Builder:", preview)
     prompt_payload = build_prompt_payload(blog_content_raw)
     if not prompt_payload:
         raise RuntimeError("No prompt payload could be generated.")

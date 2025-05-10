@@ -2,7 +2,7 @@
 text_utils.py
 Utility functions for text dispatch pipeline.
 """
-from src.utils.dispatch.text.text_utils import Dict, Any
+from typing import Dict, Any
 import json
 
 # * Helper: Extract tool call data from LLM response

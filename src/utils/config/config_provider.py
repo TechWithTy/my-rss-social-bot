@@ -70,11 +70,6 @@ class ModularYamlConfigProvider(ConfigProvider):
                 result[k] = v
         return result
 
-def load_modular_config() -> Dict[str, Any]:
-    """
-    Utility function to load merged config from all YAML files in config/ directory.
-    """
-    return ModularYamlConfigProvider().get_config()
 
 
 class ApiConfigProvider(ConfigProvider):
@@ -150,3 +145,4 @@ class HybridConfigProvider(ConfigProvider):
         
         # Fall back to YAML config
         return self.yaml_provider.get_config()
+

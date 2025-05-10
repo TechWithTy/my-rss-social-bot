@@ -191,7 +191,7 @@ def fetch_latest_medium_blog(username: str) -> Optional[Dict[str, Any]]:
 
         print(f"📰 Latest blog title: {latest_blog.get('title')}")
         print(f"🔗 Latest blog link: {latest_blog['link']}")
-        print(f"🔗 Latest blog Content: {latest_blog['content']}")
+        print(f"🔗 Latest blog Content: {latest_blog['content'][:300]}... [truncated]")
 
         # Extract media
         print("🖼️ Extracting blog media...")
