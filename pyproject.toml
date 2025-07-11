@@ -4,10 +4,7 @@ version = "0.1.0"
 description = "RSS to Social Bot"
 authors = ["Tyriq <your-email@example.com>"]
 readme = "README.md"
-packages = [
-  { include = "my_rss_social_bot", from = "src" }
-]
-
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -42,6 +39,8 @@ flask = "*"
 requests-oauthlib = "*"
 circuitbreaker = "^2.1.3"
 python-dotenv = "^1.1.0"
+pydantic = "*"
+google-generativeai = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest-html = "*"
