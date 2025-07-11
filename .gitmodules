@@ -1,3 +1,6 @@
 [submodule "scripts"]
 	path = scripts
 	url = https://github.com/TechWithTy/scripts.git
+[submodule "src/ml_models/gemini"]
+	path = src/ml_models/gemini
+	url = https://github.com/techwithty/ai-gemini-integration.git
